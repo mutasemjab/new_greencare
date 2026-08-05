@@ -25,52 +25,6 @@
     </div>
 @endif
 
-{{-- Stat Cards --}}
-<div class="row g-3 mb-4">
-
-    <div class="col-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#eff6ff;color:#2563eb">
-                <i class="bi bi-mortarboard-fill"></i>
-            </div>
-            <div class="stat-value">{{ number_format($stats['total_students']) }}</div>
-            <div class="stat-label">{{ __('messages.total_students') }}</div>
-            <div class="stat-trend">
-                <i class="bi bi-people trend-up"></i>
-                <span style="color:var(--muted)">{{ __('messages.registered') }}</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#f0fdf4;color:#059669">
-                <i class="bi bi-person-workspace"></i>
-            </div>
-            <div class="stat-value">{{ number_format($stats['total_teachers']) }}</div>
-            <div class="stat-label">{{ __('messages.active_teachers') }}</div>
-            <div class="stat-trend">
-                <i class="bi bi-check-circle trend-up"></i>
-                <span style="color:var(--muted)">{{ __('messages.active') }}</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fef2f2;color:#dc2626">
-                <i class="bi bi-envelope-fill"></i>
-            </div>
-            <div class="stat-value">{{ number_format($stats['unread_messages']) }}</div>
-            <div class="stat-label">{{ __('messages.unread_messages') }}</div>
-            <div class="stat-trend">
-                <i class="bi bi-envelope" style="color:#dc2626"></i>
-                <span style="color:var(--muted)">{{ __('messages.new_messages') }}</span>
-            </div>
-        </div>
-    </div>
-
-</div>
 
 {{-- Main content row --}}
 <div class="row g-3 mb-3">
