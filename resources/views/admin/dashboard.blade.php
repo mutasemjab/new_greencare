@@ -36,48 +36,11 @@
                 <h2 class="panel-card-title">{{ __('messages.new_messages') }}</h2>
                 <a href="{{ route('admin.contact_messages.index') }}" class="btn-outline-sm">{{ __('messages.view_all') }}</a>
             </div>
-            <div class="panel-card-body">
-                @forelse($recentContacts as $msg)
-                <div class="activity-item">
-                    <div class="activity-dot" style="background:#eff6ff;color:#2563eb">
-                        <i class="bi bi-envelope"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">{{ $msg->first_name }} {{ $msg->last_name }}</div>
-                        <div class="activity-time">{{ Str::limit($msg->subject, 40) }} · {{ $msg->created_at->diffForHumans() }}</div>
-                    </div>
-                </div>
-                @empty
-                <p class="text-center py-3" style="color:var(--muted);font-size:.85rem">{{ __('messages.no_new_messages') }}</p>
-                @endforelse
-            </div>
+         
         </div>
     </div>
 
-    {{-- Quick Actions --}}
-    <div class="col-12 col-xl-4">
-        <div class="panel-card h-100">
-            <div class="panel-card-header">
-                <h2 class="panel-card-title">{{ __('messages.quick_actions') }}</h2>
-            </div>
-            <div class="panel-card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ route('admin.students.create') }}" class="btn-primary-sm justify-content-center" style="padding:12px">
-                        <i class="bi bi-person-plus"></i> {{ __('messages.add_new_student') }}
-                    </a>
-                    <a href="{{ route('admin.teachers.create') }}" class="btn-outline-sm justify-content-center" style="padding:12px">
-                        <i class="bi bi-person-workspace"></i> {{ __('messages.add_new_teacher') }}
-                    </a>
-                    <a href="{{ route('admin.contact_messages.index') }}" class="btn-outline-sm justify-content-center" style="padding:12px">
-                        <i class="bi bi-envelope"></i> {{ __('messages.view_messages') }}
-                        @if($stats['unread_messages'] > 0)
-                            <span class="pill pill-warning ms-1">{{ $stats['unread_messages'] }}</span>
-                        @endif
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
 </div>
 
