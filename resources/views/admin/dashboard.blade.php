@@ -34,7 +34,6 @@
         <div class="panel-card h-100">
             <div class="panel-card-header">
                 <h2 class="panel-card-title">{{ __('messages.new_messages') }}</h2>
-                <a href="{{ route('admin.contact_messages.index') }}" class="btn-outline-sm">{{ __('messages.view_all') }}</a>
             </div>
          
         </div>
