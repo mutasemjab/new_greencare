@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cmd /c \"dir c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin /s /b\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\nutrition\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\transfers\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\articles\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\forum\\\\categories\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\forum\\\\sub_categories\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\forum\\\\posts\")",
+      "PowerShell(cmd /c \"dir c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\doctors /b && dir c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\nutrition /b && dir c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\transfers /b && dir c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\articles /b\")",
+      "PowerShell(cmd /c \"dir c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\forum /s /b\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\sihati\\\\templates\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\sihati\\\\documents\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\sihati\\\\rooms\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\resources\\\\views\\\\admin\\\\sihati\\\\medications\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\app\\\\Http\\\\Resources\\\\Api\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"done\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\app\\\\Http\\\\Resources\\\\Api\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\xampp\\\\htdocs\\\\green\\\\app\\\\Http\\\\Controllers\\\\Api\\\\v1\")",
+      "Read(//mnt/c/xampp/htdocs/green/**)"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class RoomMedication extends Model
+{
+    protected $fillable = [
+        'room_id', 'added_by', 'medication_name',
+        'dosage', 'frequency', 'start_date', 'end_date', 'notes',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
+
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
+}
