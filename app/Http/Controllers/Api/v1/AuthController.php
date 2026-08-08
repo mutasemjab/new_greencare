@@ -8,6 +8,7 @@ use App\Http\Traits\ApiResponse;
 use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -33,7 +34,7 @@ class AuthController extends Controller
 
         $userExists = User::where('phone', $phone)->exists();
 
-        $otpResult = $this->otpService->sendOTP($phone);
+        $otpResult = $this->issueOtp($phone);
 
         if (!$otpResult['success']) {
             return $this->error($otpResult['message'], $otpResult['error'] ?? null);
@@ -55,9 +56,7 @@ class AuthController extends Controller
             'phone' => 'required|string',
         ]);
 
-        $phone = $request->phone;
-
-        $otpResult = $this->otpService->sendOTP($phone);
+        $otpResult = $this->issueOtp($request->phone);
 
         if (!$otpResult['success']) {
             return $this->error($otpResult['message'], $otpResult['error'] ?? null);
@@ -67,6 +66,36 @@ class AuthController extends Controller
             'otp_sent' => true,
             'otp'      => $otpResult['otp'] ?? null,
         ], 'تم إعادة إرسال رمز التحقق');
+    }
+
+    /**
+     * Generate and cache the OTP synchronously (fast), then send the SMS
+     * after the HTTP response has already gone out — the SMS gateway can be
+     * slow/unreachable and must never block the mobile app's request.
+     */
+    private function issueOtp(string $phone): array
+    {
+        try {
+            $otp = $this->otpService->generateOTP();
+            $this->otpService->storeOTP($phone, $otp);
+        } catch (\Throwable $e) {
+            Log::error('Failed to generate/store OTP', ['phone' => $phone, 'error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send OTP',
+                'error'   => $e->getMessage(),
+            ];
+        }
+
+        dispatch(function () use ($phone, $otp) {
+            app(OtpService::class)->sendOTPSMS($phone, $otp);
+        })->afterResponse();
+
+        return [
+            'success' => true,
+            'otp'     => config('app.debug') ? $otp : null,
+        ];
     }
 
     /**
