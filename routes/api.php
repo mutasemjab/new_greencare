@@ -26,6 +26,7 @@ Route::prefix('v1')->group(function () {
 
     // ── Auth (public) ─────────────────────────────────────────────────────
     Route::post('auth/send-otp',   [AuthController::class, 'sendOtp']);
+    Route::post('auth/resend-otp', [AuthController::class, 'resendOtp']);
     Route::post('auth/verify-otp', [AuthController::class, 'verifyOtp']);
 
     // ── Public content ────────────────────────────────────────────────────

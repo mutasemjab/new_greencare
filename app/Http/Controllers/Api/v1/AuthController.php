@@ -6,12 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\UserResource;
 use App\Http\Traits\ApiResponse;
 use App\Models\User;
-use App\Models\UserOtp;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
     use ApiResponse;
+
+    protected OtpService $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
 
     /**
      * Send OTP to phone number.
@@ -27,7 +34,7 @@ class AuthController extends Controller
         $userExists = User::where('phone', $phone)->exists();
 
         // Find or create user
-        $user = User::firstOrCreate(
+        User::firstOrCreate(
             ['phone' => $phone],
             [
                 'role'      => 'patient',
@@ -35,24 +42,40 @@ class AuthController extends Controller
             ]
         );
 
-        // Invalidate old OTPs
-        UserOtp::where('phone', $phone)->delete();
+        $otpResult = $this->otpService->sendOTP($phone);
 
-        // Generate 6-digit OTP
-        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        if (!$otpResult['success']) {
+            return $this->error($otpResult['message'], $otpResult['error'] ?? null);
+        }
 
-        UserOtp::create([
-            'phone'      => $phone,
-            'otp'        => $otp,
-            'expires_at' => now()->addMinutes(10),
+        return $this->success([
+            'otp_sent'    => true,
+            'otp'         => $otpResult['otp'] ?? null,
+            'is_new_user' => !$userExists,
+        ], 'تم إرسال رمز التحقق');
+    }
+
+    /**
+     * Resend OTP to phone number.
+     */
+    public function resendOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
         ]);
 
-        // TODO: Send OTP via SMS in production — remove otp from response
+        $phone = $request->phone;
+
+        $otpResult = $this->otpService->sendOTP($phone);
+
+        if (!$otpResult['success']) {
+            return $this->error($otpResult['message'], $otpResult['error'] ?? null);
+        }
+
         return $this->success([
-            'otp_sent'     => true,
-            'otp'          => $otp, // Remove in production
-            'is_new_user'  => !$userExists,
-        ], 'تم إرسال رمز التحقق');
+            'otp_sent' => true,
+            'otp'      => $otpResult['otp'] ?? null,
+        ], 'تم إعادة إرسال رمز التحقق');
     }
 
     /**
@@ -65,17 +88,11 @@ class AuthController extends Controller
             'otp'   => 'required|string',
         ]);
 
-        $otpRecord = UserOtp::where('phone', $request->phone)
-            ->where('otp', $request->otp)
-            ->valid()
-            ->first();
+        $otpResult = $this->otpService->verifyOTPWithTestCase($request->phone, $request->otp);
 
-        if (!$otpRecord) {
-            return $this->error('رمز التحقق غير صحيح أو منتهي الصلاحية', null, 422);
+        if (!$otpResult['success']) {
+            return $this->error($otpResult['message'], $otpResult['error_code'] ?? null, 422);
         }
-
-        // Mark OTP as used
-        $otpRecord->update(['used_at' => now()]);
 
         $user = User::where('phone', $request->phone)->first();
 
