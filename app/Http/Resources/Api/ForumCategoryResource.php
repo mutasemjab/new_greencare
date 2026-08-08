@@ -14,8 +14,8 @@ class ForumCategoryResource extends JsonResource
             'name'        => $this->name,
             'description' => $this->description ?? null,
             'image_url'   => isset($this->image) && $this->image
-                ? Storage::url($this->image)
-                : (isset($this->icon) && $this->icon ? Storage::url($this->icon) : null),
+                ? Storage::disk('public')->url($this->image)
+                : (isset($this->icon) && $this->icon ? Storage::disk('public')->url($this->icon) : null),
         ];
     }
 }

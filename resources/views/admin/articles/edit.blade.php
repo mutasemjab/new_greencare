@@ -40,7 +40,7 @@
                     <label class="form-label fw-semibold">الصورة الحالية</label>
                     @if($article->image)
                         <div class="mb-2">
-                            <img src="{{ Storage::url($article->image) }}"
+                            <img src="{{ Storage::disk('public')->url($article->image) }}"
                                 class="rounded border"
                                 style="max-width:200px;max-height:150px;object-fit:cover;">
                         </div>

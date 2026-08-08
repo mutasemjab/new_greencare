@@ -33,7 +33,7 @@
                         <td class="text-muted small">{{ $loop->iteration }}</td>
                         <td>
                             @if($category->icon)
-                                <img src="{{ Storage::url($category->icon) }}"
+                                <img src="{{ Storage::disk('public')->url($category->icon) }}"
                                     class="rounded"
                                     style="width:40px;height:40px;object-fit:cover;">
                             @else

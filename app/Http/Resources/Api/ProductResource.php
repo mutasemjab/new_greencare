@@ -11,7 +11,7 @@ class ProductResource extends JsonResource
     {
         $images = [];
         if (is_array($this->images)) {
-            $images = array_map(fn ($path) => Storage::url($path), $this->images);
+            $images = array_map(fn ($path) => Storage::disk('public')->url($path), $this->images);
         }
 
         return [

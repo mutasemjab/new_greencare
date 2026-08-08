@@ -54,7 +54,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">الصورة الحالية</label>
                     <div class="d-flex align-items-center gap-3">
-                        <img src="{{ Storage::url($storeCategory->image) }}" alt="{{ $storeCategory->name }}"
+                        <img src="{{ Storage::disk('public')->url($storeCategory->image) }}" alt="{{ $storeCategory->name }}"
                             class="rounded border" style="width:80px;height:80px;object-fit:cover;">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="remove_image" id="remove_image" value="1">

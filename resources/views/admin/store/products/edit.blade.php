@@ -99,7 +99,7 @@
                     <div class="d-flex flex-wrap gap-3">
                         @foreach($product->images as $img)
                         <div class="position-relative">
-                            <img src="{{ Storage::url($img->image) }}" alt=""
+                            <img src="{{ Storage::disk('public')->url($img->image) }}" alt=""
                                 class="rounded border" style="width:80px;height:80px;object-fit:cover;">
                             <div class="mt-1 text-center">
                                 <div class="form-check d-flex justify-content-center">

@@ -12,7 +12,7 @@ class BannerResource extends JsonResource
         return [
             'id'         => $this->id,
             'title'      => $this->title,
-            'image_url'  => $this->image ? Storage::url($this->image) : null,
+            'image_url'  => $this->image ? Storage::disk('public')->url($this->image) : null,
             'link'       => $this->url ?? $this->link ?? null,
             'section'    => $this->section,
             'sort_order' => $this->sort_order,

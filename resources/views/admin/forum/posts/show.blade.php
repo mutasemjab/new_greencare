@@ -5,7 +5,7 @@
 <div class="container-fluid py-4">
 
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="{{ route('admin.forum.posts.index') }}" class="btn btn-outline-secondary btn-sm">
+        <a href="{{ route('admin.forum.posts') }}" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-right"></i>
         </a>
         <h4 class="mb-0 fw-bold">تفاصيل المنشور</h4>
@@ -43,7 +43,7 @@
             {{-- Image --}}
             @if($post->image)
             <div class="mb-3">
-                <img src="{{ Storage::url($post->image) }}"
+                <img src="{{ Storage::disk('public')->url($post->image) }}"
                     class="rounded border img-fluid"
                     style="max-height:300px;object-fit:contain;">
             </div>
@@ -61,7 +61,7 @@
                 </div>
                 <div>
                     <i class="bi bi-folder2-open me-1"></i>
-                    {{ $post->subCategory?->forumCategory?->name ?? '—' }}
+                    {{ $post->subCategory?->category?->name ?? '—' }}
                     @if($post->subCategory)
                         &rsaquo; {{ $post->subCategory->name }}
                     @endif

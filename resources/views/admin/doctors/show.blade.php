@@ -28,7 +28,7 @@
                 </div>
                 <div class="card-body text-center pb-3">
                     @if($doctor->photo)
-                        <img src="{{ Storage::url($doctor->photo) }}"
+                        <img src="{{ Storage::disk('public')->url($doctor->photo) }}"
                             class="rounded-circle mb-3 border"
                             style="width:110px;height:110px;object-fit:cover;">
                     @else

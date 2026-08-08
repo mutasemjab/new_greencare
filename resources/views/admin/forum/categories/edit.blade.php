@@ -32,7 +32,7 @@
                     <label class="form-label fw-semibold">الأيقونة الحالية</label>
                     @if($category->icon)
                         <div class="mb-2">
-                            <img src="{{ Storage::url($category->icon) }}"
+                            <img src="{{ Storage::disk('public')->url($category->icon) }}"
                                 class="rounded border"
                                 style="width:60px;height:60px;object-fit:cover;">
                         </div>

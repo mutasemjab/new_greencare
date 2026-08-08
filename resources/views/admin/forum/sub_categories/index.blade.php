@@ -16,7 +16,7 @@
     {{-- Filter by Category --}}
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.forum.sub-categories.index') }}" class="row g-3">
+            <form method="GET" action="{{ route('admin.forum.sub-categories') }}" class="row g-3">
                 <div class="col-md-5">
                     <select name="forum_category_id" class="form-select">
                         <option value="">-- جميع الأقسام الرئيسية --</option>
@@ -32,7 +32,7 @@
                     <button type="submit" class="btn btn-outline-primary">
                         <i class="bi bi-search me-1"></i> تصفية
                     </button>
-                    <a href="{{ route('admin.forum.sub-categories.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('admin.forum.sub-categories') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -57,7 +57,7 @@
                     @forelse($subCategories as $subCategory)
                     <tr>
                         <td class="text-muted small">{{ $loop->iteration }}</td>
-                        <td class="text-muted small">{{ $subCategory->forumCategory?->name ?? '—' }}</td>
+                        <td class="text-muted small">{{ $subCategory->category?->name ?? '—' }}</td>
                         <td class="fw-semibold">{{ $subCategory->name }}</td>
                         <td class="text-muted small">{{ $subCategory->sort_order ?? 0 }}</td>
                         <td>

@@ -24,7 +24,7 @@
         @forelse($banners as $banner)
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
-                <img src="{{ Storage::url($banner->image) }}" class="card-img-top"
+                <img src="{{ Storage::disk('public')->url($banner->image) }}" class="card-img-top"
                     style="height:180px;object-fit:cover;" alt="{{ $banner->title }}">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">

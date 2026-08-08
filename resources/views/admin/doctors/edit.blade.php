@@ -40,7 +40,7 @@
                         <label class="form-label fw-semibold">الصورة الحالية</label>
                         @if($doctor->photo)
                             <div class="mb-2">
-                                <img src="{{ Storage::url($doctor->photo) }}"
+                                <img src="{{ Storage::disk('public')->url($doctor->photo) }}"
                                     class="rounded border"
                                     style="width:100px;height:100px;object-fit:cover;">
                             </div>

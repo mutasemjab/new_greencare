@@ -13,7 +13,7 @@
     {{-- Filters --}}
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.forum.posts.index') }}" class="row g-3">
+            <form method="GET" action="{{ route('admin.forum.posts') }}" class="row g-3">
                 <div class="col-md-2">
                     <select name="type" class="form-select">
                         <option value="">-- النوع --</option>
@@ -27,7 +27,7 @@
                         @foreach($subCategories as $sub)
                             <option value="{{ $sub->id }}"
                                 @selected(request('sub_category_id') == $sub->id)>
-                                {{ $sub->forumCategory?->name }} &rsaquo; {{ $sub->name }}
+                                {{ $sub->category?->name }} &rsaquo; {{ $sub->name }}
                             </option>
                         @endforeach
                     </select>
@@ -41,7 +41,7 @@
                     <button type="submit" class="btn btn-outline-primary w-100">
                         <i class="bi bi-search me-1"></i> بحث
                     </button>
-                    <a href="{{ route('admin.forum.posts.index') }}" class="btn btn-outline-secondary w-100">
+                    <a href="{{ route('admin.forum.posts') }}" class="btn btn-outline-secondary w-100">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>

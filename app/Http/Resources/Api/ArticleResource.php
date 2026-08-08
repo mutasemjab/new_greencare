@@ -13,7 +13,7 @@ class ArticleResource extends JsonResource
             'id'           => $this->id,
             'title'        => $this->title,
             'description'  => $this->description,
-            'image_url'    => $this->image ? Storage::url($this->image) : null,
+            'image_url'    => $this->image ? Storage::disk('public')->url($this->image) : null,
             'published_at' => $this->published_at
                 ? \Carbon\Carbon::parse($this->published_at)->format('Y-m-d H:i')
                 : null,

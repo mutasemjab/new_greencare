@@ -65,7 +65,7 @@
                             <td class="text-muted small">{{ $loop->iteration }}</td>
                             <td>
                                 @if($category->image)
-                                    <img src="{{ Storage::url($category->image) }}" alt="{{ $category->name }}"
+                                    <img src="{{ Storage::disk('public')->url($category->image) }}" alt="{{ $category->name }}"
                                         class="rounded" style="width:48px;height:48px;object-fit:cover;">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center"

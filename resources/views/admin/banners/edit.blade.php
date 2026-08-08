@@ -19,7 +19,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">الصورة الحالية</label>
-                    <img src="{{ Storage::url($banner->image) }}" class="d-block rounded mb-2"
+                    <img src="{{ Storage::disk('public')->url($banner->image) }}" class="d-block rounded mb-2"
                         style="max-height:150px;object-fit:cover;">
                     <input type="file" name="image" class="form-control" accept="image/*">
                     <div class="form-text">اتركه فارغاً للإبقاء على الصورة الحالية</div>

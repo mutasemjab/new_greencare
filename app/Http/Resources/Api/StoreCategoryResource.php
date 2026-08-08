@@ -12,7 +12,7 @@ class StoreCategoryResource extends JsonResource
         return [
             'id'        => $this->id,
             'name'      => $this->name,
-            'image_url' => $this->image ? Storage::url($this->image) : null,
+            'image_url' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'parent_id' => $this->parent_id,
             'children'  => $this->whenLoaded('children', fn () =>
                 StoreCategoryResource::collection($this->children)

@@ -55,7 +55,7 @@
                             <td class="text-muted small">{{ $loop->iteration }}</td>
                             <td>
                                 @if($service->icon)
-                                    <img src="{{ Storage::url($service->icon) }}" alt="{{ $service->name }}"
+                                    <img src="{{ Storage::disk('public')->url($service->icon) }}" alt="{{ $service->name }}"
                                         class="rounded" style="width:48px;height:48px;object-fit:cover;">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center"

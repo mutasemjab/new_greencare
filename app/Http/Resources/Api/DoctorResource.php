@@ -12,7 +12,7 @@ class DoctorResource extends JsonResource
         return [
             'id'                 => $this->id,
             'name'               => $this->name,
-            'photo_url'          => $this->photo ? Storage::url($this->photo) : null,
+            'photo_url'          => $this->photo ? Storage::disk('public')->url($this->photo) : null,
             'specialty'          => $this->specialty,
             'rating'             => $this->rating !== null ? (float) $this->rating : null,
             'home_visit_price'   => (float) $this->home_visit_price,

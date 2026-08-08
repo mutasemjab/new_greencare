@@ -70,7 +70,7 @@
                             <td>
                                 @php $firstImage = $product->images->first(); @endphp
                                 @if($firstImage)
-                                    <img src="{{ Storage::url($firstImage->image) }}" alt="{{ $product->name }}"
+                                    <img src="{{ Storage::disk('public')->url($firstImage->image) }}" alt="{{ $product->name }}"
                                         class="rounded" style="width:48px;height:48px;object-fit:cover;">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center"

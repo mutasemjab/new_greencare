@@ -51,7 +51,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 @if($doctor->photo)
-                                    <img src="{{ Storage::url($doctor->photo) }}" class="rounded-circle"
+                                    <img src="{{ Storage::disk('public')->url($doctor->photo) }}" class="rounded-circle"
                                         style="width:38px;height:38px;object-fit:cover;">
                                 @else
                                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"

@@ -34,7 +34,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">الأيقونة الحالية</label>
                     <div class="d-flex align-items-center gap-3">
-                        <img src="{{ Storage::url($service->icon) }}" alt="{{ $service->name }}"
+                        <img src="{{ Storage::disk('public')->url($service->icon) }}" alt="{{ $service->name }}"
                             class="rounded border" style="width:80px;height:80px;object-fit:cover;">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="remove_icon" id="remove_icon" value="1">
