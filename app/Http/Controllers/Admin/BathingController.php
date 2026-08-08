@@ -13,9 +13,18 @@ class BathingController extends Controller
 {
     // ── Points of Sale ────────────────────────────────────────────────────
 
-    public function pointsOfSale()
+    public function pointsOfSale(Request $request)
     {
-        $points = PointOfSale::latest()->get();
+        $query = PointOfSale::latest();
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                  ->orWhere('address', 'like', "%{$request->search}%");
+            });
+        }
+
+        $points = $query->paginate(20)->withQueryString();
 
         return view('admin.bathing.pos.index', compact('points'));
     }

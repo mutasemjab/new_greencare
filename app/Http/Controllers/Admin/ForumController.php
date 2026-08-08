@@ -15,7 +15,7 @@ class ForumController extends Controller
 
     public function categories()
     {
-        $categories = ForumCategory::withCount('subCategories')->orderBy('sort_order')->get();
+        $categories = ForumCategory::withCount('subCategories')->orderBy('sort_order')->paginate(20);
 
         return view('admin.forum.categories.index', compact('categories'));
     }

@@ -8,11 +8,21 @@ use Illuminate\Http\Request;
 
 class DeliveryZoneController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $zones = DeliveryZone::latest()->get();
+        $query = DeliveryZone::latest();
 
-        return view('admin.delivery_zones.index', compact('zones'));
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status);
+        }
+
+        $deliveryZones = $query->paginate(20)->withQueryString();
+
+        return view('admin.delivery_zones.index', compact('deliveryZones'));
     }
 
     public function create()

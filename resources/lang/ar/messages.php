@@ -52,4 +52,14 @@ return [
   'sign_in_admin_btn' => 'تسجيل الدخول',
   'all_rights_reserved' => 'جميع الحقوق محفوظة.',
 
+  // Admin layout (navbar/footer)
+  'edu_platform' => 'Green Care',
+  'toggle_sidebar' => 'تبديل القائمة الجانبية',
+  'search_placeholder' => 'بحث...',
+  'notifications' => 'الإشعارات',
+  'administrator' => 'مدير النظام',
+  'my_profile' => 'الملف الشخصي',
+  'settings' => 'الإعدادات',
+  'sign_out' => 'تسجيل الخروج',
+
 ];

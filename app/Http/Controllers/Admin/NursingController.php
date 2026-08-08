@@ -11,9 +11,15 @@ class NursingController extends Controller
 {
     // ── Service Types ─────────────────────────────────────────────────────
 
-    public function types()
+    public function types(Request $request)
     {
-        $types = NursingServiceType::orderBy('sort_order')->get();
+        $query = NursingServiceType::orderBy('sort_order');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        $types = $query->paginate(20)->withQueryString();
 
         return view('admin.nursing.types.index', compact('types'));
     }

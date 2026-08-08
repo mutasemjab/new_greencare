@@ -9,11 +9,20 @@ use Illuminate\Support\Facades\Storage;
 
 class StoreCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = StoreCategory::with('parent')
-            ->orderByRaw('ISNULL(parent_id), parent_id, sort_order')
-            ->get();
+        $query = StoreCategory::with('parent')
+            ->orderByRaw('ISNULL(parent_id), parent_id, sort_order');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status);
+        }
+
+        $categories = $query->paginate(20)->withQueryString();
 
         return view('admin.store.categories.index', compact('categories'));
     }

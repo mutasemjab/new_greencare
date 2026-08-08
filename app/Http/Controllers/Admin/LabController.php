@@ -13,9 +13,15 @@ class LabController extends Controller
 {
     // ── Categories ────────────────────────────────────────────────────────
 
-    public function categories()
+    public function categories(Request $request)
     {
-        $categories = LabCategory::withCount('tests')->orderBy('sort_order')->get();
+        $query = LabCategory::withCount('tests')->orderBy('sort_order');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        $categories = $query->paginate(20)->withQueryString();
 
         return view('admin.lab.categories.index', compact('categories'));
     }

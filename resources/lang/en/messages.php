@@ -52,4 +52,14 @@ return [
   'sign_in_admin_btn' => 'Sign In',
   'all_rights_reserved' => 'All rights reserved.',
 
+  // Admin layout (navbar/footer)
+  'edu_platform' => 'Green Care',
+  'toggle_sidebar' => 'Toggle sidebar',
+  'search_placeholder' => 'Search...',
+  'notifications' => 'Notifications',
+  'administrator' => 'Administrator',
+  'my_profile' => 'My Profile',
+  'settings' => 'Settings',
+  'sign_out' => 'Sign Out',
+
 ];

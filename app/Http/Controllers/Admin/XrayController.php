@@ -13,9 +13,15 @@ class XrayController extends Controller
 {
     // ── Categories ────────────────────────────────────────────────────────
 
-    public function categories()
+    public function categories(Request $request)
     {
-        $categories = XrayCategory::withCount('tests')->orderBy('sort_order')->get();
+        $query = XrayCategory::withCount('tests')->orderBy('sort_order');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        $categories = $query->paginate(20)->withQueryString();
 
         return view('admin.xray.categories.index', compact('categories'));
     }

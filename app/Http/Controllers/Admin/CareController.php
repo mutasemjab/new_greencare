@@ -11,9 +11,15 @@ class CareController extends Controller
 {
     // ── Services ──────────────────────────────────────────────────────────
 
-    public function services()
+    public function services(Request $request)
     {
-        $services = CareService::orderBy('sort_order')->get();
+        $query = CareService::orderBy('sort_order');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        $services = $query->paginate(20)->withQueryString();
 
         return view('admin.care.services.index', compact('services'));
     }
