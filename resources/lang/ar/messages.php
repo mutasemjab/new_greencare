@@ -29,4 +29,27 @@ return [
   'Employee' => 'الموظفين',
   'Admin_account' => 'حساب المدير',
 
+  // Admin login page
+  'admin_portal' => 'بوابة الإدارة',
+  'manage_platform_title' => 'إدارة منصتك',
+  'manage_platform_subtitle' => 'بكل سهولة وثقة',
+  'manage_platform_desc' => 'لوحة تحكم شاملة لإدارة المستخدمين والخدمات والمحتوى من مكان واحد.',
+  'feature_user_roles' => 'إدارة المستخدمين والصلاحيات',
+  'feature_courses_lessons' => 'إدارة الخدمات والمحتوى',
+  'feature_analytics' => 'تقارير وتحليلات مباشرة',
+  'feature_settings_perms' => 'الإعدادات والصلاحيات',
+  'students' => 'المستخدمين',
+  'teachers' => 'الموظفين',
+  'courses' => 'الخدمات',
+  'secure_access' => 'دخول آمن',
+  'welcome_back_short' => 'أهلاً بعودتك',
+  'sign_in_admin_desc' => 'سجّل الدخول للوصول إلى لوحة التحكم',
+  'username_label' => 'اسم المستخدم',
+  'username_ph' => 'أدخل اسم المستخدم',
+  'password_label' => 'كلمة المرور',
+  'password_ph' => 'أدخل كلمة المرور',
+  'keep_signed_in' => 'إبقني مسجلاً للدخول',
+  'sign_in_admin_btn' => 'تسجيل الدخول',
+  'all_rights_reserved' => 'جميع الحقوق محفوظة.',
+
 ];

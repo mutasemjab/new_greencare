@@ -29,4 +29,27 @@ return [
     'Employee' => 'Employees',
     'Admin_account' => 'Admin Account',
 
+  // Admin login page
+  'admin_portal' => 'Admin Portal',
+  'manage_platform_title' => 'Manage your platform',
+  'manage_platform_subtitle' => 'with ease and confidence',
+  'manage_platform_desc' => 'A complete dashboard to manage users, services, and content from one place.',
+  'feature_user_roles' => 'User & role management',
+  'feature_courses_lessons' => 'Services & content management',
+  'feature_analytics' => 'Live reports & analytics',
+  'feature_settings_perms' => 'Settings & permissions',
+  'students' => 'Users',
+  'teachers' => 'Staff',
+  'courses' => 'Services',
+  'secure_access' => 'Secure Access',
+  'welcome_back_short' => 'Welcome back',
+  'sign_in_admin_desc' => 'Sign in to access the dashboard',
+  'username_label' => 'Username',
+  'username_ph' => 'Enter your username',
+  'password_label' => 'Password',
+  'password_ph' => 'Enter your password',
+  'keep_signed_in' => 'Keep me signed in',
+  'sign_in_admin_btn' => 'Sign In',
+  'all_rights_reserved' => 'All rights reserved.',
+
 ];
