@@ -33,15 +33,6 @@ class AuthController extends Controller
 
         $userExists = User::where('phone', $phone)->exists();
 
-        // Find or create user
-        User::firstOrCreate(
-            ['phone' => $phone],
-            [
-                'role'      => 'patient',
-                'is_active' => true,
-            ]
-        );
-
         $otpResult = $this->otpService->sendOTP($phone);
 
         if (!$otpResult['success']) {
@@ -94,11 +85,14 @@ class AuthController extends Controller
             return $this->error($otpResult['message'], $otpResult['error_code'] ?? null, 422);
         }
 
-        $user = User::where('phone', $request->phone)->first();
-
-        if (!$user) {
-            return $this->error('المستخدم غير موجود', null, 404);
-        }
+        $user = User::firstOrCreate(
+            ['phone' => $request->phone],
+            [
+                'name'      => $request->phone,
+                'role'      => 'patient',
+                'is_active' => true,
+            ]
+        );
 
         if (!$user->is_active) {
             return $this->error('الحساب غير مفعّل', null, 403);
