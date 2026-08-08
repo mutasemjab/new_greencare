@@ -48,7 +48,7 @@ class OrderController extends Controller
             'delivery_fee'     => $deliveryFee,
             'total'            => $total,
             'status'           => 'pending',
-            'payment_status'   => 'pending',
+            'payment_status'   => 'unpaid',
             'notes'            => $request->notes,
         ]);
 
