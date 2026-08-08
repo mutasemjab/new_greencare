@@ -93,21 +93,21 @@
                 </div>
 
                 {{-- Existing Images --}}
-                @if($product->images && $product->images->count())
+                @if($product->images && count($product->images))
                 <div class="mb-3">
                     <label class="form-label fw-semibold">الصور الحالية</label>
                     <div class="d-flex flex-wrap gap-3">
                         @foreach($product->images as $img)
                         <div class="position-relative">
-                            <img src="{{ Storage::disk('public')->url($img->image) }}" alt=""
+                            <img src="{{ Storage::disk('public')->url($img) }}" alt=""
                                 class="rounded border" style="width:80px;height:80px;object-fit:cover;">
                             <div class="mt-1 text-center">
                                 <div class="form-check d-flex justify-content-center">
                                     <input class="form-check-input" type="checkbox"
-                                        name="deleted_images[]" value="{{ $img->id }}"
-                                        id="del_img_{{ $img->id }}">
+                                        name="deleted_images[]" value="{{ $img }}"
+                                        id="del_img_{{ $loop->index }}">
                                     <label class="form-check-label small text-danger ms-1"
-                                        for="del_img_{{ $img->id }}">حذف</label>
+                                        for="del_img_{{ $loop->index }}">حذف</label>
                                 </div>
                             </div>
                         </div>

@@ -68,9 +68,9 @@
                         <tr>
                             <td class="text-muted small">{{ $loop->iteration }}</td>
                             <td>
-                                @php $firstImage = $product->images->first(); @endphp
+                                @php $firstImage = $product->first_image; @endphp
                                 @if($firstImage)
-                                    <img src="{{ Storage::disk('public')->url($firstImage->image) }}" alt="{{ $product->name }}"
+                                    <img src="{{ Storage::disk('public')->url($firstImage) }}" alt="{{ $product->name }}"
                                         class="rounded" style="width:48px;height:48px;object-fit:cover;">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center"
