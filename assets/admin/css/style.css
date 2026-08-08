@@ -4,8 +4,8 @@
 ================================================================ */
 
 :root {
-    --primary:          #2563eb;
-    --primary-dark:     #1d4ed8;
+    --primary:          #33A552;
+    --primary-dark:     #33A552;
     --primary-light:    #eff6ff;
     --primary-rgb:      37, 99, 235;
 
@@ -15,7 +15,7 @@
     --sidebar-text:     #94a3b8;
     --sidebar-hover:    rgba(255,255,255,0.05);
     --sidebar-active-bg:rgba(37,99,235,0.15);
-    --sidebar-active:   #60a5fa;
+    --sidebar-active:   #33A552;
     --sidebar-border:   rgba(255,255,255,0.06);
 
     --bg:       #f1f5f9;
