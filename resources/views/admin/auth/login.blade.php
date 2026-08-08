@@ -327,7 +327,6 @@
 <div class="l-panel">
 
     <div class="l-brand">
-        <div class="l-brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
         <div class="l-brand-name"><span>Green Care</span></div>
     </div>
 
