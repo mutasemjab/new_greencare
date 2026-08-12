@@ -10,6 +10,7 @@ class BathingRequestResource extends JsonResource
     {
         return [
             'id'           => $this->id,
+            'code'         => $this->bathingCard?->code,
             'date'         => $this->booking_date
                 ? \Carbon\Carbon::parse($this->booking_date)->format('Y-m-d')
                 : null,

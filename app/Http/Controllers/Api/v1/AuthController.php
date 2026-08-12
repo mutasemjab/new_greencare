@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -22,19 +23,15 @@ class AuthController extends Controller
     }
 
     /**
-     * Send OTP to phone number.
+     * Send OTP to phone or email — whichever the app sent.
      */
     public function sendOtp(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|string',
-        ]);
+        ['field' => $field, 'value' => $identifier] = $this->resolveIdentifier($request);
 
-        $phone = $request->phone;
+        $userExists = User::where($field, $identifier)->exists();
 
-        $userExists = User::where('phone', $phone)->exists();
-
-        $otpResult = $this->issueOtp($phone);
+        $otpResult = $this->issueOtp($identifier, $field);
 
         if (!$otpResult['success']) {
             return $this->error($otpResult['message'], $otpResult['error'] ?? null);
@@ -48,15 +45,13 @@ class AuthController extends Controller
     }
 
     /**
-     * Resend OTP to phone number.
+     * Resend OTP to phone or email — whichever the app sent.
      */
     public function resendOtp(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|string',
-        ]);
+        ['field' => $field, 'value' => $identifier] = $this->resolveIdentifier($request);
 
-        $otpResult = $this->issueOtp($request->phone);
+        $otpResult = $this->issueOtp($identifier, $field);
 
         if (!$otpResult['success']) {
             return $this->error($otpResult['message'], $otpResult['error'] ?? null);
@@ -69,17 +64,47 @@ class AuthController extends Controller
     }
 
     /**
-     * Generate and cache the OTP synchronously (fast), then send the SMS
-     * after the HTTP response has already gone out — the SMS gateway can be
-     * slow/unreachable and must never block the mobile app's request.
+     * Validate that exactly one of phone/email was sent, and return which one.
      */
-    private function issueOtp(string $phone): array
+    private function resolveIdentifier(Request $request, bool $requireOtp = false): array
+    {
+        $rules = [
+            'phone' => 'nullable|string',
+            'email' => 'nullable|email',
+        ];
+
+        if ($requireOtp) {
+            $rules['otp'] = 'required|string';
+        }
+
+        $request->validate($rules);
+
+        $hasPhone = $request->filled('phone');
+        $hasEmail = $request->filled('email');
+
+        if ($hasPhone === $hasEmail) {
+            throw ValidationException::withMessages([
+                'phone' => ['يجب إرسال رقم الهاتف أو البريد الإلكتروني فقط'],
+            ]);
+        }
+
+        return $hasPhone
+            ? ['field' => 'phone', 'value' => $request->phone]
+            : ['field' => 'email', 'value' => $request->email];
+    }
+
+    /**
+     * Generate and cache the OTP synchronously (fast), then send it via
+     * SMS/email after the HTTP response has already gone out — the delivery
+     * channel can be slow/unreachable and must never block the mobile app's request.
+     */
+    private function issueOtp(string $identifier, string $field): array
     {
         try {
             $otp = $this->otpService->generateOTP();
-            $this->otpService->storeOTP($phone, $otp);
+            $this->otpService->storeOTP($identifier, $otp);
         } catch (\Throwable $e) {
-            Log::error('Failed to generate/store OTP', ['phone' => $phone, 'error' => $e->getMessage()]);
+            Log::error('Failed to generate/store OTP', ['identifier' => $identifier, 'error' => $e->getMessage()]);
 
             return [
                 'success' => false,
@@ -88,8 +113,14 @@ class AuthController extends Controller
             ];
         }
 
-        dispatch(function () use ($phone, $otp) {
-            app(OtpService::class)->sendOTPSMS($phone, $otp);
+        dispatch(function () use ($identifier, $otp, $field) {
+            $service = app(OtpService::class);
+
+            if ($field === 'email') {
+                $service->sendOTPEmail($identifier, $otp);
+            } else {
+                $service->sendOTPSMS($identifier, $otp);
+            }
         })->afterResponse();
 
         return [
@@ -103,21 +134,18 @@ class AuthController extends Controller
      */
     public function verifyOtp(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|string',
-            'otp'   => 'required|string',
-        ]);
+        ['field' => $field, 'value' => $identifier] = $this->resolveIdentifier($request, requireOtp: true);
 
-        $otpResult = $this->otpService->verifyOTPWithTestCase($request->phone, $request->otp);
+        $otpResult = $this->otpService->verifyOTPWithTestCase($identifier, $request->otp);
 
         if (!$otpResult['success']) {
             return $this->error($otpResult['message'], $otpResult['error_code'] ?? null, 422);
         }
 
         $user = User::firstOrCreate(
-            ['phone' => $request->phone],
+            [$field => $identifier],
             [
-                'name'      => $request->phone,
+                'name'      => $identifier,
                 'role'      => 'patient',
                 'is_active' => true,
             ]

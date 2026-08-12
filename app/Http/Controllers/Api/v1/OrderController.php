@@ -19,8 +19,9 @@ class OrderController extends Controller
         $user = $request->user('user-api');
 
         $request->validate([
-            'address_id' => 'required|exists:user_addresses,id',
-            'notes'      => 'sometimes|nullable|string',
+            'address_id'   => 'required|exists:user_addresses,id',
+            'notes'        => 'sometimes|nullable|string',
+            'patient_code' => 'sometimes|nullable|string|max:20',
         ]);
 
         // Verify address belongs to user
@@ -40,10 +41,16 @@ class OrderController extends Controller
         $deliveryFee = $address->deliveryZone ? (float) $address->deliveryZone->fee : 0;
         $total       = $subtotal + $deliveryFee;
 
+        $patient = $request->filled('patient_code')
+            ? User::where('patient_code', $request->patient_code)->first()
+            : null;
+
         $order = Order::create([
             'user_id'          => $user->id,
             'address_id'       => $address->id,
             'delivery_zone_id' => $address->delivery_zone_id,
+            'patient_code'     => $request->patient_code,
+            'patient_id'       => $patient?->id,
             'subtotal'         => $subtotal,
             'delivery_fee'     => $deliveryFee,
             'total'            => $total,

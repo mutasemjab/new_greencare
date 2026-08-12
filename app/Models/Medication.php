@@ -12,12 +12,13 @@ class Medication extends Model
 
     protected $fillable = [
         'user_id', 'medication_name', 'dosage',
-        'frequency', 'start_date', 'end_date', 'notes',
+        'frequency', 'times', 'start_date', 'end_date', 'notes',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date'   => 'date',
+        'times'      => 'array',
     ];
 
     public function patient()

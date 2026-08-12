@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Mail\OtpMail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 
 class OtpService
@@ -203,6 +205,38 @@ class OtpService
                 'success' => false,
                 'message' => 'SMS sending failed with exception',
                 'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Send OTP via Email
+     *
+     * @param string $email
+     * @param string $otp
+     * @return array
+     */
+    public function sendOTPEmail(string $email, string $otp): array
+    {
+        try {
+            Mail::to($email)->send(new OtpMail($otp, (int) $this->otpConfig['expiry_minutes']));
+
+            Log::info('OTP email sent successfully for: ' . $email);
+
+            return [
+                'success' => true,
+                'message' => 'OTP email sent successfully',
+            ];
+        } catch (\Exception $e) {
+            Log::error('OTP email sending failed:', [
+                'error' => $e->getMessage(),
+                'email' => $email,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send OTP email',
+                'error' => $e->getMessage(),
             ];
         }
     }

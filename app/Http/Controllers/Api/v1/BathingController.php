@@ -54,9 +54,39 @@ class BathingController extends Controller
         return $this->success(new BathingRequestResource($bathingRequest), 'تم استخدام البطاقة وإنشاء الطلب', 201);
     }
 
+    /**
+     * Create a bathing request without a card code — keyed to a saved address instead.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'address_id' => 'required|exists:user_addresses,id',
+            'date'       => 'required|date',
+            'time'       => 'required|string',
+            'notes'      => 'sometimes|nullable|string',
+        ]);
+
+        $user = $request->user('user-api');
+
+        $bathingRequest = BathingRequest::create([
+            'user_id'         => $user->id,
+            'patient_code'    => $user->patient_code ?? '',
+            'payment_type'    => 'cash',
+            'bathing_card_id' => null,
+            'address_id'      => $request->address_id,
+            'booking_date'    => $request->date,
+            'booking_time'    => $request->time,
+            'notes'           => $request->notes,
+            'status'          => 'pending',
+        ]);
+
+        return $this->success(new BathingRequestResource($bathingRequest), 'تم إرسال طلب الاستحمام', 201);
+    }
+
     public function index(Request $request)
     {
         $requests = BathingRequest::where('user_id', $request->user('user-api')->id)
+            ->with('bathingCard')
             ->latest()
             ->paginate(15);
 
