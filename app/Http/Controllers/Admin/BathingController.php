@@ -20,7 +20,7 @@ class BathingController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('address', 'like', "%{$request->search}%");
+                    ->orWhere('address', 'like', "%{$request->search}%");
             });
         }
 
@@ -106,11 +106,11 @@ class BathingController extends Controller
 
         $generated = 0;
         for ($i = 0; $i < $data['quantity']; $i++) {
-            $code = strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4));
+            $code = (string) random_int(100000, 999999);
 
             // ensure uniqueness
             while (BathingCard::where('code', $code)->exists()) {
-                $code = strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4));
+                $code = (string) random_int(100000, 999999);
             }
 
             BathingCard::create([
@@ -158,7 +158,7 @@ class BathingController extends Controller
 
         if ($request->filled('search')) {
             $query->where('patient_code', 'like', "%{$request->search}%")
-                  ->orWhereHas('user', fn($q) => $q->where('name', 'like', "%{$request->search}%"));
+                ->orWhereHas('user', fn($q) => $q->where('name', 'like', "%{$request->search}%"));
         }
 
         $requests = $query->paginate(20)->withQueryString();
