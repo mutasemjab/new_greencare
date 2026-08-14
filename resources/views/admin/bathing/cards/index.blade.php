@@ -55,8 +55,8 @@
                         @forelse($cards as $card)
                         <tr>
                             <td class="text-muted small">{{ $loop->iteration }}</td>
-                            <td>
-                                <code class="fs-6 user-select-all">{{ $card->code }}</code>
+                            <td class="text-center">
+                               {{ $card->code }}
                             </td>
                             <td class="text-center">{{ $card->max_uses }}</td>
                             <td class="text-center">{{ $card->used_count }}</td>
