@@ -102,7 +102,9 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('bathing/cards',                            [BathingController::class, 'cards'])->name('admin.bathing.cards');
         Route::get('bathing/cards/generate',                   [BathingController::class, 'generateCardsForm'])->name('admin.bathing.cards.generate');
         Route::post('bathing/cards/generate',                  [BathingController::class, 'generateCards'])->name('admin.bathing.cards.generate.store');
-        Route::delete('bathing/cards/{card}',                  [BathingController::class, 'destroyCard'])->name('admin.bathing.cards.destroy');
+        Route::delete('bathing/cards/group/{group}',           [BathingController::class, 'destroyGroup'])->name('admin.bathing.cards.group.destroy');
+        Route::delete('bathing/cards/card/{card}',             [BathingController::class, 'destroyCard'])->name('admin.bathing.cards.destroy');
+        Route::get('bathing/cards/{group}',                    [BathingController::class, 'showGroup'])->name('admin.bathing.cards.show');
         Route::get('bathing/requests',                         [BathingController::class, 'requests'])->name('admin.bathing.requests');
         Route::get('bathing/requests/{request}',               [BathingController::class, 'showRequest'])->name('admin.bathing.requests.show');
         Route::patch('bathing/requests/{request}/status',      [BathingController::class, 'updateRequestStatus'])->name('admin.bathing.requests.status');

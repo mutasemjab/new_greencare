@@ -6,7 +6,7 @@
 <div class="container-fluid py-4">
 
     <div class="d-flex align-items-center justify-content-between mb-4">
-        <h4 class="mb-0 fw-bold">بطاقات الاستحمام</h4>
+        <h4 class="mb-0 fw-bold">مجموعات بطاقات الاستحمام</h4>
         <a href="{{ route('admin.bathing.cards.generate') }}" class="btn btn-success btn-lg">
             <i class="bi bi-plus-square me-1"></i> توليد بطاقات
         </a>
@@ -20,7 +20,7 @@
             <form method="GET" action="{{ route('admin.bathing.cards') }}" class="row g-3">
                 <div class="col-md-7">
                     <input type="text" name="search" class="form-control"
-                        placeholder="بحث بالكود..."
+                        placeholder="بحث باسم المجموعة..."
                         value="{{ request('search') }}">
                 </div>
                 <div class="col-md-5 d-flex gap-2">
@@ -42,54 +42,46 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
-                            <th>الكود</th>
-                            <th>الاستخدامات القصوى</th>
-                            <th>المستخدمة</th>
-                            <th>المتبقية</th>
+                            <th>اسم المجموعة</th>
+                            <th>عدد البطاقات</th>
+                            <th>سعر البطاقة الواحدة</th>
                             <th>نقطة البيع</th>
-                            <th>الحالة</th>
+                            <th>تاريخ التوليد</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($cards as $card)
+                        @forelse($groups as $group)
                         <tr>
                             <td class="text-muted small">{{ $loop->iteration }}</td>
-                            <td class="text-center">
-                               {{ $card->code }}
-                            </td>
-                            <td class="text-center">{{ $card->max_uses }}</td>
-                            <td class="text-center">{{ $card->used_count }}</td>
-                            <td class="text-center">
-                                <span class="{{ ($card->max_uses - $card->used_count) <= 0 ? 'text-danger fw-bold' : 'text-success fw-bold' }}">
-                                    {{ $card->max_uses - $card->used_count }}
-                                </span>
-                            </td>
-                            <td>{{ $card->soldAtPoint?->name ?? '—' }}</td>
+                            <td class="fw-semibold">{{ $group->name }}</td>
+                            <td class="text-center">{{ $group->cards_count }}</td>
+                            <td class="text-center">{{ number_format($group->unit_price, 2) }}</td>
+                            <td>{{ $group->pointOfSale?->name ?? '—' }}</td>
+                            <td class="text-muted small">{{ $group->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                @if($card->is_active)
-                                    <span class="badge bg-success-subtle text-success">فعّالة</span>
-                                @else
-                                    <span class="badge bg-danger-subtle text-danger">معطّلة</span>
-                                @endif
-                            </td>
-                            <td>
-                                <form action="{{ route('admin.bathing.cards.destroy', $card) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('هل أنت متأكد من حذف البطاقة؟')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.bathing.cards.show', $group) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i> عرض البطاقات
+                                    </a>
+                                    <form action="{{ route('admin.bathing.cards.group.destroy', $group) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('هل أنت متأكد من حذف المجموعة وجميع بطاقاتها؟')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-5">
+                            <td colspan="7" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                                لا توجد بطاقات بعد
+                                لا توجد مجموعات بطاقات بعد
                             </td>
                         </tr>
                         @endforelse
@@ -97,9 +89,9 @@
                 </table>
             </div>
         </div>
-        @if($cards->hasPages())
+        @if($groups->hasPages())
         <div class="card-footer bg-transparent d-flex justify-content-center">
-            {{ $cards->links() }}
+            {{ $groups->links() }}
         </div>
         @endif
     </div>

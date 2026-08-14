@@ -19,6 +19,28 @@
             <form action="{{ route('admin.bathing.cards.generate.store') }}" method="POST">
                 @csrf
 
+                {{-- Group Name --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">اسم المجموعة <span class="text-danger">*</span></label>
+                    <input type="text" name="name"
+                        class="form-control @error('name') is-invalid @enderror"
+                        value="{{ old('name') }}" required>
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- Unit Price --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">سعر البطاقة الواحدة <span class="text-danger">*</span></label>
+                    <input type="number" name="unit_price" min="0" step="0.01"
+                        class="form-control @error('unit_price') is-invalid @enderror"
+                        value="{{ old('unit_price') }}" required>
+                    @error('unit_price')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 {{-- Quantity --}}
                 <div class="mb-3">
                     <label class="form-label fw-semibold">عدد البطاقات <span class="text-danger">*</span></label>

@@ -9,9 +9,14 @@ class BathingCard extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'max_uses', 'used_count', 'is_active', 'sold_at_point_id'];
+    protected $fillable = ['bathing_card_group_id', 'code', 'max_uses', 'used_count', 'is_active', 'sold_at_point_id'];
 
     protected $casts = ['is_active' => 'boolean'];
+
+    public function group()
+    {
+        return $this->belongsTo(BathingCardGroup::class, 'bathing_card_group_id');
+    }
 
     public function pointOfSale()
     {
