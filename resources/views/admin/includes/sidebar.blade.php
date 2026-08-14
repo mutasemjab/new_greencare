@@ -282,12 +282,28 @@
             </li>
 
             {{-- Patient Transfer --}}
-            <li class="nav-item">
-                <a href="{{ route('admin.transfers.index') }}"
-                    class="nav-link {{ request()->routeIs('admin.transfers.*') ? 'active' : '' }}">
+            <li class="nav-item has-submenu {{ request()->routeIs('admin.transfers.*') ? 'open' : '' }}">
+                <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-truck-front"></i>
                     <span>نقل المرضى</span>
+                    <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{ route('admin.transfers.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.transfers.index') || request()->routeIs('admin.transfers.show') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-clipboard2-pulse"></i>
+                            <span>الطلبات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.transfers.note.edit') }}"
+                            class="nav-link {{ request()->routeIs('admin.transfers.note*') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-sticky"></i>
+                            <span>الملاحظة التوضيحية</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
 
