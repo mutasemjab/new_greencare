@@ -103,7 +103,7 @@
                                 </li>
                                 <li class="d-flex justify-content-between py-2 border-bottom">
                                     <span class="text-muted">كود المريض</span>
-                                    <span class="fw-semibold text-primary">{{ $room->patient?->patient_code ?? '—' }}</span>
+                                    <span class="fw-semibold text-primary">{{ $room->patient_code ?? '—' }}</span>
                                 </li>
                                 <li class="d-flex justify-content-between py-2 border-bottom">
                                     <span class="text-muted">الرعاية الصحية أنشأها</span>

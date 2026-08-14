@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class LabRequest extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'patient_code', 'address_id',
-        'booking_date', 'booking_time', 'notes', 'total', 'status',
+        'user_id', 'patient_code', 'address_id', 'room_id',
+        'booking_date', 'booking_time', 'notes', 'total', 'status', 'result_file',
     ];
 
     protected $casts = [
@@ -56,5 +57,10 @@ class LabRequest extends Model
             'cancelled'   => 'danger',
             default       => 'secondary',
         };
+    }
+
+    public function getResultFileUrlAttribute(): ?string
+    {
+        return $this->result_file ? Storage::disk('public')->url($this->result_file) : null;
     }
 }

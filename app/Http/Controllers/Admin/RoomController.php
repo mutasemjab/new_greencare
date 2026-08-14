@@ -12,6 +12,35 @@ use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
+    public function create()
+    {
+        $patients          = User::where('role', 'patient')->get();
+        $headNurses         = User::where('role', 'head_nurse')->get();
+        $registrationTemplates = ReportTemplate::active()->where('template_type', 'registration')->get();
+
+        return view('admin.sihati.rooms.create', compact('patients', 'headNurses', 'registrationTemplates'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'patient_id'                => 'required|exists:users,id',
+            'created_by'                => 'required|exists:users,id',
+            'name'                      => 'required|string|max:255',
+            'description'               => 'nullable|string',
+            'address'                   => 'nullable|string|max:255',
+            'discount_value'            => 'nullable|numeric|min:0|max:100',
+            'registration_template_id'  => 'nullable|exists:report_templates,id',
+        ]);
+
+        $data['is_active'] = true;
+
+        $room = Room::create($data);
+
+        return redirect()->route('admin.sihati.rooms.show', $room)
+            ->with('success', "تم إنشاء الغرفة بنجاح — كود المريض: {$room->patient_code}");
+    }
+
     public function index(Request $request)
     {
         $query = Room::with(['patient', 'createdBy'])->withCount('members')->latest();

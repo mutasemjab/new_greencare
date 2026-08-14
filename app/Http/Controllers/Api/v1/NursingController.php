@@ -35,7 +35,7 @@ class NursingController extends Controller
 
         $nursing = NursingRequest::create([
             'user_id'                 => $user->id,
-            'patient_code'            => $user->patient_code ?? '',
+            'patient_code'            => $user->currentRoom()?->patient_code ?? '',
             'nursing_service_type_id' => $request->type_id,
             'address_id'              => $request->address_id,
             'booking_date'            => $request->date,

@@ -27,6 +27,9 @@ class RedirectIfAuthenticated
                 if ($request->is('admin') || $request->is('admin/*')) {
                     //redirect Backend
                     return redirect(RouteServiceProvider::Admin);
+                } elseif ($request->is('lab') || $request->is('lab/*')) {
+                    //redirect lab dashboard
+                    return redirect(RouteServiceProvider::Lab);
                 } else {
                     //redirect front end  in case there is front
                     return redirect(RouteServiceProvider::Home);

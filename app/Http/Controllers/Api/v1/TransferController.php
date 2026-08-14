@@ -6,12 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\PatientTransferResource;
 use App\Http\Traits\ApiResponse;
 use App\Models\PatientTransfer;
+use App\Models\DisplayNoteTransfer;
 use Illuminate\Http\Request;
 
 class TransferController extends Controller
 {
     use ApiResponse;
 
+    public function display_note_in_transfer()
+    {
+        $note = DisplayNoteTransfer::first();
+        
+        return $this->success($note);
+    }
+    
     public function store(Request $request)
     {
         $request->validate([

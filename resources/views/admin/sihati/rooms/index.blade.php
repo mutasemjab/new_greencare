@@ -6,6 +6,9 @@
 
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0 fw-bold"><i class="bi bi-house-heart me-2"></i>غرف صحتي</h4>
+        <a href="{{ route('admin.sihati.rooms.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> إنشاء غرفة
+        </a>
     </div>
 
     @include('admin.includes.alerts.success')
@@ -43,6 +46,7 @@
                     <tr>
                         <th>#</th>
                         <th>اسم الغرفة</th>
+                        <th>كود المريض</th>
                         <th>المريض</th>
                         <th>أُنشئت بواسطة</th>
                         <th>الأعضاء</th>
@@ -63,6 +67,7 @@
                                 <div class="small text-muted">{{ Str::limit($room->description, 50) }}</div>
                             @endif
                         </td>
+                        <td class="fw-semibold text-primary">{{ $room->patient_code ?? '—' }}</td>
                         <td>
                             <div class="fw-semibold">{{ $room->patient?->name ?? '—' }}</div>
                             <div class="small text-muted">{{ $room->patient?->phone }}</div>
@@ -106,7 +111,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-5">
+                        <td colspan="9" class="text-center text-muted py-5">
                             <i class="bi bi-house-heart fs-3 d-block mb-2"></i>
                             لا توجد غرف
                         </td>

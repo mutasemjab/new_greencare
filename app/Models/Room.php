@@ -10,7 +10,7 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'created_by', 'name', 'description',
+        'patient_id', 'patient_code', 'created_by', 'name', 'description',
         'address', 'discount_value', 'registration_template_id',
         'firebase_room_id', 'is_active',
     ];
@@ -19,6 +19,41 @@ class Room extends Model
         'discount_value' => 'decimal:2',
         'is_active'      => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Room $room) {
+            if (empty($room->patient_code)) {
+                $room->patient_code = self::generateCode();
+            }
+        });
+    }
+
+    private static function generateCode(): string
+    {
+        do {
+            $code = 'PT-' . strtoupper(substr(uniqid(), -6)) . rand(10, 99);
+        } while (self::where('patient_code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Whether the given user may use this room's patient code — either
+     * because they are the room's patient, or a member of the room.
+     */
+    public function hasMember(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->patient_id === $user->id) {
+            return true;
+        }
+
+        return $this->members()->where('user_id', $user->id)->exists();
+    }
 
     // ── Core relationships ────────────────────────────────────────────────
 

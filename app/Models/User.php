@@ -21,25 +21,39 @@ class User extends Authenticatable
         'is_active'     => 'boolean',
     ];
 
-    protected static function booted(): void
-    {
-        static::creating(function (User $user) {
-            if ($user->role === 'patient' && empty($user->patient_code)) {
-                $user->patient_code = self::generatePatientCode();
-            }
-        });
-    }
-
-    private static function generatePatientCode(): string
-    {
-        do {
-            $code = 'PT-' . strtoupper(substr(uniqid(), -6)) . rand(10, 99);
-        } while (self::where('patient_code', $code)->exists());
-
-        return $code;
-    }
-
     // ── Relationships ─────────────────────────────────────────────────────
+
+    public function roomsAsPatient()
+    {
+        return $this->hasMany(Room::class, 'patient_id');
+    }
+
+    public function roomMemberships()
+    {
+        return $this->hasMany(RoomMember::class);
+    }
+
+    /**
+     * The single room this user is currently tied to, either as the
+     * room's patient or as a member (doctor/nurse/patient_family).
+     * Service bookings and patient-code checks are scoped to this room.
+     */
+    public function currentRoom(): ?Room
+    {
+        $room = $this->roomsAsPatient()->where('is_active', true)->latest()->first();
+
+        if ($room) {
+            return $room;
+        }
+
+        $membership = $this->roomMemberships()
+            ->whereHas('room', fn ($q) => $q->where('is_active', true))
+            ->with('room')
+            ->latest()
+            ->first();
+
+        return $membership?->room;
+    }
 
     public function relatedPatient()
     {

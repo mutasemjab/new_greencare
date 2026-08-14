@@ -18,6 +18,7 @@ class LabRequestResource extends JsonResource
             'notes'      => $this->notes,
             'status'     => $this->status,
             'room_id'    => $this->room_id ?? null,
+            'result_file_url' => $this->result_file_url,
             'tests'      => $this->whenLoaded('tests', fn () =>
                 $this->tests->map(fn ($pivot) => [
                     'id'         => $pivot->lab_test_id,

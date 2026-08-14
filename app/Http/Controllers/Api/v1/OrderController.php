@@ -7,6 +7,7 @@ use App\Http\Resources\Api\OrderResource;
 use App\Http\Traits\ApiResponse;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Room;
 use App\Models\UserAddress;
 use Illuminate\Http\Request;
 
@@ -41,16 +42,22 @@ class OrderController extends Controller
         $deliveryFee = $address->deliveryZone ? (float) $address->deliveryZone->fee : 0;
         $total       = $subtotal + $deliveryFee;
 
-        $patient = $request->filled('patient_code')
-            ? User::where('patient_code', $request->patient_code)->first()
-            : null;
+        $room = null;
+
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
 
         $order = Order::create([
             'user_id'          => $user->id,
             'address_id'       => $address->id,
             'delivery_zone_id' => $address->delivery_zone_id,
             'patient_code'     => $request->patient_code,
-            'patient_id'       => $patient?->id,
+            'patient_id'       => $room?->patient_id,
             'subtotal'         => $subtotal,
             'delivery_fee'     => $deliveryFee,
             'total'            => $total,

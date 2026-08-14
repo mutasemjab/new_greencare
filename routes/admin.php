@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DocumentTemplateController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ForumController;
 use App\Http\Controllers\Admin\LabController;
+use App\Http\Controllers\Admin\LabStaffController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MedicationController;
 use App\Http\Controllers\Admin\NursingController;
@@ -137,6 +138,14 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('lab/requests/{request}',                   [LabController::class, 'showRequest'])->name('admin.lab.requests.show');
         Route::patch('lab/requests/{request}/status',          [LabController::class, 'updateRequestStatus'])->name('admin.lab.requests.status');
 
+        // ── Lab — Staff Accounts (lab dashboard logins) ──────────────────────
+        Route::get('lab/staff',                                [LabStaffController::class, 'index'])->name('admin.lab.staff.index');
+        Route::get('lab/staff/create',                         [LabStaffController::class, 'create'])->name('admin.lab.staff.create');
+        Route::post('lab/staff',                               [LabStaffController::class, 'store'])->name('admin.lab.staff.store');
+        Route::get('lab/staff/{labStaffMember}/edit',          [LabStaffController::class, 'edit'])->name('admin.lab.staff.edit');
+        Route::patch('lab/staff/{labStaffMember}',             [LabStaffController::class, 'update'])->name('admin.lab.staff.update');
+        Route::delete('lab/staff/{labStaffMember}',            [LabStaffController::class, 'destroy'])->name('admin.lab.staff.destroy');
+
         // ── Xray ──────────────────────────────────────────────────────────────
         Route::get('xray/categories',                          [XrayController::class, 'categories'])->name('admin.xray.categories');
         Route::get('xray/categories/create',                   [XrayController::class, 'createCategory'])->name('admin.xray.categories.create');
@@ -217,6 +226,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 
         // ── Sihati — Rooms ────────────────────────────────────────────────────
         Route::get('sihati/rooms',                                            [RoomController::class, 'index'])->name('admin.sihati.rooms.index');
+        Route::get('sihati/rooms/create',                                     [RoomController::class, 'create'])->name('admin.sihati.rooms.create');
+        Route::post('sihati/rooms',                                           [RoomController::class, 'store'])->name('admin.sihati.rooms.store');
         Route::get('sihati/rooms/{room}',                                     [RoomController::class, 'show'])->name('admin.sihati.rooms.show');
         Route::patch('sihati/rooms/{room}/toggle',                            [RoomController::class, 'toggleActive'])->name('admin.sihati.rooms.toggle');
         Route::post('sihati/rooms/{room}/members',                            [RoomController::class, 'addMember'])->name('admin.sihati.rooms.members.add');

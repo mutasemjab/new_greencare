@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+        'lab' => [
+            'driver' => 'session',
+            'provider' => 'lab_staff',
+        ],
         'user-api' => [
             'driver' => 'passport',
             'provider' => 'users',
@@ -88,6 +92,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+        'lab_staff' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\LabStaff::class,
         ],
         'teachers' => [
             'driver' => 'eloquent',

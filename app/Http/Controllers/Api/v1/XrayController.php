@@ -48,7 +48,7 @@ class XrayController extends Controller
 
         $xrayRequest = XrayRequest::create([
             'user_id'      => $user->id,
-            'patient_code' => $user->patient_code ?? '',
+            'patient_code' => $user->currentRoom()?->patient_code ?? '',
             'address_id'   => $request->address_id,
             'booking_date' => $request->date,
             'booking_time' => $request->time,

@@ -39,7 +39,7 @@ class BathingController extends Controller
 
         $bathingRequest = BathingRequest::create([
             'user_id'        => $user->id,
-            'patient_code'   => $user->patient_code ?? '',
+            'patient_code'   => $user->currentRoom()?->patient_code ?? '',
             'payment_type'   => 'card',
             'bathing_card_id'=> $card->id,
             'address_id'     => $request->address_id,
@@ -70,7 +70,7 @@ class BathingController extends Controller
 
         $bathingRequest = BathingRequest::create([
             'user_id'         => $user->id,
-            'patient_code'    => $user->patient_code ?? '',
+            'patient_code'    => $user->currentRoom()?->patient_code ?? '',
             'payment_type'    => 'cash',
             'bathing_card_id' => null,
             'address_id'      => $request->address_id,
