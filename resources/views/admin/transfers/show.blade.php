@@ -59,7 +59,6 @@
                                 <div class="text-muted small mb-1">
                                     <i class="bi bi-geo me-1 text-success"></i>من المنطقة
                                 </div>
-                                <div class="fw-bold fs-6">{{ $transfer->fromZone?->name ?? '—' }}</div>
                                 @if($transfer->from_location)
                                     <div class="text-muted small mt-1">{{ $transfer->from_location }}</div>
                                 @endif
@@ -70,7 +69,6 @@
                                 <div class="text-muted small mb-1">
                                     <i class="bi bi-geo-fill me-1 text-danger"></i>إلى المنطقة
                                 </div>
-                                <div class="fw-bold fs-6">{{ $transfer->toZone?->name ?? '—' }}</div>
                                 @if($transfer->to_location)
                                     <div class="text-muted small mt-1">{{ $transfer->to_location }}</div>
                                 @endif

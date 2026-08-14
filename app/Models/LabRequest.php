@@ -63,4 +63,9 @@ class LabRequest extends Model
     {
         return $this->result_file ? Storage::disk('public')->url($this->result_file) : null;
     }
+
+    public function scopeWithResults($query)
+    {
+        return $query->whereNotNull('result_file');
+    }
 }

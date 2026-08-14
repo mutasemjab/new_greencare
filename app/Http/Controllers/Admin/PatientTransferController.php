@@ -10,7 +10,7 @@ class PatientTransferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PatientTransfer::with(['user', 'fromZone', 'toZone'])->latest();
+        $query = PatientTransfer::with(['user'])->latest();
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -28,7 +28,7 @@ class PatientTransferController extends Controller
 
     public function show(PatientTransfer $transfer)
     {
-        $transfer->load(['user', 'fromZone', 'toZone']);
+        $transfer->load(['user']);
 
         return view('admin.transfers.show', compact('transfer'));
     }

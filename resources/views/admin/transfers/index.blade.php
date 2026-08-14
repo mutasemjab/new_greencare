@@ -6,6 +6,9 @@
 
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0 fw-bold">طلبات نقل المرضى</h4>
+        <a href="{{ route('admin.transfers.note.edit') }}" class="btn btn-outline-primary">
+            <i class="bi bi-sticky me-1"></i> تعديل الملاحظة التوضيحية
+        </a>
     </div>
 
     @include('admin.includes.alerts.success')
@@ -75,8 +78,8 @@
                                 <div class="fw-semibold">{{ $transfer->user?->name ?? '—' }}</div>
                                 <div class="small text-muted">{{ $transfer->user?->phone }}</div>
                             </td>
-                            <td>{{ $transfer->fromZone?->name ?? '—' }}</td>
-                            <td>{{ $transfer->toZone?->name ?? '—' }}</td>
+                            <td>{{ $transfer->from_location ?? '—' }}</td>
+                            <td>{{ $transfer->to_location ?? '—' }}</td>
                             <td class="small">{{ $transfer->price ? number_format($transfer->price, 2) . ' د.أ' : '—' }}</td>
                             <td class="small">
                                 {{ $transfer->booking_date ? \Carbon\Carbon::parse($transfer->booking_date)->format('Y/m/d') : '—' }}

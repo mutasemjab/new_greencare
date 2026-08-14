@@ -91,4 +91,15 @@ class LabController extends Controller
 
         return $this->success(new LabRequestResource($labRequest));
     }
+
+    public function results(Request $request)
+    {
+        $results = LabRequest::where('user_id', $request->user('user-api')->id)
+            ->withResults()
+            ->with('tests.test')
+            ->latest('updated_at')
+            ->paginate(15);
+
+        return $this->success(LabRequestResource::collection($results)->response()->getData(true));
+    }
 }

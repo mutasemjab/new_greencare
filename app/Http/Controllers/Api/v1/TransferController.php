@@ -23,8 +23,6 @@ class TransferController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'from_zone_id'     => 'required|exists:delivery_zones,id',
-            'to_zone_id'       => 'required|exists:delivery_zones,id',
             'from_location'    => 'required|string',
             'from_lat'         => 'required|numeric',
             'from_lng'         => 'required|numeric',
@@ -39,8 +37,6 @@ class TransferController extends Controller
 
         $transfer = PatientTransfer::create([
             'user_id'          => $request->user('user-api')->id,
-            'from_zone_id'     => $request->from_zone_id,
-            'to_zone_id'       => $request->to_zone_id,
             'from_location'    => $request->from_location,
             'from_latitude'    => $request->from_lat,
             'from_longitude'   => $request->from_lng,
@@ -62,7 +58,6 @@ class TransferController extends Controller
     public function index(Request $request)
     {
         $transfers = PatientTransfer::where('user_id', $request->user('user-api')->id)
-            ->with('fromZone', 'toZone')
             ->latest()
             ->paginate(15);
 
@@ -72,7 +67,6 @@ class TransferController extends Controller
     public function show(Request $request, int $id)
     {
         $transfer = PatientTransfer::where('user_id', $request->user('user-api')->id)
-            ->with('fromZone', 'toZone')
             ->findOrFail($id);
 
         return $this->success(new PatientTransferResource($transfer));

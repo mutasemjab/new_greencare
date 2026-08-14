@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BathingController;
 use App\Http\Controllers\Admin\CareController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryZoneController;
+use App\Http\Controllers\Admin\DisplayNoteTransferController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\DocumentTemplateController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -176,6 +177,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 
         // ── Patient Transfers ─────────────────────────────────────────────────
         Route::get('transfers',                                [PatientTransferController::class, 'index'])->name('admin.transfers.index');
+        Route::get('transfers/note',                           [DisplayNoteTransferController::class, 'edit'])->name('admin.transfers.note.edit');
+        Route::patch('transfers/note',                         [DisplayNoteTransferController::class, 'update'])->name('admin.transfers.note.update');
         Route::get('transfers/{transfer}',                     [PatientTransferController::class, 'show'])->name('admin.transfers.show');
         Route::patch('transfers/{transfer}/status',            [PatientTransferController::class, 'updateStatus'])->name('admin.transfers.status');
 

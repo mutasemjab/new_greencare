@@ -10,7 +10,7 @@ class PatientTransfer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'from_zone_id', 'to_zone_id',
+        'user_id',
         'from_location', 'to_location',
         'from_latitude', 'from_longitude',
         'to_latitude', 'to_longitude',
@@ -28,15 +28,6 @@ class PatientTransfer extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function fromZone()
-    {
-        return $this->belongsTo(DeliveryZone::class, 'from_zone_id');
-    }
-
-    public function toZone()
-    {
-        return $this->belongsTo(DeliveryZone::class, 'to_zone_id');
-    }
 
     public function getStatusLabelAttribute(): string
     {

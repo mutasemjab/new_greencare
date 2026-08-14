@@ -99,6 +99,7 @@ Route::prefix('v1')->group(function () {
         // Lab
         Route::post('lab/requests',     [LabController::class, 'store']);
         Route::get('lab/requests',      [LabController::class, 'index']);
+        Route::get('lab/results',       [LabController::class, 'results']);
         Route::get('lab/requests/{id}', [LabController::class, 'show']);
 
         // Xray
@@ -119,6 +120,7 @@ Route::prefix('v1')->group(function () {
         // Patient Transfer
         Route::post('transfers',     [TransferController::class, 'store']);
         Route::get('transfers',      [TransferController::class, 'index']);
+        Route::get('transfers/note', [TransferController::class, 'display_note_in_transfer']);
         Route::get('transfers/{id}', [TransferController::class, 'show']);
 
         // Forum

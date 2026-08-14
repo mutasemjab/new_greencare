@@ -11,8 +11,6 @@ return new class extends Migration
         Schema::create('patient_transfers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('from_zone_id')->constrained('delivery_zones'); // منطقة الانطلاق
-            $table->foreignId('to_zone_id')->constrained('delivery_zones');   // منطقة الوصول
             $table->string('from_location');               // وصف نقطة الانطلاق
             $table->string('to_location');                 // وصف نقطة الوصول
             $table->decimal('from_latitude', 10, 7)->nullable();

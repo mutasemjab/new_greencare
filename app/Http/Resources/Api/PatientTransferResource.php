@@ -18,14 +18,6 @@ class PatientTransferResource extends JsonResource
             'to_lng'           => $this->to_longitude,
             'case_description' => $this->case_description,
             'status'           => $this->status,
-            'from_zone'        => $this->whenLoaded('fromZone', fn () => [
-                'id'   => $this->fromZone->id,
-                'name' => $this->fromZone->name,
-            ]),
-            'to_zone'          => $this->whenLoaded('toZone', fn () => [
-                'id'   => $this->toZone->id,
-                'name' => $this->toZone->name,
-            ]),
             'created_at'       => $this->created_at,
         ];
     }
