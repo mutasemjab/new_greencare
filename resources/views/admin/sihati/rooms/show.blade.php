@@ -23,12 +23,23 @@
             <span class="badge bg-danger-subtle text-danger">معطلة</span>
         @endif
         <div class="ms-auto d-flex gap-2">
+            <a href="{{ route('admin.sihati.rooms.edit', $room) }}" class="btn btn-sm btn-outline-warning">
+                <i class="bi bi-pencil me-1"></i> تعديل
+            </a>
             <form action="{{ route('admin.sihati.rooms.toggle', $room) }}" method="POST">
                 @csrf
                 @method('PATCH')
                 <button class="btn btn-sm {{ $room->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}">
                     <i class="bi bi-{{ $room->is_active ? 'pause-circle' : 'play-circle' }} me-1"></i>
                     {{ $room->is_active ? 'تعطيل الغرفة' : 'تفعيل الغرفة' }}
+                </button>
+            </form>
+            <form action="{{ route('admin.sihati.rooms.destroy', $room) }}" method="POST"
+                onsubmit="return confirm('هل أنت متأكد من حذف هذه الغرفة؟ لا يمكن التراجع عن هذا الإجراء.')">
+                @csrf
+                @method('DELETE')
+                <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i> حذف
                 </button>
             </form>
         </div>

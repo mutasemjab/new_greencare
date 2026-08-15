@@ -50,8 +50,6 @@ class TransferController extends Controller
             'status'           => 'pending',
         ]);
 
-        $transfer->load('fromZone', 'toZone');
-
         return $this->success(new PatientTransferResource($transfer), 'تم إرسال طلب النقل', 201);
     }
 

@@ -12,6 +12,7 @@
     </div>
 
     @include('admin.includes.alerts.success')
+    @include('admin.includes.alerts.error')
 
     {{-- Filters --}}
     <div class="card border-0 shadow-sm mb-3">
@@ -99,12 +100,24 @@
                                 class="btn btn-sm btn-outline-primary" title="عرض التفاصيل">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <a href="{{ route('admin.sihati.rooms.edit', $room) }}"
+                                class="btn btn-sm btn-outline-warning" title="تعديل">
+                                <i class="bi bi-pencil"></i>
+                            </a>
                             <form action="{{ route('admin.sihati.rooms.toggle', $room) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('PATCH')
                                 <button class="btn btn-sm {{ $room->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}"
                                     title="{{ $room->is_active ? 'تعطيل' : 'تفعيل' }}">
                                     <i class="bi bi-{{ $room->is_active ? 'pause-circle' : 'play-circle' }}"></i>
+                                </button>
+                            </form>
+                            <form action="{{ route('admin.sihati.rooms.destroy', $room) }}" method="POST" class="d-inline"
+                                onsubmit="return confirm('هل أنت متأكد من حذف هذه الغرفة؟ لا يمكن التراجع عن هذا الإجراء.')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger" title="حذف">
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </form>
                         </td>

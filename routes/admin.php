@@ -232,6 +232,9 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('sihati/rooms/create',                                     [RoomController::class, 'create'])->name('admin.sihati.rooms.create');
         Route::post('sihati/rooms',                                           [RoomController::class, 'store'])->name('admin.sihati.rooms.store');
         Route::get('sihati/rooms/{room}',                                     [RoomController::class, 'show'])->name('admin.sihati.rooms.show');
+        Route::get('sihati/rooms/{room}/edit',                                [RoomController::class, 'edit'])->name('admin.sihati.rooms.edit');
+        Route::patch('sihati/rooms/{room}',                                   [RoomController::class, 'update'])->name('admin.sihati.rooms.update');
+        Route::delete('sihati/rooms/{room}',                                  [RoomController::class, 'destroy'])->name('admin.sihati.rooms.destroy');
         Route::patch('sihati/rooms/{room}/toggle',                            [RoomController::class, 'toggleActive'])->name('admin.sihati.rooms.toggle');
         Route::post('sihati/rooms/{room}/members',                            [RoomController::class, 'addMember'])->name('admin.sihati.rooms.members.add');
         Route::delete('sihati/rooms/{room}/members/{member}',                 [RoomController::class, 'removeMember'])->name('admin.sihati.rooms.members.remove');

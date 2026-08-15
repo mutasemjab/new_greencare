@@ -115,6 +115,51 @@ class RoomController extends Controller
         ));
     }
 
+    public function edit(Room $room)
+    {
+        $patients              = User::where('role', 'patient')->get();
+        $headNurses             = User::where('role', 'head_nurse')->get();
+        $registrationTemplates = ReportTemplate::active()->where('template_type', 'registration')->get();
+
+        return view('admin.sihati.rooms.edit', compact('room', 'patients', 'headNurses', 'registrationTemplates'));
+    }
+
+    public function update(Request $request, Room $room)
+    {
+        $data = $request->validate([
+            'patient_id'                => 'required|exists:users,id',
+            'created_by'                => 'required|exists:users,id',
+            'name'                      => 'required|string|max:255',
+            'description'               => 'nullable|string',
+            'address'                   => 'nullable|string|max:255',
+            'discount_value'            => 'nullable|numeric|min:0|max:100',
+            'registration_template_id'  => 'nullable|exists:report_templates,id',
+        ]);
+
+        $room->update($data);
+
+        return redirect()->route('admin.sihati.rooms.show', $room)
+            ->with('success', 'تم تعديل بيانات الغرفة بنجاح');
+    }
+
+    public function destroy(Room $room)
+    {
+        $hasActivity = $room->reports()->exists()
+            || $room->medications()->exists()
+            || $room->doctorOrders()->exists();
+
+        if ($hasActivity) {
+            return back()->withErrors([
+                'delete' => 'لا يمكن حذف هذه الغرفة لوجود تقارير أو أدوية أو أوامر طبيب مرتبطة بها. يمكنك تعطيلها بدلاً من ذلك.',
+            ]);
+        }
+
+        $room->delete();
+
+        return redirect()->route('admin.sihati.rooms.index')
+            ->with('success', 'تم حذف الغرفة بنجاح');
+    }
+
     public function toggleActive(Room $room)
     {
         $room->update(['is_active' => ! $room->is_active]);
