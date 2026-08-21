@@ -96,11 +96,18 @@ class RoomController extends Controller
             ['role' => 'patient']
         );
 
-        $room->update(['firebase_room_id' => $this->firebase->createRoomDocument($room)]);
+        $firebaseRoomId = $this->firebase->createRoomDocument($room);
+        $room->update(['firebase_room_id' => $firebaseRoomId]);
         $this->firebase->syncRoomMembers($room);
 
+        $message = "تم إنشاء الغرفة بنجاح — كود المريض: {$room->patient_code}";
+
+        if (! $firebaseRoomId) {
+            $message .= ' — تنبيه: تعذّرت مزامنة الغرفة مع Firestore، الدردشة الحية لن تعمل حتى تتم المزامنة. راجع سجلات النظام.';
+        }
+
         return redirect()->route('admin.sihati.rooms.show', $room)
-            ->with('success', "تم إنشاء الغرفة بنجاح — كود المريض: {$room->patient_code}");
+            ->with('success', $message);
     }
 
     public function index(Request $request)
@@ -233,6 +240,12 @@ class RoomController extends Controller
             ['role' => 'patient']
         );
 
+        // Self-heal a room that never got its Firestore doc created (e.g. Firebase
+        // was down at creation time) — retry on every edit until it succeeds.
+        if (! $room->firebase_room_id) {
+            $room->update(['firebase_room_id' => $this->firebase->createRoomDocument($room)]);
+        }
+
         $this->firebase->syncRoomMembers($room);
 
         return redirect()->route('admin.sihati.rooms.show', $room)
@@ -250,6 +263,8 @@ class RoomController extends Controller
                 'delete' => 'لا يمكن حذف هذه الغرفة لوجود تقارير أو أدوية أو أوامر طبيب مرتبطة بها. يمكنك تعطيلها بدلاً من ذلك.',
             ]);
         }
+
+        $this->firebase->deleteRoomDocument($room);
 
         $room->delete();
 

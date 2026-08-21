@@ -35,7 +35,11 @@ class FirebaseService
         try {
             return $this->auth()?->createCustomToken((string) $user->id)->toString();
         } catch (Throwable $e) {
-            Log::error('Firebase: failed to mint custom token', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+            Log::error('Firebase: failed to mint custom token', [
+                'user_id'   => $user->id,
+                'exception' => get_class($e),
+                'error'     => $e->getMessage(),
+            ]);
 
             return null;
         }
@@ -43,29 +47,41 @@ class FirebaseService
 
     /**
      * Creates the room's chatRooms/{id} Firestore document and returns the
-     * document id to store as rooms.firebase_room_id. Falls back to a
-     * locally-generated id (Firestore doc is simply skipped) when Firebase
-     * isn't configured — room creation must never fail because of this.
+     * document id to store as rooms.firebase_room_id.
+     *
+     * Returns null — never a fake/unwritten id — when Firebase isn't
+     * configured or the write fails, so rooms.firebase_room_id honestly
+     * reflects whether a Firestore document actually exists. Room creation
+     * itself must never fail because of this; callers just leave the
+     * column null and can retry the sync later.
      */
-    public function createRoomDocument(Room $room): string
+    public function createRoomDocument(Room $room): ?string
     {
+        $firestore = $this->firestore();
+
+        if (! $firestore) {
+            return null;
+        }
+
         $firebaseRoomId = 'room_' . uniqid();
 
         try {
-            $firestore = $this->firestore();
+            $firestore->database()->collection('chatRooms')->document($firebaseRoomId)->set([
+                'members'              => $room->memberUserIds(),
+                'last_message_preview' => null,
+                'last_message_at'      => null,
+            ]);
 
-            if ($firestore) {
-                $firestore->database()->collection('chatRooms')->document($firebaseRoomId)->set([
-                    'members'              => $room->memberUserIds(),
-                    'last_message_preview' => null,
-                    'last_message_at'      => null,
-                ]);
-            }
+            return $firebaseRoomId;
         } catch (Throwable $e) {
-            Log::error('Firebase: failed to create room document', ['room_id' => $room->id, 'error' => $e->getMessage()]);
-        }
+            Log::error('Firebase: failed to create room document', [
+                'room_id'   => $room->id,
+                'exception' => get_class($e),
+                'error'     => $e->getMessage(),
+            ]);
 
-        return $firebaseRoomId;
+            return null;
+        }
     }
 
     /**
@@ -88,7 +104,37 @@ class FirebaseService
                 ], ['merge' => true]);
             }
         } catch (Throwable $e) {
-            Log::error('Firebase: failed to sync room members', ['room_id' => $room->id, 'error' => $e->getMessage()]);
+            Log::error('Firebase: failed to sync room members', [
+                'room_id'   => $room->id,
+                'exception' => get_class($e),
+                'error'     => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Deletes the room's chatRooms/{id} Firestore document. Best-effort —
+     * logs and returns on any failure, never throws, so a Firestore hiccup
+     * never blocks the actual room deletion in MySQL.
+     */
+    public function deleteRoomDocument(Room $room): void
+    {
+        if (! $room->firebase_room_id) {
+            return;
+        }
+
+        try {
+            $firestore = $this->firestore();
+
+            if ($firestore) {
+                $firestore->database()->collection('chatRooms')->document($room->firebase_room_id)->delete();
+            }
+        } catch (Throwable $e) {
+            Log::error('Firebase: failed to delete room document', [
+                'room_id'   => $room->id,
+                'exception' => get_class($e),
+                'error'     => $e->getMessage(),
+            ]);
         }
     }
 
