@@ -13,10 +13,10 @@ class VisitFormResource extends JsonResource
             'patient_name' => $this->whenLoaded('patient', fn () => $this->patient->name),
             'created_at'   => $this->created_at,
             'answers'      => $this->whenLoaded('answers', fn () =>
-                VisitFormAnswerResource::collection($this->answers)
+                VisitFormAnswerResource::collection($this->answers->values())
             ),
             'attachments'  => $this->whenLoaded('attachments', fn () =>
-                $this->attachments->map(fn ($a) => ['id' => $a->id, 'url' => $a->url])
+                $this->attachments->map(fn ($a) => ['id' => $a->id, 'url' => $a->url])->values()
             ),
         ];
     }

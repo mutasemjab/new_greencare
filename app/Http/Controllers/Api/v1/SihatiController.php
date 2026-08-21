@@ -290,7 +290,8 @@ class SihatiController extends Controller
     public function roomDetail(Request $request, int $id)
     {
         $room = Room::with([
-            'patient', 'members.user', 'activeNurseAssignment.template.fields',
+            'patient', 'members.user',
+            'activeNurseAssignment.template.fields', 'activeDoctorAssignment.template.fields',
             'diagnoses', 'chronicDiseases', 'attachments',
         ])->findOrFail($id);
 
@@ -345,13 +346,37 @@ class SihatiController extends Controller
             }
         }
 
-        // Hourly nurse reports must resolve to the 'nurse' template specifically —
-        // a room can have an active 'nurse' assignment and an active 'doctor'
-        // assignment at the same time, so the generic activeAssignment() is
-        // ambiguous here.
-        $assignment = $request->filled('report_hour')
-            ? $room->activeNurseAssignment()->with('template.fields')->first()
-            : $room->activeAssignment()->with('template.fields')->first();
+        if ($request->filled('report_month')) {
+            if (! $this->hasRoomRole($room, $user->id, 'doctor')) {
+                abort(403, 'فقط الأطباء يمكنهم تعبئة التقرير الشهري');
+            }
+
+            $currentMonth = now('Asia/Amman')->format('Y-m');
+
+            if ($request->report_month !== $currentMonth) {
+                return $this->error('لا يمكن تعبئة تقرير لشهر غير الشهر الحالي', null, 422);
+            }
+
+            $alreadyFilled = RoomReport::where('room_id', $room->id)
+                ->where('report_month', $request->report_month)
+                ->exists();
+
+            if ($alreadyFilled) {
+                return $this->error('تم تعبئة تقرير هذا الشهر مسبقاً', null, 422);
+            }
+        }
+
+        // Hourly nurse / monthly doctor reports must resolve to their own
+        // template type specifically — a room can have an active 'nurse'
+        // assignment and an active 'doctor' assignment at the same time, so
+        // the generic activeAssignment() is ambiguous for either of them.
+        if ($request->filled('report_hour')) {
+            $assignment = $room->activeNurseAssignment()->with('template.fields')->first();
+        } elseif ($request->filled('report_month')) {
+            $assignment = $room->activeDoctorAssignment()->with('template.fields')->first();
+        } else {
+            $assignment = $room->activeAssignment()->with('template.fields')->first();
+        }
 
         if (!$assignment || !$assignment->template) {
             return $this->error('لا يوجد قالب تقرير مُعيَّن للغرفة', null, 422);
@@ -380,6 +405,7 @@ class SihatiController extends Controller
             'report_type'                => $template->template_type,
             'submitted_at'               => now(),
             'report_hour'                => $request->input('report_hour'),
+            'report_month'               => $request->input('report_month'),
             'note'                       => $request->input('note'),
         ]);
 

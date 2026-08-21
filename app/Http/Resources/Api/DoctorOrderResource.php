@@ -18,7 +18,7 @@ class DoctorOrderResource extends JsonResource
                 'name' => $this->doctor->name,
             ]),
             'replies'     => $this->whenLoaded('replies', fn () =>
-                DoctorOrderReplyResource::collection($this->replies)
+                DoctorOrderReplyResource::collection($this->replies->values())
             ),
             'created_at'  => $this->created_at,
         ];

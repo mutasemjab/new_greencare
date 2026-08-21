@@ -12,13 +12,14 @@ class RoomReportResource extends JsonResource
             'id'           => $this->id,
             'report_type'  => $this->report_type,
             'report_hour'  => $this->report_hour,
+            'report_month' => $this->report_month,
             'submitted_at' => $this->submitted_at,
             'submitted_by' => $this->whenLoaded('submittedBy', fn () => [
                 'id'   => $this->submittedBy->id,
                 'name' => $this->submittedBy->name,
             ]),
             'answers'      => $this->whenLoaded('answers', fn () =>
-                RoomReportAnswerResource::collection($this->answers)
+                RoomReportAnswerResource::collection($this->answers->values())
             ),
         ];
     }

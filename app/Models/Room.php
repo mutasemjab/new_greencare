@@ -138,6 +138,17 @@ class Room extends Model
             ->whereHas('template', fn ($q) => $q->where('template_type', 'nurse'));
     }
 
+    /**
+     * The active doctor/monthly-report template assignment specifically —
+     * same reasoning as activeNurseAssignment(), for the doctor's report.
+     */
+    public function activeDoctorAssignment()
+    {
+        return $this->hasOne(RoomTemplateAssignment::class)
+            ->whereNull('unassigned_at')
+            ->whereHas('template', fn ($q) => $q->where('template_type', 'doctor'));
+    }
+
     // ── Reports ───────────────────────────────────────────────────────────
 
     public function reports()

@@ -26,8 +26,8 @@ class VisitFormController extends Controller
             'id'         => $field->id,
             'question'   => $field->question,
             'field_type' => $field->field_type,
-            'options'    => $field->options,
-        ]));
+            'options'    => $field->options ? array_values($field->options) : [],
+        ])->values());
     }
 
     /**
