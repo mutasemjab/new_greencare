@@ -219,11 +219,15 @@ class SihatiController extends Controller
             }
         }
 
-        RoomMember::create([
-            'room_id' => $room->id,
-            'user_id' => $user->id,
-            'role'    => 'super_nurse',
-        ]);
+        RoomMember::firstOrCreate(
+            ['room_id' => $room->id, 'user_id' => $user->id],
+            ['role' => 'super_nurse']
+        );
+
+        RoomMember::firstOrCreate(
+            ['room_id' => $room->id, 'user_id' => $room->patient_id],
+            ['role' => 'patient']
+        );
 
         $room->update(['firebase_room_id' => $this->firebase->createRoomDocument($room)]);
         $this->firebase->syncRoomMembers($room);

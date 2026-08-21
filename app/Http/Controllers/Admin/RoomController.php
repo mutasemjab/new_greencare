@@ -91,6 +91,11 @@ class RoomController extends Controller
             }
         }
 
+        RoomMember::firstOrCreate(
+            ['room_id' => $room->id, 'user_id' => $room->patient_id],
+            ['role' => 'patient']
+        );
+
         $room->update(['firebase_room_id' => $this->firebase->createRoomDocument($room)]);
         $this->firebase->syncRoomMembers($room);
 
@@ -216,6 +221,19 @@ class RoomController extends Controller
                 ]);
             }
         }
+
+        // Keep the patient's membership row in sync if the linked patient changed
+        RoomMember::where('room_id', $room->id)
+            ->where('role', 'patient')
+            ->where('user_id', '!=', $room->patient_id)
+            ->delete();
+
+        RoomMember::firstOrCreate(
+            ['room_id' => $room->id, 'user_id' => $room->patient_id],
+            ['role' => 'patient']
+        );
+
+        $this->firebase->syncRoomMembers($room);
 
         return redirect()->route('admin.sihati.rooms.show', $room)
             ->with('success', 'تم تعديل بيانات الغرفة بنجاح');

@@ -25,6 +25,7 @@ class RoomMember extends Model
             'nurse'          => 'ممرض',
             'patient_family' => 'عيلة المريض',
             'super_nurse'    => 'ممرض مسؤول',
+            'patient'        => 'مريض',
             default          => $this->role,
         };
     }
