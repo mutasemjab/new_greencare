@@ -308,7 +308,7 @@ class SihatiController extends Controller
         $this->verifyRoomAccess($room);
 
         $reports = RoomReport::where('room_id', $room->id)
-            ->with('submittedBy')
+            ->with('submittedBy', 'answers')
             ->orderByDesc('submitted_at')
             ->paginate(15);
 

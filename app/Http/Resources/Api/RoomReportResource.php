@@ -11,6 +11,7 @@ class RoomReportResource extends JsonResource
         return [
             'id'           => $this->id,
             'report_type'  => $this->report_type,
+            'report_hour'  => $this->report_hour,
             'submitted_at' => $this->submitted_at,
             'submitted_by' => $this->whenLoaded('submittedBy', fn () => [
                 'id'   => $this->submittedBy->id,

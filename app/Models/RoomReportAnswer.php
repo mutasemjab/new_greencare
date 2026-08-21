@@ -32,7 +32,7 @@ class RoomReportAnswer extends Model
     {
         return match ($this->field_answer_type) {
             'text'   => $this->answer_text ?? '—',
-            'number' => $this->answer_number !== null ? (string) $this->answer_number : '—',
+            'number' => $this->answer_number !== null ? (string) (float) $this->answer_number : '—',
             'yes_no' => match ($this->answer_boolean) {
                 true  => 'نعم',
                 false => 'لا',
