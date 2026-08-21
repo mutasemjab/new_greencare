@@ -3,27 +3,61 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChronicDisease;
+use App\Models\Diagnosis;
 use App\Models\ReportTemplate;
 use App\Models\Room;
+use App\Models\RoomAttachment;
 use App\Models\RoomMember;
 use App\Models\RoomTemplateAssignment;
 use App\Models\User;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
+
+    private function intakeRules(): array
+    {
+        return [
+            'age'                   => 'nullable|integer|min:0|max:150',
+            'gender'                => 'nullable|in:male,female',
+            'weight'                => 'nullable|numeric|min:0',
+            'has_allergies'         => 'nullable|boolean',
+            'allergy_details'       => 'nullable|string',
+            'marital_status'        => 'nullable|in:single,married,divorced,widowed',
+            'functional_status'     => 'nullable|in:independent,partially_dependent,fully_dependent',
+            'race'                  => 'nullable|in:white,black',
+            'education_level'       => 'nullable|string|max:255',
+            'blood_group'           => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'diagnosis_ids'         => 'sometimes|array',
+            'diagnosis_ids.*'       => 'exists:diagnoses,id',
+            'chronic_disease_ids'   => 'sometimes|array',
+            'chronic_disease_ids.*' => 'exists:chronic_diseases,id',
+            'attachments'           => 'sometimes|array',
+            'attachments.*'         => 'file|mimes:png,jpg,jpeg,pdf|max:10240',
+        ];
+    }
+
     public function create()
     {
-        $patients          = User::where('role', 'patient')->get();
-        $headNurses         = User::where('role', 'head_nurse')->get();
-        $registrationTemplates = ReportTemplate::active()->where('template_type', 'registration')->get();
+        $patients               = User::where('role', 'patient')->get();
+        $headNurses             = User::where('role', 'head_nurse')->get();
+        $registrationTemplates  = ReportTemplate::active()->where('template_type', 'registration')->get();
+        $diagnoses              = Diagnosis::active()->get();
+        $chronicDiseases        = ChronicDisease::active()->get();
 
-        return view('admin.sihati.rooms.create', compact('patients', 'headNurses', 'registrationTemplates'));
+        return view('admin.sihati.rooms.create', compact(
+            'patients', 'headNurses', 'registrationTemplates', 'diagnoses', 'chronicDiseases'
+        ));
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $data = $request->validate(array_merge([
             'patient_id'                => 'required|exists:users,id',
             'created_by'                => 'required|exists:users,id',
             'name'                      => 'required|string|max:255',
@@ -31,11 +65,34 @@ class RoomController extends Controller
             'address'                   => 'nullable|string|max:255',
             'discount_value'            => 'nullable|numeric|min:0|max:100',
             'registration_template_id'  => 'nullable|exists:report_templates,id',
-        ]);
+        ], $this->intakeRules()));
 
         $data['is_active'] = true;
+        $data['has_allergies'] = $request->boolean('has_allergies');
 
         $room = Room::create($data);
+
+        if ($request->filled('diagnosis_ids')) {
+            $room->diagnoses()->sync($data['diagnosis_ids']);
+        }
+
+        if ($request->filled('chronic_disease_ids')) {
+            $room->chronicDiseases()->sync($data['chronic_disease_ids']);
+        }
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                RoomAttachment::create([
+                    'room_id'       => $room->id,
+                    'uploaded_by'   => null,
+                    'file_path'     => $file->store('rooms/attachments', 'public'),
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+
+        $room->update(['firebase_room_id' => $this->firebase->createRoomDocument($room)]);
+        $this->firebase->syncRoomMembers($room);
 
         return redirect()->route('admin.sihati.rooms.show', $room)
             ->with('success', "تم إنشاء الغرفة بنجاح — كود المريض: {$room->patient_code}");
@@ -63,7 +120,7 @@ class RoomController extends Controller
 
     public function show(Room $room)
     {
-        $room->load(['patient', 'createdBy', 'registrationTemplate']);
+        $room->load(['patient', 'createdBy', 'registrationTemplate', 'diagnoses', 'chronicDiseases', 'attachments']);
 
         $members = $room->members()->with('user')->get();
 
@@ -117,16 +174,22 @@ class RoomController extends Controller
 
     public function edit(Room $room)
     {
-        $patients              = User::where('role', 'patient')->get();
+        $patients               = User::where('role', 'patient')->get();
         $headNurses             = User::where('role', 'head_nurse')->get();
-        $registrationTemplates = ReportTemplate::active()->where('template_type', 'registration')->get();
+        $registrationTemplates  = ReportTemplate::active()->where('template_type', 'registration')->get();
+        $diagnoses              = Diagnosis::active()->get();
+        $chronicDiseases        = ChronicDisease::active()->get();
 
-        return view('admin.sihati.rooms.edit', compact('room', 'patients', 'headNurses', 'registrationTemplates'));
+        $room->load('diagnoses', 'chronicDiseases', 'attachments');
+
+        return view('admin.sihati.rooms.edit', compact(
+            'room', 'patients', 'headNurses', 'registrationTemplates', 'diagnoses', 'chronicDiseases'
+        ));
     }
 
     public function update(Request $request, Room $room)
     {
-        $data = $request->validate([
+        $data = $request->validate(array_merge([
             'patient_id'                => 'required|exists:users,id',
             'created_by'                => 'required|exists:users,id',
             'name'                      => 'required|string|max:255',
@@ -134,9 +197,25 @@ class RoomController extends Controller
             'address'                   => 'nullable|string|max:255',
             'discount_value'            => 'nullable|numeric|min:0|max:100',
             'registration_template_id'  => 'nullable|exists:report_templates,id',
-        ]);
+        ], $this->intakeRules()));
+
+        $data['has_allergies'] = $request->boolean('has_allergies');
 
         $room->update($data);
+
+        $room->diagnoses()->sync($data['diagnosis_ids'] ?? []);
+        $room->chronicDiseases()->sync($data['chronic_disease_ids'] ?? []);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                RoomAttachment::create([
+                    'room_id'       => $room->id,
+                    'uploaded_by'   => null,
+                    'file_path'     => $file->store('rooms/attachments', 'public'),
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
 
         return redirect()->route('admin.sihati.rooms.show', $room)
             ->with('success', 'تم تعديل بيانات الغرفة بنجاح');
@@ -173,7 +252,7 @@ class RoomController extends Controller
     {
         $request->validate([
             'phone' => 'required|string',
-            'role'  => 'required|in:doctor,nurse,patient_family',
+            'role'  => 'required|in:doctor,nurse,patient_family,super_nurse',
         ]);
 
         $user = User::where('phone', $request->phone)->first();
@@ -192,6 +271,8 @@ class RoomController extends Controller
             'role'    => $request->role,
         ]);
 
+        $this->firebase->syncRoomMembers($room);
+
         return back()->with('success', "تم إضافة {$user->name} للغرفة");
     }
 
@@ -200,6 +281,8 @@ class RoomController extends Controller
         abort_if($member->room_id !== $room->id, 403);
 
         $member->delete();
+
+        $this->firebase->syncRoomMembers($room);
 
         return back()->with('success', 'تم إزالة العضو من الغرفة');
     }

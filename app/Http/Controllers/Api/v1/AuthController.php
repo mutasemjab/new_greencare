@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\UserResource;
 use App\Http\Traits\ApiResponse;
 use App\Models\User;
+use App\Services\FirebaseService;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -16,10 +17,12 @@ class AuthController extends Controller
     use ApiResponse;
 
     protected OtpService $otpService;
+    protected FirebaseService $firebase;
 
-    public function __construct(OtpService $otpService)
+    public function __construct(OtpService $otpService, FirebaseService $firebase)
     {
         $this->otpService = $otpService;
+        $this->firebase   = $firebase;
     }
 
     /**
@@ -211,5 +214,21 @@ class AuthController extends Controller
         $request->user('user-api')->update(['fcm_token' => $request->fcm_token]);
 
         return $this->success(null, 'تم تحديث رمز الإشعارات');
+    }
+
+    /**
+     * POST /firebase/token — mints a Firebase custom token for the
+     * authenticated user so the app can sign into Firebase Auth and have
+     * request.auth.uid trusted by the Firestore security rules.
+     */
+    public function firebaseToken(Request $request)
+    {
+        $token = $this->firebase->mintCustomToken($request->user('user-api'));
+
+        if (! $token) {
+            return $this->error('تعذر توليد رمز Firebase، حاول لاحقاً', null, 503);
+        }
+
+        return $this->success(['firebase_token' => $token]);
     }
 }

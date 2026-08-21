@@ -179,6 +179,109 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Patient intake data --}}
+            <div class="row g-4 mt-1">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-transparent fw-bold">
+                            <i class="bi bi-person-vcard me-2"></i>بيانات المريض (نموذج الاستقبال)
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">العمر</span>
+                                    <span class="fw-semibold">{{ $room->age ?? '—' }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">الجنس</span>
+                                    <span class="fw-semibold">{{ $room->gender === 'male' ? 'ذكر' : ($room->gender === 'female' ? 'أنثى' : '—') }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">الوزن</span>
+                                    <span class="fw-semibold">{{ $room->weight ? $room->weight . ' كغ' : '—' }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">فصيلة الدم</span>
+                                    <span class="fw-semibold">{{ $room->blood_group ?? '—' }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">الحالة الاجتماعية</span>
+                                    <span class="fw-semibold">
+                                        @php
+                                            $maritalMap = ['single'=>'أعزب','married'=>'متزوج','divorced'=>'مطلق','widowed'=>'أرمل'];
+                                        @endphp
+                                        {{ $maritalMap[$room->marital_status] ?? '—' }}
+                                    </span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">الحالة الوظيفية</span>
+                                    <span class="fw-semibold">
+                                        @php
+                                            $funcMap = ['independent'=>'مستقل','partially_dependent'=>'معتمد جزئياً','fully_dependent'=>'معتمد كلياً'];
+                                        @endphp
+                                        {{ $funcMap[$room->functional_status] ?? '—' }}
+                                    </span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">العرق</span>
+                                    <span class="fw-semibold">{{ $room->race === 'white' ? 'أبيض' : ($room->race === 'black' ? 'أسود' : '—') }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted">المستوى التعليمي</span>
+                                    <span class="fw-semibold">{{ $room->education_level ?? '—' }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between py-2">
+                                    <span class="text-muted">الحساسية</span>
+                                    <span class="fw-semibold">
+                                        @if($room->has_allergies)
+                                            <span class="badge bg-warning-subtle text-warning">{{ $room->allergy_details ?: 'يوجد' }}</span>
+                                        @else
+                                            لا يوجد
+                                        @endif
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-transparent fw-bold">
+                            <i class="bi bi-clipboard2-pulse me-2"></i>التشخيصات والأمراض المزمنة والمرفقات
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">التشخيصات</div>
+                                @forelse($room->diagnoses as $diagnosis)
+                                    <span class="badge bg-info-subtle text-info me-1 mb-1">{{ $diagnosis->name }}</span>
+                                @empty
+                                    <span class="text-muted small">لا يوجد</span>
+                                @endforelse
+                            </div>
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">الأمراض المزمنة</div>
+                                @forelse($room->chronicDiseases as $chronicDisease)
+                                    <span class="badge bg-secondary-subtle text-secondary me-1 mb-1">{{ $chronicDisease->name }}</span>
+                                @empty
+                                    <span class="text-muted small">لا يوجد</span>
+                                @endforelse
+                            </div>
+                            <div>
+                                <div class="text-muted small mb-1">المرفقات</div>
+                                @forelse($room->attachments as $attachment)
+                                    <a href="{{ $attachment->url }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1 mb-1">
+                                        <i class="bi bi-file-earmark me-1"></i> {{ $attachment->original_name ?? 'مرفق ' . $loop->iteration }}
+                                    </a>
+                                @empty
+                                    <span class="text-muted small">لا يوجد</span>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- ── Tab: Members ──────────────────────────────────────────────── --}}

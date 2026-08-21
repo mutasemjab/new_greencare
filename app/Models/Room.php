@@ -4,20 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Room extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'patient_code', 'created_by', 'name', 'description',
+        'patient_id', 'patient_code', 'room_code', 'created_by', 'name', 'description',
         'address', 'discount_value', 'registration_template_id',
         'firebase_room_id', 'is_active',
+        'age', 'gender', 'weight', 'has_allergies', 'allergy_details',
+        'marital_status', 'functional_status', 'race', 'education_level', 'blood_group',
     ];
 
     protected $casts = [
         'discount_value' => 'decimal:2',
+        'weight'         => 'decimal:2',
         'is_active'      => 'boolean',
+        'has_allergies'  => 'boolean',
     ];
 
     protected static function booted(): void
@@ -25,6 +30,9 @@ class Room extends Model
         static::creating(function (Room $room) {
             if (empty($room->patient_code)) {
                 $room->patient_code = self::generateCode();
+            }
+            if (empty($room->room_code)) {
+                $room->room_code = self::generateRoomCode();
             }
         });
     }
@@ -34,6 +42,15 @@ class Room extends Model
         do {
             $code = 'PT-' . strtoupper(substr(uniqid(), -6)) . rand(10, 99);
         } while (self::where('patient_code', $code)->exists());
+
+        return $code;
+    }
+
+    private static function generateRoomCode(): string
+    {
+        do {
+            $code = strtoupper(Str::random(6));
+        } while (self::where('room_code', $code)->exists());
 
         return $code;
     }
@@ -147,6 +164,33 @@ class Room extends Model
         return $this->hasMany(DoctorOrder::class)->latest();
     }
 
+    // ── Intake — diagnoses, chronic diseases, attachments, notes, complaints ─
+
+    public function diagnoses()
+    {
+        return $this->belongsToMany(Diagnosis::class, 'room_diagnosis');
+    }
+
+    public function chronicDiseases()
+    {
+        return $this->belongsToMany(ChronicDisease::class, 'room_chronic_disease');
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(RoomAttachment::class);
+    }
+
+    public function doctorNotes()
+    {
+        return $this->hasMany(DoctorNote::class)->latest();
+    }
+
+    public function complaints()
+    {
+        return $this->hasMany(Complaint::class)->latest();
+    }
+
     // ── Helper ───────────────────────────────────────────────────────────
 
     public function applyDiscount(float $amount): float
@@ -154,5 +198,39 @@ class Room extends Model
         if ($this->discount_value <= 0) return $amount;
 
         return round($amount * (1 - $this->discount_value / 100), 2);
+    }
+
+    /**
+     * This user's role within this specific room: the room_members role,
+     * or 'patient' when they are the room's patient (who has no
+     * room_members row of their own). Null when they're not related to
+     * the room at all.
+     */
+    public function roleOf(?User $user): ?string
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if ($this->patient_id === $user->id) {
+            return 'patient';
+        }
+
+        return $this->members()->where('user_id', $user->id)->value('role');
+    }
+
+    /**
+     * All user ids tied to this room — patient, creator, and every member —
+     * the set that should be mirrored into the Firestore room doc's
+     * `members` array.
+     */
+    public function memberUserIds(): array
+    {
+        return collect([$this->patient_id, $this->created_by])
+            ->merge($this->members()->pluck('user_id'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }

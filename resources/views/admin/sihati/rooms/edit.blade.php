@@ -12,7 +12,7 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-7">
+        <div class="col-lg-9">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="alert alert-info small">
@@ -20,7 +20,7 @@
                         كود المريض الخاص بالغرفة: <strong>{{ $room->patient_code }}</strong> (لا يمكن تعديله).
                     </div>
 
-                    <form action="{{ route('admin.sihati.rooms.update', $room) }}" method="POST">
+                    <form action="{{ route('admin.sihati.rooms.update', $room) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PATCH')
 
@@ -92,6 +92,152 @@
                                 @endforeach
                             </select>
                             @error('registration_template_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="fw-bold mb-3">بيانات المريض (نموذج الاستقبال)</h6>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">العمر</label>
+                                <input type="number" name="age" min="0" max="150" value="{{ old('age', $room->age) }}" class="form-control @error('age') is-invalid @enderror">
+                                @error('age') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">الجنس</label>
+                                <select name="gender" class="form-select @error('gender') is-invalid @enderror">
+                                    <option value="">—</option>
+                                    <option value="male"   {{ old('gender', $room->gender) === 'male' ? 'selected' : '' }}>ذكر</option>
+                                    <option value="female" {{ old('gender', $room->gender) === 'female' ? 'selected' : '' }}>أنثى</option>
+                                </select>
+                                @error('gender') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">الوزن (كغ)</label>
+                                <input type="number" step="0.01" min="0" name="weight" value="{{ old('weight', $room->weight) }}" class="form-control @error('weight') is-invalid @enderror">
+                                @error('weight') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">الحالة الاجتماعية</label>
+                                <select name="marital_status" class="form-select @error('marital_status') is-invalid @enderror">
+                                    <option value="">—</option>
+                                    <option value="single"    {{ old('marital_status', $room->marital_status) === 'single' ? 'selected' : '' }}>أعزب</option>
+                                    <option value="married"   {{ old('marital_status', $room->marital_status) === 'married' ? 'selected' : '' }}>متزوج</option>
+                                    <option value="divorced"  {{ old('marital_status', $room->marital_status) === 'divorced' ? 'selected' : '' }}>مطلق</option>
+                                    <option value="widowed"   {{ old('marital_status', $room->marital_status) === 'widowed' ? 'selected' : '' }}>أرمل</option>
+                                </select>
+                                @error('marital_status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">الحالة الوظيفية</label>
+                                <select name="functional_status" class="form-select @error('functional_status') is-invalid @enderror">
+                                    <option value="">—</option>
+                                    <option value="independent"          {{ old('functional_status', $room->functional_status) === 'independent' ? 'selected' : '' }}>مستقل</option>
+                                    <option value="partially_dependent"  {{ old('functional_status', $room->functional_status) === 'partially_dependent' ? 'selected' : '' }}>معتمد جزئياً</option>
+                                    <option value="fully_dependent"      {{ old('functional_status', $room->functional_status) === 'fully_dependent' ? 'selected' : '' }}>معتمد كلياً</option>
+                                </select>
+                                @error('functional_status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">العرق</label>
+                                <select name="race" class="form-select @error('race') is-invalid @enderror">
+                                    <option value="">—</option>
+                                    <option value="white" {{ old('race', $room->race) === 'white' ? 'selected' : '' }}>أبيض</option>
+                                    <option value="black" {{ old('race', $room->race) === 'black' ? 'selected' : '' }}>أسود</option>
+                                </select>
+                                @error('race') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">المستوى التعليمي</label>
+                                <input type="text" name="education_level" value="{{ old('education_level', $room->education_level) }}" class="form-control @error('education_level') is-invalid @enderror">
+                                @error('education_level') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">فصيلة الدم</label>
+                                <select name="blood_group" class="form-select @error('blood_group') is-invalid @enderror">
+                                    <option value="">—</option>
+                                    @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bg)
+                                        <option value="{{ $bg }}" {{ old('blood_group', $room->blood_group) === $bg ? 'selected' : '' }}>{{ $bg }}</option>
+                                    @endforeach
+                                </select>
+                                @error('blood_group') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="has_allergies" id="has_allergies" value="1" {{ old('has_allergies', $room->has_allergies) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="has_allergies">يوجد حساسية</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">تفاصيل الحساسية</label>
+                            <textarea name="allergy_details" rows="2" class="form-control @error('allergy_details') is-invalid @enderror">{{ old('allergy_details', $room->allergy_details) }}</textarea>
+                            @error('allergy_details') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        @php $selectedDiagnoses = old('diagnosis_ids', $room->diagnoses->pluck('id')->toArray()); @endphp
+                        @if($diagnoses->isNotEmpty())
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">التشخيصات</label>
+                            <div class="row">
+                                @foreach($diagnoses as $diagnosis)
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diagnosis_ids[]"
+                                            value="{{ $diagnosis->id }}" id="diag{{ $diagnosis->id }}"
+                                            {{ in_array($diagnosis->id, $selectedDiagnoses) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="diag{{ $diagnosis->id }}">{{ $diagnosis->name }}</label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        @php $selectedChronic = old('chronic_disease_ids', $room->chronicDiseases->pluck('id')->toArray()); @endphp
+                        @if($chronicDiseases->isNotEmpty())
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">الأمراض المزمنة</label>
+                            <div class="row">
+                                @foreach($chronicDiseases as $chronicDisease)
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="chronic_disease_ids[]"
+                                            value="{{ $chronicDisease->id }}" id="cd{{ $chronicDisease->id }}"
+                                            {{ in_array($chronicDisease->id, $selectedChronic) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="cd{{ $chronicDisease->id }}">{{ $chronicDisease->name }}</label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        @if($room->attachments->isNotEmpty())
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-block">المرفقات الحالية</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($room->attachments as $attachment)
+                                    <a href="{{ $attachment->url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-file-earmark me-1"></i> {{ $attachment->original_name ?? 'مرفق ' . $loop->iteration }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">إضافة مرفقات</label>
+                            <input type="file" name="attachments[]" multiple accept=".png,.jpg,.jpeg,.pdf" class="form-control @error('attachments') is-invalid @enderror">
+                            @error('attachments') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="d-flex gap-2">

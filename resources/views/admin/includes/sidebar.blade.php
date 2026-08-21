@@ -405,6 +405,58 @@
                     <span>أدوية المرضى</span>
                 </a>
             </li>
+
+            {{-- Diagnoses --}}
+            <li class="nav-item">
+                <a href="{{ route('admin.sihati.diagnoses.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.sihati.diagnoses.*') ? 'active' : '' }}">
+                    <i class="nav-icon bi bi-clipboard2-pulse"></i>
+                    <span>التشخيصات</span>
+                </a>
+            </li>
+
+            {{-- Chronic Diseases --}}
+            <li class="nav-item">
+                <a href="{{ route('admin.sihati.chronic-diseases.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.sihati.chronic-diseases.*') ? 'active' : '' }}">
+                    <i class="nav-icon bi bi-heart-pulse"></i>
+                    <span>الأمراض المزمنة</span>
+                </a>
+            </li>
+
+            {{-- Complaints --}}
+            <li class="nav-item">
+                <a href="{{ route('admin.sihati.complaints.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.sihati.complaints.*') ? 'active' : '' }}">
+                    <i class="nav-icon bi bi-chat-left-text"></i>
+                    <span>الشكاوى</span>
+                </a>
+            </li>
+
+            {{-- Medical Visit Forms --}}
+            <li class="nav-item has-submenu {{ request()->routeIs('admin.sihati.visit-form*') ? 'open' : '' }}">
+                <a href="#" class="nav-link submenu-toggle">
+                    <i class="nav-icon bi bi-file-earmark-medical"></i>
+                    <span>نموذج الزيارة الطبية</span>
+                    <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{ route('admin.sihati.visit-form-fields.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.sihati.visit-form-fields.*') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-list-check"></i>
+                            <span>الحقول</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.sihati.visit-forms.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.sihati.visit-forms.*') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-journal-check"></i>
+                            <span>النماذج المُرسلة</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
 
         {{-- System --}}

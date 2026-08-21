@@ -4,8 +4,11 @@ use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BathingController;
 use App\Http\Controllers\Admin\CareController;
+use App\Http\Controllers\Admin\ChronicDiseaseController;
+use App\Http\Controllers\Admin\ComplaintController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryZoneController;
+use App\Http\Controllers\Admin\DiagnosisController;
 use App\Http\Controllers\Admin\DisplayNoteTransferController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\DocumentTemplateController;
@@ -25,6 +28,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\StoreCategoryController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VisitFormController;
+use App\Http\Controllers\Admin\VisitFormFieldController;
 use App\Http\Controllers\Admin\XrayController;
 
 use Illuminate\Support\Facades\Route;
@@ -243,6 +248,39 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         // ── Sihati — Outside Medications ─────────────────────────────────────
         Route::get('sihati/medications',                                      [MedicationController::class, 'index'])->name('admin.sihati.medications.index');
         Route::get('sihati/medications/{medication}',                         [MedicationController::class, 'show'])->name('admin.sihati.medications.show');
+
+        // ── Sihati — Diagnoses ─────────────────────────────────────────────────
+        Route::get('sihati/diagnoses',                                        [DiagnosisController::class, 'index'])->name('admin.sihati.diagnoses.index');
+        Route::get('sihati/diagnoses/create',                                 [DiagnosisController::class, 'create'])->name('admin.sihati.diagnoses.create');
+        Route::post('sihati/diagnoses',                                       [DiagnosisController::class, 'store'])->name('admin.sihati.diagnoses.store');
+        Route::get('sihati/diagnoses/{diagnosis}/edit',                       [DiagnosisController::class, 'edit'])->name('admin.sihati.diagnoses.edit');
+        Route::patch('sihati/diagnoses/{diagnosis}',                          [DiagnosisController::class, 'update'])->name('admin.sihati.diagnoses.update');
+        Route::delete('sihati/diagnoses/{diagnosis}',                         [DiagnosisController::class, 'destroy'])->name('admin.sihati.diagnoses.destroy');
+
+        // ── Sihati — Chronic Diseases ────────────────────────────────────────
+        Route::get('sihati/chronic-diseases',                                 [ChronicDiseaseController::class, 'index'])->name('admin.sihati.chronic-diseases.index');
+        Route::get('sihati/chronic-diseases/create',                          [ChronicDiseaseController::class, 'create'])->name('admin.sihati.chronic-diseases.create');
+        Route::post('sihati/chronic-diseases',                                [ChronicDiseaseController::class, 'store'])->name('admin.sihati.chronic-diseases.store');
+        Route::get('sihati/chronic-diseases/{chronicDisease}/edit',           [ChronicDiseaseController::class, 'edit'])->name('admin.sihati.chronic-diseases.edit');
+        Route::patch('sihati/chronic-diseases/{chronicDisease}',              [ChronicDiseaseController::class, 'update'])->name('admin.sihati.chronic-diseases.update');
+        Route::delete('sihati/chronic-diseases/{chronicDisease}',             [ChronicDiseaseController::class, 'destroy'])->name('admin.sihati.chronic-diseases.destroy');
+
+        // ── Sihati — Complaints ──────────────────────────────────────────────
+        Route::get('sihati/complaints',                                       [ComplaintController::class, 'index'])->name('admin.sihati.complaints.index');
+        Route::get('sihati/complaints/{complaint}',                           [ComplaintController::class, 'show'])->name('admin.sihati.complaints.show');
+        Route::patch('sihati/complaints/{complaint}/reviewed',                [ComplaintController::class, 'markReviewed'])->name('admin.sihati.complaints.reviewed');
+
+        // ── Sihati — Visit Form Schema ───────────────────────────────────────
+        Route::get('sihati/visit-form-fields',                                [VisitFormFieldController::class, 'index'])->name('admin.sihati.visit-form-fields.index');
+        Route::get('sihati/visit-form-fields/create',                         [VisitFormFieldController::class, 'create'])->name('admin.sihati.visit-form-fields.create');
+        Route::post('sihati/visit-form-fields',                               [VisitFormFieldController::class, 'store'])->name('admin.sihati.visit-form-fields.store');
+        Route::get('sihati/visit-form-fields/{visitFormField}/edit',          [VisitFormFieldController::class, 'edit'])->name('admin.sihati.visit-form-fields.edit');
+        Route::patch('sihati/visit-form-fields/{visitFormField}',             [VisitFormFieldController::class, 'update'])->name('admin.sihati.visit-form-fields.update');
+        Route::delete('sihati/visit-form-fields/{visitFormField}',            [VisitFormFieldController::class, 'destroy'])->name('admin.sihati.visit-form-fields.destroy');
+
+        // ── Sihati — Visit Forms (submissions, read-only) ───────────────────
+        Route::get('sihati/visit-forms',                                      [VisitFormController::class, 'index'])->name('admin.sihati.visit-forms.index');
+        Route::get('sihati/visit-forms/{visitForm}',                          [VisitFormController::class, 'show'])->name('admin.sihati.visit-forms.show');
 
     });
 });

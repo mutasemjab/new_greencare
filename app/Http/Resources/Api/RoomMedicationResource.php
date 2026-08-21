@@ -13,6 +13,7 @@ class RoomMedicationResource extends JsonResource
             'medication_name' => $this->medication_name,
             'dosage'          => $this->dosage,
             'frequency'       => $this->frequency,
+            'times'           => $this->times ?? [],
             'start_date'      => $this->start_date
                 ? \Carbon\Carbon::parse($this->start_date)->format('Y-m-d')
                 : null,

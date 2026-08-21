@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\v1\ProductController;
 use App\Http\Controllers\Api\v1\SihatiController;
 use App\Http\Controllers\Api\v1\StoreCategoryController;
 use App\Http\Controllers\Api\v1\TransferController;
+use App\Http\Controllers\Api\v1\VisitFormController;
 use App\Http\Controllers\Api\v1\XrayController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,9 @@ Route::prefix('v1')->group(function () {
         Route::get('auth/me',        [AuthController::class, 'me']);
         Route::put('auth/profile',   [AuthController::class, 'updateProfile']);
         Route::put('auth/fcm-token', [AuthController::class, 'updateFcmToken']);
+
+        // Firebase Auth bridge
+        Route::post('firebase/token', [AuthController::class, 'firebaseToken']);
 
         // Addresses
         Route::get('addresses',                [AddressController::class, 'index']);
@@ -129,16 +133,34 @@ Route::prefix('v1')->group(function () {
         Route::post('forum/posts/{id}/replies', [ForumController::class, 'storeReply']);
         Route::delete('forum/replies/{id}',     [ForumController::class, 'destroyReply']);
 
-        // Sihati (room system)
+        // Sihati (room system) — legacy single-room endpoint, kept for now
         Route::get('sihati/my-room',                                   [SihatiController::class, 'myRoom']);
+
+        // Sihati — items feed (replaces sihati/my-room), intake, lookups
+        Route::get('sihati/items',                                     [SihatiController::class, 'items']);
+        Route::post('sihati/rooms',                                    [SihatiController::class, 'storeRoom']);
+        Route::get('sihati/users/search',                              [SihatiController::class, 'searchUsers']);
+        Route::get('sihati/diagnoses',                                 [SihatiController::class, 'diagnoses']);
+        Route::get('sihati/chronic-diseases',                          [SihatiController::class, 'chronicDiseases']);
+
         Route::get('sihati/rooms/{id}',                                [SihatiController::class, 'roomDetail']);
         Route::get('sihati/rooms/{id}/reports',                        [SihatiController::class, 'roomReports']);
         Route::post('sihati/rooms/{id}/reports',                       [SihatiController::class, 'submitReport']);
         Route::get('sihati/rooms/{id}/reports/{reportId}',             [SihatiController::class, 'reportDetail']);
+        Route::get('sihati/rooms/{id}/doctor-notes',                   [SihatiController::class, 'doctorNotesIndex']);
+        Route::post('sihati/rooms/{id}/doctor-notes',                  [SihatiController::class, 'storeDoctorNote']);
         Route::get('sihati/rooms/{id}/doctor-orders',                  [SihatiController::class, 'doctorOrders']);
+        Route::post('sihati/rooms/{id}/doctor-orders',                 [SihatiController::class, 'storeDoctorOrder']);
         Route::post('sihati/rooms/{id}/doctor-orders/{orderId}/reply', [SihatiController::class, 'replyOrder']);
         Route::get('sihati/rooms/{id}/medications',                    [SihatiController::class, 'roomMedications']);
         Route::post('sihati/rooms/{id}/medications',                   [SihatiController::class, 'addMedication']);
+        Route::post('sihati/rooms/{id}/complaints',                    [SihatiController::class, 'storeComplaint']);
+        Route::post('sihati/rooms/{id}/chat-image',                    [SihatiController::class, 'uploadChatImage']);
+
+        // Sihati — medical visit forms (parallel, chat-less item type)
+        Route::get('sihati/visit-form-schema',  [VisitFormController::class, 'schema']);
+        Route::post('sihati/visit-forms',       [VisitFormController::class, 'store']);
+        Route::get('sihati/visit-forms/{id}',   [VisitFormController::class, 'show']);
 
         // Medications (outside rooms — patient only)
         Route::get('medications',         [MedicationController::class, 'index']);

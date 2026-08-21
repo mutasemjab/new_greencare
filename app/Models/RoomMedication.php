@@ -8,12 +8,13 @@ class RoomMedication extends Model
 {
     protected $fillable = [
         'room_id', 'added_by', 'medication_name',
-        'dosage', 'frequency', 'start_date', 'end_date', 'notes',
+        'dosage', 'frequency', 'times', 'start_date', 'end_date', 'notes',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date'   => 'date',
+        'times'      => 'array',
     ];
 
     public function room()

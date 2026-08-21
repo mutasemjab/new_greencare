@@ -110,6 +110,16 @@ class User extends Authenticatable
         return $this->hasMany(XrayRequest::class);
     }
 
+    public function visitFormsSubmitted()
+    {
+        return $this->hasMany(VisitForm::class, 'submitted_by');
+    }
+
+    public function visitFormsAsPatient()
+    {
+        return $this->hasMany(VisitForm::class, 'patient_id');
+    }
+
     // ── Scopes ────────────────────────────────────────────────────────────
 
     public function scopeActive($query)
@@ -133,6 +143,7 @@ class User extends Authenticatable
             'university_manager'   => 'مسؤول الجامعة',
             'patient'              => 'مريض',
             'patient_family'       => 'أهل المريض',
+            'super_nurse'          => 'ممرض مسؤول',
             default                => $this->role,
         };
     }
