@@ -123,6 +123,21 @@ class Room extends Model
         return $this->hasOne(RoomTemplateAssignment::class)->whereNull('unassigned_at');
     }
 
+    /**
+     * The active nurse/hourly-report template assignment specifically.
+     * A room can have an active 'nurse' assignment and an active 'doctor'
+     * assignment at the same time (assignTemplate() only replaces
+     * same-type assignments), so activeAssignment() alone is ambiguous
+     * for any caller that needs the hourly-report template — use this
+     * instead wherever the hourly nurse report is involved.
+     */
+    public function activeNurseAssignment()
+    {
+        return $this->hasOne(RoomTemplateAssignment::class)
+            ->whereNull('unassigned_at')
+            ->whereHas('template', fn ($q) => $q->where('template_type', 'nurse'));
+    }
+
     // ── Reports ───────────────────────────────────────────────────────────
 
     public function reports()

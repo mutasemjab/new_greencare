@@ -36,6 +36,18 @@ class RoomResource extends JsonResource
             'attachments'        => $this->whenLoaded('attachments', fn () =>
                 RoomAttachmentResource::collection($this->attachments)
             ),
+            'active_assignment'  => $this->activeNurseAssignment ? [
+                'id'       => $this->activeNurseAssignment->id,
+                'template' => $this->activeNurseAssignment->template ? [
+                    'id'     => $this->activeNurseAssignment->template->id,
+                    'name'   => $this->activeNurseAssignment->template->name,
+                    'fields' => $this->activeNurseAssignment->template->fields->map(fn ($field) => [
+                        'id'          => $field->id,
+                        'question'    => $field->question,
+                        'answer_type' => $field->answer_type,
+                    ])->values(),
+                ] : null,
+            ] : null,
             'patient'            => $this->whenLoaded('patient', fn () =>
                 new UserResource($this->patient)
             ),

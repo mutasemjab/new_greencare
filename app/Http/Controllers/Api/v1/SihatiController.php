@@ -290,7 +290,7 @@ class SihatiController extends Controller
     public function roomDetail(Request $request, int $id)
     {
         $room = Room::with([
-            'patient', 'members.user', 'activeAssignment.template',
+            'patient', 'members.user', 'activeNurseAssignment.template.fields',
             'diagnoses', 'chronicDiseases', 'attachments',
         ])->findOrFail($id);
 
@@ -345,7 +345,13 @@ class SihatiController extends Controller
             }
         }
 
-        $assignment = $room->activeAssignment()->with('template.fields')->first();
+        // Hourly nurse reports must resolve to the 'nurse' template specifically —
+        // a room can have an active 'nurse' assignment and an active 'doctor'
+        // assignment at the same time, so the generic activeAssignment() is
+        // ambiguous here.
+        $assignment = $request->filled('report_hour')
+            ? $room->activeNurseAssignment()->with('template.fields')->first()
+            : $room->activeAssignment()->with('template.fields')->first();
 
         if (!$assignment || !$assignment->template) {
             return $this->error('لا يوجد قالب تقرير مُعيَّن للغرفة', null, 422);
