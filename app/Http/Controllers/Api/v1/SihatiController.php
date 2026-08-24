@@ -657,12 +657,31 @@ class SihatiController extends Controller
             'medication_name' => 'required|string|max:255',
             'dosage'          => 'required|string|max:255',
             'frequency'       => 'required|string|max:255',
-            'times'           => 'sometimes|array',
-            'times.*'         => 'string',
+            'frequency_type'  => 'required|in:daily,weekly,monthly',
+            'times_per_day'   => 'required_if:frequency_type,daily|integer|min:1|max:6',
+            'day_of_week'     => 'required_if:frequency_type,weekly|integer|min:0|max:6',
+            'day_of_month'    => 'required_if:frequency_type,monthly|integer|min:1|max:31',
+            'times'           => 'required|array|min:1',
+            'times.*'         => 'date_format:H:i',
             'start_date'      => 'required|date',
             'end_date'        => 'sometimes|nullable|date|after:start_date',
             'notes'           => 'sometimes|nullable|string',
         ]);
+
+        $times = $request->input('times', []);
+
+        // daily: one dose time per times_per_day. weekly/monthly: exactly one dose time.
+        $expectedCount = $request->frequency_type === 'daily' ? (int) $request->times_per_day : 1;
+
+        if (count($times) !== $expectedCount) {
+            return $this->error(
+                $request->frequency_type === 'daily'
+                    ? 'عدد الأوقات (times) يجب أن يساوي times_per_day بالضبط'
+                    : 'يجب إرسال وقت واحد بالضبط بحقل times لهذا النوع من التكرار',
+                null,
+                422
+            );
+        }
 
         $medication = RoomMedication::create([
             'room_id'         => $room->id,
@@ -670,7 +689,11 @@ class SihatiController extends Controller
             'medication_name' => $request->medication_name,
             'dosage'          => $request->dosage,
             'frequency'       => $request->frequency,
-            'times'           => $request->input('times', []),
+            'frequency_type'  => $request->frequency_type,
+            'times_per_day'   => $request->frequency_type === 'daily' ? $request->times_per_day : null,
+            'day_of_week'     => $request->frequency_type === 'weekly' ? $request->day_of_week : null,
+            'day_of_month'    => $request->frequency_type === 'monthly' ? $request->day_of_month : null,
+            'times'           => $times,
             'start_date'      => $request->start_date,
             'end_date'        => $request->end_date,
             'notes'           => $request->notes,

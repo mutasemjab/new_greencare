@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\v1\DoctorController;
 use App\Http\Controllers\Api\v1\ForumController;
 use App\Http\Controllers\Api\v1\LabController;
 use App\Http\Controllers\Api\v1\MedicationController;
+use App\Http\Controllers\Api\v1\NotificationController;
 use App\Http\Controllers\Api\v1\NutritionController;
 use App\Http\Controllers\Api\v1\NursingController;
 use App\Http\Controllers\Api\v1\OrderController;
@@ -161,6 +162,12 @@ Route::prefix('v1')->group(function () {
         Route::get('sihati/visit-form-schema',  [VisitFormController::class, 'schema']);
         Route::post('sihati/visit-forms',       [VisitFormController::class, 'store']);
         Route::get('sihati/visit-forms/{id}',   [VisitFormController::class, 'show']);
+
+        // Notifications
+        Route::get('notifications',                [NotificationController::class, 'index']);
+        Route::get('notifications/unread-count',    [NotificationController::class, 'unreadCount']);
+        Route::patch('notifications/read-all',      [NotificationController::class, 'markAllRead']);
+        Route::patch('notifications/{id}/read',     [NotificationController::class, 'markRead']);
 
         // Medications (outside rooms — patient only)
         Route::get('medications',         [MedicationController::class, 'index']);

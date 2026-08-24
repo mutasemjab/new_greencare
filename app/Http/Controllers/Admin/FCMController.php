@@ -2,127 +2,175 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\SchoolClass;
-use App\Models\Student;
-use App\Models\StudentNotification;
+use App\Models\Notification;
+use App\Models\User;
 use Google\Client as GoogleClient;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class FCMController
+class FCMController extends BaseController
 {
-    /**
-     * Send FCM push notification to a single device token.
-     */
-    public static function sendToToken(string $title, string $body, string $fcmToken, string $screen = 'home'): bool
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function __construct()
     {
-        $credentialsPath = base_path(env('FIREBASE_CREDENTIALS_PATH', ''));
-        if (! $credentialsPath || ! file_exists($credentialsPath)) {
-            Log::warning('FCM: credentials file not found');
+        $this->middleware('permission:fcm-send');
+    }
+
+    /**
+     * Google OAuth access tokens for this service account are valid ~1 hour.
+     * Caching avoids a network round-trip to Google for every single
+     * notification, which matters a lot once "send to all" loops over
+     * hundreds of users in one request.
+     */
+    private static function getAccessToken(): string
+    {
+        return Cache::remember('fcm_access_token', 3000, function () {
+            $client = new GoogleClient();
+            $client->setAuthConfig(base_path('json/green-care-app-a1237-8dd4bd0cf297.json'));
+            $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+            $client->useApplicationDefaultCredentials();
+            $client->fetchAccessTokenWithAssertion();
+
+            return $client->getAccessToken()['access_token'];
+        });
+    }
+
+    public static function sendMessage($title, $body, $fcmToken, $userId, $screen = "order")
+    {
+        if (!$fcmToken) {
+            Log::error("FCM Error: No FCM token provided for user ID $userId");
             return false;
         }
 
         try {
-            $client = new GoogleClient();
-            $client->setAuthConfig($credentialsPath);
-            $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-            $client->fetchAccessTokenWithAssertion();
-            $tokenResponse  = $client->getAccessToken();
-            $accessToken    = $tokenResponse['access_token'];
+            $access_token = self::getAccessToken();
 
-            $payload = json_encode([
-                'message' => [
-                    'token'        => $fcmToken,
-                    'notification' => ['title' => $title, 'body' => $body],
-                    'data'         => ['screen' => $screen, 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'],
-                    'android'      => ['priority' => 'high'],
-                    'apns'         => [
-                        'headers' => ['apns-priority' => '10'],
-                        'payload' => ['aps' => ['sound' => 'default', 'badge' => 1]],
+            $headers = [
+                "Authorization: Bearer $access_token",
+                'Content-Type: application/json'
+            ];
+
+            $data = [
+                "message" => [
+                    "token" => $fcmToken,
+                    "notification" => [
+                        "title" => $title,
+                        "body" => $body
                     ],
-                ],
-            ]);
+                    "data" => [
+                        'screen' => $screen,
+                        "click_action" => "FLUTTER_NOTIFICATION_CLICK"
+                    ],
+                    "android" => [
+                        "priority" => "high"
+                    ]
+                ]
+            ];
 
-            $projectId = env('FIREBASE_PROJECT_ID');
-            $ch = curl_init("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send");
-            curl_setopt_array($ch, [
-                CURLOPT_POST           => true,
-                CURLOPT_HTTPHEADER     => ["Authorization: Bearer {$accessToken}", 'Content-Type: application/json'],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_POSTFIELDS     => $payload,
-            ]);
+            $payload = json_encode($data);
 
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/v1/projects/green-care-app-a1237/messages:send');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output for debugging
             $result = curl_exec($ch);
-            $err    = curl_error($ch);
+            $err = curl_error($ch);
             curl_close($ch);
 
-            if ($err) {
-                Log::error("FCM cURL error: {$err}");
+            if ($result === false || $err) {
+                Log::error("FCM Error for user ID $userId: cURL Error: " . $err);
                 return false;
+            } else {
+                $response = json_decode($result, true);
+                Log::info("FCM Response for user ID $userId: " . json_encode($response));
+                if (isset($response['name'])) {
+                    return true;
+                } else {
+                    Log::error("FCM Error for user ID $userId: " . json_encode($response));
+                    if (isset($response['error']['details'][0]['errorCode']) && $response['error']['details'][0]['errorCode'] === 'UNREGISTERED') {
+                        Log::info("FCM token cleanup for user ID $userId");
+                        User::where('id', $userId)->update(['fcm_token' => null]);
+                    }
+                    return false;
+                }
             }
-
-            $response = json_decode($result, true);
-
-            if (isset($response['name'])) {
-                return true;
-            }
-
-            // Clear invalid token
-            if (($response['error']['details'][0]['errorCode'] ?? '') === 'UNREGISTERED') {
-                Student::where('fcm_token', $fcmToken)->update(['fcm_token' => null]);
-            }
-
-            Log::error('FCM send failed: ' . json_encode($response));
-            return false;
-
-        } catch (\Throwable $e) {
-            Log::error('FCM exception: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error("FCM Error for user ID $userId: " . $e->getMessage());
             return false;
         }
+    }
+
+
+     public static function sendMessageToAll($title, $body, $screen = "order")
+    {
+        $users = User::whereNotNull('fcm_token')->get();
+        
+        if ($users->isEmpty()) {
+            Log::warning("No users with FCM tokens found");
+            return false;
+        }
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($users as $user) {
+            $result = self::sendMessage($title, $body, $user->fcm_token, $user->id, $screen);
+            if ($result) {
+                $successCount++;
+            } else {
+                $failCount++;
+            }
+        }
+
+        Log::info("FCM Bulk Send - Success: $successCount, Failed: $failCount");
+        
+        return $successCount > 0; // Return true if at least one notification was sent
     }
 
     /**
-     * Send notification to multiple students and store in DB.
-     *
-     * @param  array|int|null  $target  null=all, int=class_id, 'student:N'=specific student
+     * Sends a push to one user AND persists a row in the notifications
+     * table, so it shows up in the app's in-app notification list
+     * regardless of whether the push itself succeeds (missing/expired
+     * token, offline device, etc).
      */
-    public static function sendToStudents(string $title, string $body, $target = null, string $screen = 'home'): array
+    public static function sendToUser($userId, $title, $body, $screen = "order", $type = 'general', $sentBy = null)
     {
-        $query = Student::where('is_active', true);
+        $user = User::find($userId);
+        $sent = false;
 
-        if (is_int($target)) {
-            $query->where('class_id', $target);
-        } elseif (is_string($target) && str_starts_with($target, 'student:')) {
-            $studentId = (int) str_replace('student:', '', $target);
-            $query->where('id', $studentId);
-        }
-        // null → all students
-
-        $students = $query->get();
-
-        $sent = 0;
-        $failed = 0;
-
-        foreach ($students as $student) {
-            // Store in DB
-            StudentNotification::create([
-                'student_id' => $student->id,
-                'title'      => $title,
-                'body'       => $body,
-                'type'       => 'general',
-            ]);
-
-            // Push via FCM if token exists
-            if ($student->fcm_token) {
-                self::sendToToken($title, $body, $student->fcm_token, $screen) ? $sent++ : $failed++;
-            }
+        if (!$user) {
+            Log::error("User not found for user ID: $userId");
+            return false;
         }
 
-        return [
-            'total'  => $students->count(),
-            'sent'   => $sent,
-            'failed' => $failed,
-        ];
+        if ($user->fcm_token) {
+            $sent = self::sendMessage($title, $body, $user->fcm_token, $user->id, $screen);
+        } else {
+            Log::error("No FCM token for user ID: $userId");
+        }
+
+        Notification::create([
+            'user_id'  => $userId,
+            'title'    => $title,
+            'body'     => $body,
+            'screen'   => $screen,
+            'type'     => $type,
+            'fcm_sent' => $sent,
+            'sent_by'  => $sentBy,
+        ]);
+
+        return $sent;
     }
+
+
 }

@@ -8,7 +8,8 @@ class RoomMedication extends Model
 {
     protected $fillable = [
         'room_id', 'added_by', 'medication_name',
-        'dosage', 'frequency', 'times', 'start_date', 'end_date', 'notes',
+        'dosage', 'frequency', 'frequency_type', 'times_per_day', 'day_of_week', 'day_of_month',
+        'times', 'start_date', 'end_date', 'notes',
     ];
 
     protected $casts = [

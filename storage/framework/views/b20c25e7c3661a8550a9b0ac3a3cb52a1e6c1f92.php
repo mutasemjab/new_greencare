@@ -463,6 +463,13 @@
         <div class="nav-label">النظام</div>
         <ul>
             <li class="nav-item">
+                <a href="<?php echo e(route('admin.notifications.index')); ?>"
+                    class="nav-link <?php echo e(request()->routeIs('admin.notifications.*') ? 'active' : ''); ?>">
+                    <i class="nav-icon bi bi-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="<?php echo e(route('admin.role.index')); ?>"
                     class="nav-link <?php echo e(request()->routeIs('admin.role.*') ? 'active' : ''); ?>">
                     <i class="nav-icon bi bi-shield-check"></i>

@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\LabController;
 use App\Http\Controllers\Admin\LabStaffController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MedicationController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\NursingController;
 use App\Http\Controllers\Admin\NutritionController;
 use App\Http\Controllers\Admin\OrderController;
@@ -281,6 +282,11 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         // ── Sihati — Visit Forms (submissions, read-only) ───────────────────
         Route::get('sihati/visit-forms',                                      [VisitFormController::class, 'index'])->name('admin.sihati.visit-forms.index');
         Route::get('sihati/visit-forms/{visitForm}',                          [VisitFormController::class, 'show'])->name('admin.sihati.visit-forms.show');
+
+        // ── Notifications ────────────────────────────────────────────────────
+        Route::get('notifications',                                           [NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::get('notifications/create',                                    [NotificationController::class, 'create'])->name('admin.notifications.create');
+        Route::post('notifications',                                          [NotificationController::class, 'store'])->name('admin.notifications.store');
 
     });
 });
