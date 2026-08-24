@@ -4,14 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Room extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'patient_code', 'room_code', 'created_by', 'name', 'description',
+        'patient_id', 'patient_code', 'created_by', 'name', 'description',
         'address', 'discount_value', 'registration_template_id',
         'firebase_room_id', 'is_active',
         'age', 'gender', 'weight', 'has_allergies', 'allergy_details',
@@ -31,9 +30,6 @@ class Room extends Model
             if (empty($room->patient_code)) {
                 $room->patient_code = self::generateCode();
             }
-            if (empty($room->room_code)) {
-                $room->room_code = self::generateRoomCode();
-            }
         });
     }
 
@@ -42,15 +38,6 @@ class Room extends Model
         do {
             $code = 'PT-' . strtoupper(substr(uniqid(), -6)) . rand(10, 99);
         } while (self::where('patient_code', $code)->exists());
-
-        return $code;
-    }
-
-    private static function generateRoomCode(): string
-    {
-        do {
-            $code = strtoupper(Str::random(6));
-        } while (self::where('room_code', $code)->exists());
 
         return $code;
     }

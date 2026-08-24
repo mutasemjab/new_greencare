@@ -16,7 +16,6 @@ class RoomResource extends JsonResource
             'discount_value'           => $this->discount_value,
             'is_active'                => (bool) $this->is_active,
             'firebase_room_id'         => $this->firebase_room_id,
-            'room_code'                => $this->room_code,
             'age'                      => $this->age,
             'gender'                   => $this->gender,
             'weight'                   => $this->weight,

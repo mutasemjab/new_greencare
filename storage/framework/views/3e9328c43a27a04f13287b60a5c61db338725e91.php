@@ -1,41 +1,39 @@
-@extends('admin.layouts.app')
+<?php $__env->startSection('title', 'طلبات المتجر'); ?>
 
-@section('title', 'طلبات المتجر')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid py-4">
 
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0 fw-bold">طلبات المتجر</h4>
     </div>
 
-    @include('admin.includes.alerts.success')
+    <?php echo $__env->make('admin.includes.alerts.success', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-    {{-- Filter --}}
+    
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.orders.index') }}" class="row g-3">
+            <form method="GET" action="<?php echo e(route('admin.orders.index')); ?>" class="row g-3">
                 <div class="col-md-4">
                     <input type="text" name="search" class="form-control"
                         placeholder="بحث باسم العميل أو رقم الطلب..."
-                        value="{{ request('search') }}">
+                        value="<?php echo e(request('search')); ?>">
                 </div>
                 <div class="col-md-4">
                     <select name="status" class="form-select">
                         <option value="">-- جميع الحالات --</option>
-                        <option value="pending"      @selected(request('status') === 'pending')>بانتظار التأكيد</option>
-                        <option value="confirmed"    @selected(request('status') === 'confirmed')>مؤكد</option>
-                        <option value="processing"   @selected(request('status') === 'processing')>قيد المعالجة</option>
-                        <option value="shipped"      @selected(request('status') === 'shipped')>تم الشحن</option>
-                        <option value="delivered"    @selected(request('status') === 'delivered')>تم التوصيل</option>
-                        <option value="cancelled"    @selected(request('status') === 'cancelled')>ملغي</option>
+                        <option value="pending"      <?php if(request('status') === 'pending'): echo 'selected'; endif; ?>>بانتظار التأكيد</option>
+                        <option value="confirmed"    <?php if(request('status') === 'confirmed'): echo 'selected'; endif; ?>>مؤكد</option>
+                        <option value="processing"   <?php if(request('status') === 'processing'): echo 'selected'; endif; ?>>قيد المعالجة</option>
+                        <option value="shipped"      <?php if(request('status') === 'shipped'): echo 'selected'; endif; ?>>تم الشحن</option>
+                        <option value="delivered"    <?php if(request('status') === 'delivered'): echo 'selected'; endif; ?>>تم التوصيل</option>
+                        <option value="cancelled"    <?php if(request('status') === 'cancelled'): echo 'selected'; endif; ?>>ملغي</option>
                     </select>
                 </div>
                 <div class="col-md-4 d-flex gap-2">
                     <button type="submit" class="btn btn-outline-primary w-100">
                         <i class="bi bi-search me-1"></i> بحث
                     </button>
-                    <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary w-100">
+                    <a href="<?php echo e(route('admin.orders.index')); ?>" class="btn btn-outline-secondary w-100">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -43,7 +41,7 @@
         </div>
     </div>
 
-    {{-- Table --}}
+    
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -62,8 +60,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($orders as $order)
-                        @php
+                        <?php $__empty_1 = true; $__currentLoopData = $orders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php
                             $statusMap = [
                                 'pending'    => ['label' => 'بانتظار التأكيد', 'class' => 'bg-warning-subtle text-warning'],
                                 'confirmed'  => ['label' => 'مؤكد',            'class' => 'bg-info-subtle text-info'],
@@ -73,46 +71,49 @@
                                 'cancelled'  => ['label' => 'ملغي',            'class' => 'bg-danger-subtle text-danger'],
                             ];
                             $st = $statusMap[$order->status] ?? ['label' => $order->status, 'class' => 'bg-secondary-subtle text-secondary'];
-                        @endphp
+                        ?>
                         <tr>
-                            <td class="text-muted small">{{ $order->id }}</td>
+                            <td class="text-muted small"><?php echo e($order->id); ?></td>
                             <td>
-                                <div class="fw-semibold">{{ $order->user?->name ?? '—' }}</div>
-                                <div class="small text-muted">{{ $order->user?->phone }}</div>
+                                <div class="fw-semibold"><?php echo e($order->user?->name ?? '—'); ?></div>
+                                <div class="small text-muted"><?php echo e($order->user?->phone); ?></div>
                             </td>
-                            <td class="small">{{ Str::limit($order->address?->address, 40) }}</td>
-                            <td>{{ number_format($order->subtotal, 2) }} JD</td>
-                            <td>{{ number_format($order->delivery_fee, 2) }} JD</td>
-                            <td class="fw-bold">{{ number_format($order->total, 2) }} JD</td>
+                            <td class="small"><?php echo e(Str::limit($order->address?->address, 40)); ?></td>
+                            <td><?php echo e(number_format($order->subtotal, 2)); ?> JD</td>
+                            <td><?php echo e(number_format($order->delivery_fee, 2)); ?> JD</td>
+                            <td class="fw-bold"><?php echo e(number_format($order->total, 2)); ?> JD</td>
                             <td>
-                                <span class="badge {{ $st['class'] }}">{{ $st['label'] }}</span>
+                                <span class="badge <?php echo e($st['class']); ?>"><?php echo e($st['label']); ?></span>
                             </td>
-                            <td class="small text-muted">{{ $order->created_at->format('Y/m/d H:i') }}</td>
+                            <td class="small text-muted"><?php echo e($order->created_at->format('Y/m/d H:i')); ?></td>
                             <td>
-                                <a href="{{ route('admin.orders.show', $order) }}"
+                                <a href="<?php echo e(route('admin.orders.show', $order)); ?>"
                                     class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="9" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                                 لا توجد طلبات بعد
                             </td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
-        @if($orders->hasPages())
+        <?php if($orders->hasPages()): ?>
         <div class="card-footer bg-transparent d-flex justify-content-center">
-            {{ $orders->links() }}
+            <?php echo e($orders->links()); ?>
+
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('admin.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\green\resources\views/admin/orders/index.blade.php ENDPATH**/ ?>
