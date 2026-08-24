@@ -18,6 +18,7 @@ class LabRequestResource extends JsonResource
             'notes'      => $this->notes,
             'status'       => $this->status,
             'status_label' => $this->status_label,
+            'total'      => (float) $this->total,
             'room_id'    => $this->room_id ?? null,
             'result_file_url' => $this->result_file_url,
             'result_uploaded_at' => $this->result_file ? $this->updated_at : null,
@@ -26,7 +27,7 @@ class LabRequestResource extends JsonResource
                     'id'         => $pivot->lab_test_id,
                     'name'       => optional($pivot->test)->name,
                     'unit_price' => (float) $pivot->unit_price,
-                ])
+                ])->values()
             ),
             'created_at' => $this->created_at,
         ];

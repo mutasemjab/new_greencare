@@ -40,7 +40,6 @@ class OrderController extends Controller
 
         $subtotal    = $cart->items->sum(fn ($item) => $item->unit_price * $item->quantity);
         $deliveryFee = $address->deliveryZone ? (float) $address->deliveryZone->fee : 0;
-        $total       = $subtotal + $deliveryFee;
 
         $room = null;
 
@@ -52,12 +51,18 @@ class OrderController extends Controller
             }
         }
 
+        // The room's discount applies to the goods (subtotal) only — delivery
+        // is charged at full price regardless.
+        $discountedSubtotal = $room ? $room->applyDiscount($subtotal) : $subtotal;
+        $total = $discountedSubtotal + $deliveryFee;
+
         $order = Order::create([
             'user_id'          => $user->id,
             'address_id'       => $address->id,
             'delivery_zone_id' => $address->delivery_zone_id,
             'patient_code'     => $request->patient_code,
             'patient_id'       => $room?->patient_id,
+            'room_id'          => $room?->id,
             'subtotal'         => $subtotal,
             'delivery_fee'     => $deliveryFee,
             'total'            => $total,

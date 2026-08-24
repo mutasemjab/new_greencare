@@ -10,7 +10,7 @@ class XrayRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'patient_code', 'address_id',
+        'user_id', 'patient_code', 'address_id', 'room_id',
         'booking_date', 'booking_time', 'notes', 'total', 'status',
     ];
 
@@ -27,6 +27,11 @@ class XrayRequest extends Model
     public function address()
     {
         return $this->belongsTo(UserAddress::class, 'address_id');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
     }
 
     public function tests()

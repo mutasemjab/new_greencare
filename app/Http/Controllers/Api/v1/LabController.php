@@ -45,10 +45,12 @@ class LabController extends Controller
         ]);
 
         $user = $request->user('user-api');
+        $room = $user->currentRoom();
 
         $labRequest = LabRequest::create([
             'user_id'      => $user->id,
-            'patient_code' => $user->currentRoom()?->patient_code ?? '',
+            'patient_code' => $room?->patient_code ?? '',
+            'room_id'      => $room?->id,
             'address_id'   => $request->address_id,
             'booking_date' => $request->date,
             'booking_time' => $request->time,
@@ -66,6 +68,7 @@ class LabController extends Controller
         }
 
         $total = $tests->sum('price');
+        $total = $room ? $room->applyDiscount($total) : $total;
         $labRequest->update(['total' => $total]);
 
         $labRequest->load('tests.test');

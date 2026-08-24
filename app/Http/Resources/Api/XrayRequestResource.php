@@ -17,13 +17,14 @@ class XrayRequestResource extends JsonResource
             'address'    => $this->address_id,
             'notes'      => $this->notes,
             'status'     => $this->status,
+            'total'      => (float) $this->total,
             'room_id'    => $this->room_id ?? null,
             'tests'      => $this->whenLoaded('tests', fn () =>
                 $this->tests->map(fn ($pivot) => [
                     'id'         => $pivot->xray_test_id,
                     'name'       => optional($pivot->test)->name,
                     'unit_price' => (float) $pivot->unit_price,
-                ])
+                ])->values()
             ),
             'created_at' => $this->created_at,
         ];

@@ -30,6 +30,11 @@ class LabRequest extends Model
         return $this->belongsTo(UserAddress::class, 'address_id');
     }
 
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
+
     public function tests()
     {
         return $this->hasMany(LabRequestTest::class);
