@@ -16,6 +16,7 @@ class RoomResource extends JsonResource
             'discount_value'           => $this->discount_value,
             'is_active'                => (bool) $this->is_active,
             'firebase_room_id'         => $this->firebase_room_id,
+            'patient_code'             => $this->patient_code,
             'age'                      => $this->age,
             'gender'                   => $this->gender,
             'weight'                   => $this->weight,
@@ -35,6 +36,7 @@ class RoomResource extends JsonResource
             'attachments'              => $this->whenLoaded('attachments', fn () =>
                 RoomAttachmentResource::collection($this->attachments->values())
             ),
+            'registration_template'    => $this->templateToArray($this->registrationTemplate),
             'active_assignment'        => $this->assignmentToArray($this->activeNurseAssignment),
             'doctor_active_assignment' => $this->assignmentToArray($this->activeDoctorAssignment),
             'patient'                  => $this->whenLoaded('patient', fn () =>
@@ -55,15 +57,24 @@ class RoomResource extends JsonResource
 
         return [
             'id'       => $assignment->id,
-            'template' => $assignment->template ? [
-                'id'     => $assignment->template->id,
-                'name'   => $assignment->template->name,
-                'fields' => $assignment->template->fields->map(fn ($field) => [
-                    'id'          => $field->id,
-                    'question'    => $field->question,
-                    'answer_type' => $field->answer_type,
-                ])->values(),
-            ] : null,
+            'template' => $this->templateToArray($assignment->template),
+        ];
+    }
+
+    private function templateToArray($template): ?array
+    {
+        if (! $template) {
+            return null;
+        }
+
+        return [
+            'id'     => $template->id,
+            'name'   => $template->name,
+            'fields' => $template->fields->map(fn ($field) => [
+                'id'          => $field->id,
+                'question'    => $field->question,
+                'answer_type' => $field->answer_type,
+            ])->values(),
         ];
     }
 }

@@ -232,7 +232,10 @@ class SihatiController extends Controller
         $room->update(['firebase_room_id' => $this->firebase->createRoomDocument($room)]);
         $this->firebase->syncRoomMembers($room);
 
-        $room->load(['patient', 'members.user', 'diagnoses', 'chronicDiseases', 'attachments']);
+        $room->load([
+            'patient', 'members.user', 'diagnoses', 'chronicDiseases', 'attachments',
+            'registrationTemplate.fields', 'activeNurseAssignment.template.fields', 'activeDoctorAssignment.template.fields',
+        ]);
 
         return $this->success(new RoomResource($room), 'تم إنشاء الغرفة بنجاح', 201);
     }
@@ -291,6 +294,7 @@ class SihatiController extends Controller
     {
         $room = Room::with([
             'patient', 'members.user',
+            'registrationTemplate.fields',
             'activeNurseAssignment.template.fields', 'activeDoctorAssignment.template.fields',
             'diagnoses', 'chronicDiseases', 'attachments',
         ])->findOrFail($id);
