@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class RoomReportAnswer extends Model
 {
@@ -41,5 +42,10 @@ class RoomReportAnswer extends Model
             'image'  => $this->answer_image ? 'صورة مرفقة' : '—',
             default  => '—',
         };
+    }
+
+    public function getAnswerImageUrlAttribute(): ?string
+    {
+        return $this->answer_image ? Storage::disk('public')->url($this->answer_image) : null;
     }
 }

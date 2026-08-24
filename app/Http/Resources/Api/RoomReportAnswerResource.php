@@ -13,6 +13,7 @@ class RoomReportAnswerResource extends JsonResource
             'field_question'   => $this->field_question,
             'field_answer_type'=> $this->field_answer_type,
             'display_answer'   => $this->display_answer,
+            'image_url'        => $this->answer_image_url,
         ];
     }
 }

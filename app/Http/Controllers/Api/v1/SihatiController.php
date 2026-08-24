@@ -389,15 +389,32 @@ class SihatiController extends Controller
         $template = $assignment->template;
         $fields   = $template->fields;
 
-        // Validate required fields
+        // Any uploaded image answer must actually be a valid image.
+        $imageValidationRules = [];
+        foreach ($fields as $field) {
+            if ($field->answer_type === 'image' && $request->hasFile("answers.{$field->id}")) {
+                $imageValidationRules["answers.{$field->id}"] = 'image|max:10240';
+            }
+        }
+        if (! empty($imageValidationRules)) {
+            $request->validate($imageValidationRules);
+        }
+
+        // Validate required fields — image answers arrive as uploaded files
+        // (in $request->files), not in $request->input('answers'), so they
+        // need their own presence check rather than empty($answers[...]).
         $answers = $request->input('answers', []);
         foreach ($fields as $field) {
-            if ($field->is_required && empty($answers[$field->id])) {
-                return $this->error(
-                    'الحقل "' . $field->question . '" مطلوب',
-                    null,
-                    422
-                );
+            if (! $field->is_required) {
+                continue;
+            }
+
+            $hasAnswer = $field->answer_type === 'image'
+                ? $request->hasFile("answers.{$field->id}")
+                : ! empty($answers[$field->id]);
+
+            if (! $hasAnswer) {
+                return $this->error('الحقل "' . $field->question . '" مطلوب', null, 422);
             }
         }
 
