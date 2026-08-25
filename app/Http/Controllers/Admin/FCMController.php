@@ -31,7 +31,7 @@ class FCMController extends BaseController
     {
         return Cache::remember('fcm_access_token', 3000, function () {
             $client = new GoogleClient();
-            $client->setAuthConfig(base_path('json/green-care-app-a1237-8dd4bd0cf297.json'));
+            $client->setAuthConfig(base_path('json/greencarenew-85553fb39c71.json'));
             $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
             $client->useApplicationDefaultCredentials();
             $client->fetchAccessTokenWithAssertion();
@@ -75,7 +75,7 @@ class FCMController extends BaseController
             $payload = json_encode($data);
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/v1/projects/green-care-app-a1237/messages:send');
+            curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/v1/projects/greencarenew/messages:send');
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

@@ -10,11 +10,16 @@ use App\Models\CareRequest;
 use App\Models\CareRequestService;
 use App\Models\CareService;
 use App\Models\Room;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class CareController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
 
     public function services()
     {
@@ -71,6 +76,11 @@ class CareController extends Controller
         $careRequest->update(['total' => $total]);
 
         $careRequest->load('services.service');
+
+        if ($room) {
+            $serviceNames = $services->pluck('name')->implode('، ');
+            $this->firebase->postSystemMessage($room, "تم طلب خدمة رعاية: {$serviceNames} — بانتظار التأكيد");
+        }
 
         return $this->success(new CareRequestResource($careRequest), 'تم إرسال طلب الرعاية', 201);
     }

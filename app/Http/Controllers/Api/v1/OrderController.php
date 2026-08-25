@@ -9,11 +9,16 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Room;
 use App\Models\UserAddress;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
 
     public function checkout(Request $request)
     {
@@ -85,6 +90,10 @@ class OrderController extends Controller
         $cart->items()->delete();
 
         $order->load('items', 'address.deliveryZone');
+
+        if ($room) {
+            $this->firebase->postSystemMessage($room, "تم إنشاء طلب من المتجر بقيمة {$total} دينار — بانتظار التأكيد");
+        }
 
         return $this->success(new OrderResource($order), 'تم إنشاء الطلب بنجاح', 201);
     }

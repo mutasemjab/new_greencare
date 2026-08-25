@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Room;
 use App\Models\User;
+use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Contract\Auth as FirebaseAuth;
@@ -131,6 +132,45 @@ class FirebaseService
             }
         } catch (Throwable $e) {
             Log::error('Firebase: failed to delete room document', [
+                'room_id'   => $room->id,
+                'exception' => get_class($e),
+                'error'     => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Posts a "system"-type message into the room's chat, announcing a
+     * backend event (a service request created against this room's
+     * patient_code, etc). Uses the exact message shape the mobile app
+     * already renders for system messages — no app-side change needed.
+     * No-op (logged) if the room has no Firestore chat doc yet, Firebase
+     * isn't configured, or the write fails — never blocks the caller.
+     */
+    public function postSystemMessage(Room $room, string $text): void
+    {
+        if (! $room->firebase_room_id) {
+            return;
+        }
+
+        try {
+            $firestore = $this->firestore();
+
+            if ($firestore) {
+                $firestore->database()
+                    ->collection('chatRooms')->document($room->firebase_room_id)
+                    ->collection('messages')->add([
+                        'type'        => 'system',
+                        'sender_id'   => 0,
+                        'sender_name' => 'النظام',
+                        'sender_role' => 'system',
+                        'text'        => $text,
+                        'is_pinned'   => false,
+                        'created_at'  => FieldValue::serverTimestamp(),
+                    ]);
+            }
+        } catch (Throwable $e) {
+            Log::error('Firebase: failed to post system message', [
                 'room_id'   => $room->id,
                 'exception' => get_class($e),
                 'error'     => $e->getMessage(),

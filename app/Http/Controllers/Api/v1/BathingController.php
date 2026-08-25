@@ -8,11 +8,16 @@ use App\Http\Traits\ApiResponse;
 use App\Models\BathingCard;
 use App\Models\BathingRequest;
 use App\Models\Room;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class BathingController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
 
     public function redeem(Request $request)
     {
@@ -39,6 +44,8 @@ class BathingController extends Controller
 
         $user = $request->user('user-api');
 
+        $room = null;
+
         if ($request->filled('patient_code')) {
             $room = Room::where('patient_code', $request->patient_code)->first();
 
@@ -61,6 +68,10 @@ class BathingController extends Controller
 
         $card->increment('used_count');
 
+        if ($room) {
+            $this->firebase->postSystemMessage($room, 'تم طلب استحمام ببطاقة — بانتظار التأكيد');
+        }
+
         return $this->success(new BathingRequestResource($bathingRequest), 'تم استخدام البطاقة وإنشاء الطلب', 201);
     }
 
@@ -78,6 +89,8 @@ class BathingController extends Controller
         ]);
 
         $user = $request->user('user-api');
+
+        $room = null;
 
         if ($request->filled('patient_code')) {
             $room = Room::where('patient_code', $request->patient_code)->first();
@@ -98,6 +111,10 @@ class BathingController extends Controller
             'notes'           => $request->notes,
             'status'          => 'pending',
         ]);
+
+        if ($room) {
+            $this->firebase->postSystemMessage($room, 'تم طلب استحمام — بانتظار التأكيد');
+        }
 
         return $this->success(new BathingRequestResource($bathingRequest), 'تم إرسال طلب الاستحمام', 201);
     }

@@ -9,11 +9,16 @@ use App\Http\Traits\ApiResponse;
 use App\Models\NursingRequest;
 use App\Models\NursingServiceType;
 use App\Models\Room;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class NursingController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
 
     public function types()
     {
@@ -35,6 +40,8 @@ class NursingController extends Controller
 
         $user = $request->user('user-api');
 
+        $room = null;
+
         if ($request->filled('patient_code')) {
             $room = Room::where('patient_code', $request->patient_code)->first();
 
@@ -55,6 +62,10 @@ class NursingController extends Controller
         ]);
 
         $nursing->load('serviceType');
+
+        if ($room) {
+            $this->firebase->postSystemMessage($room, "تم طلب خدمة تمريض: {$nursing->serviceType->name} — بانتظار التأكيد");
+        }
 
         return $this->success(new NursingRequestResource($nursing), 'تم إرسال طلب التمريض', 201);
     }

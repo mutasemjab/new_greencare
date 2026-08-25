@@ -12,11 +12,16 @@ use App\Models\XrayCategory;
 use App\Models\XrayRequest;
 use App\Models\XrayRequestTest;
 use App\Models\XrayTest;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class XrayController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
 
     public function categories()
     {
@@ -83,6 +88,11 @@ class XrayController extends Controller
         $xrayRequest->update(['total' => $total]);
 
         $xrayRequest->load('tests.test');
+
+        if ($room) {
+            $testNames = $tests->pluck('name')->implode('، ');
+            $this->firebase->postSystemMessage($room, "تم طلب أشعة: {$testNames} — بانتظار التأكيد");
+        }
 
         return $this->success(new XrayRequestResource($xrayRequest), 'تم إرسال طلب الأشعة', 201);
     }

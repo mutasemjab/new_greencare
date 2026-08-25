@@ -12,11 +12,16 @@ use App\Models\LabRequest;
 use App\Models\LabRequestTest;
 use App\Models\LabTest;
 use App\Models\Room;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class LabController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private FirebaseService $firebase)
+    {
+    }
 
     public function categories()
     {
@@ -83,6 +88,11 @@ class LabController extends Controller
         $labRequest->update(['total' => $total]);
 
         $labRequest->load('tests.test');
+
+        if ($room) {
+            $testNames = $tests->pluck('name')->implode('، ');
+            $this->firebase->postSystemMessage($room, "تم طلب تحاليل: {$testNames} — بانتظار التأكيد");
+        }
 
         return $this->success(new LabRequestResource($labRequest), 'تم إرسال طلب التحاليل', 201);
     }
