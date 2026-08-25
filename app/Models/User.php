@@ -139,7 +139,6 @@ class User extends Authenticatable
         return match ($this->role) {
             'doctor'               => 'طبيب',
             'nurse'                => 'ممرض',
-            'head_nurse'           => 'رئيس الممرضين',
             'university_manager'   => 'مسؤول الجامعة',
             'patient'              => 'مريض',
             'patient_family'       => 'أهل المريض',

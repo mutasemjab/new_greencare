@@ -30,7 +30,7 @@
                             <option value="">اختر الدور</option>
                             <option value="doctor"             {{ old('role') === 'doctor'             ? 'selected' : '' }}>طبيب</option>
                             <option value="nurse"              {{ old('role') === 'nurse'              ? 'selected' : '' }}>ممرض</option>
-                            <option value="head_nurse"         {{ old('role') === 'head_nurse'         ? 'selected' : '' }}>رئيس الممرضين</option>
+                            <option value="super_nurse"        {{ old('role') === 'super_nurse'        ? 'selected' : '' }}>ممرض مسؤول</option>
                             <option value="university_manager" {{ old('role') === 'university_manager' ? 'selected' : '' }}>مسؤول الجامعة</option>
                             <option value="patient"            {{ old('role') === 'patient'            ? 'selected' : '' }}>مريض</option>
                             <option value="patient_family"     {{ old('role') === 'patient_family'     ? 'selected' : '' }}>أهل المريض</option>

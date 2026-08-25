@@ -9,6 +9,7 @@ use App\Http\Traits\ApiResponse;
 use App\Models\CareRequest;
 use App\Models\CareRequestService;
 use App\Models\CareService;
+use App\Models\Room;
 use Illuminate\Http\Request;
 
 class CareController extends Controller
@@ -25,19 +26,30 @@ class CareController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'date'        => 'required|date',
-            'time'        => 'required|string',
-            'address_id'  => 'sometimes|nullable|exists:user_addresses,id',
-            'notes'       => 'sometimes|nullable|string',
-            'service_ids' => 'required|array|min:1',
+            'date'          => 'required|date',
+            'time'          => 'required|string',
+            'address_id'    => 'sometimes|nullable|exists:user_addresses,id',
+            'notes'         => 'sometimes|nullable|string',
+            'service_ids'   => 'required|array|min:1',
             'service_ids.*' => 'exists:care_services,id',
+            'patient_code'  => 'sometimes|nullable|string|max:20',
         ]);
 
         $user = $request->user('user-api');
 
+        $room = null;
+
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
+
         $careRequest = CareRequest::create([
             'user_id'      => $user->id,
-            'patient_code' => $user->currentRoom()?->patient_code ?? '',
+            'patient_code' => $request->patient_code ?? '',
             'address_id'   => $request->address_id,
             'booking_date' => $request->date,
             'booking_time' => $request->time,
@@ -55,6 +67,7 @@ class CareController extends Controller
         }
 
         $total = $services->sum('price');
+        $total = $room ? $room->applyDiscount($total) : $total;
         $careRequest->update(['total' => $total]);
 
         $careRequest->load('services.service');

@@ -1412,5 +1412,5 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 - App supports role-based UI: `patient`, `nurse`, `doctor`, `patient_family` see different content in Sihati
 - `firebase_room_id` from the Room response → connect to Firebase for real-time chat inside the room
 - The discount system: when a room has `discount_value > 0`, the patient's lab/xray/store orders linked to that room get that % discount (handled server-side, just show discounted price to user)
-- User `role` can be: `patient`, `nurse`, `head_nurse`, `doctor`, `patient_family`, `university_manager`
+- User `role` can be: `patient`, `nurse`, `super_nurse`, `doctor`, `patient_family`, `university_manager`
 - Always build for Arabic first — all text, layouts, and icons should feel native Arabic

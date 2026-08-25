@@ -23,7 +23,7 @@
                 <option value="">كل الأدوار</option>
                 <option value="doctor"             {{ request('role') === 'doctor'             ? 'selected' : '' }}>طبيب</option>
                 <option value="nurse"              {{ request('role') === 'nurse'              ? 'selected' : '' }}>ممرض</option>
-                <option value="head_nurse"         {{ request('role') === 'head_nurse'         ? 'selected' : '' }}>رئيس الممرضين</option>
+                <option value="super_nurse"        {{ request('role') === 'super_nurse'        ? 'selected' : '' }}>ممرض مسؤول</option>
                 <option value="university_manager" {{ request('role') === 'university_manager' ? 'selected' : '' }}>مسؤول الجامعة</option>
                 <option value="patient"            {{ request('role') === 'patient'            ? 'selected' : '' }}>مريض</option>
                 <option value="patient_family"     {{ request('role') === 'patient_family'     ? 'selected' : '' }}>أهل المريض</option>

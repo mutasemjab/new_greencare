@@ -45,13 +45,13 @@ class RoomController extends Controller
     public function create()
     {
         $patients               = User::where('role', 'patient')->get();
-        $headNurses             = User::where('role', 'head_nurse')->get();
+        $superNurses            = User::where('role', 'super_nurse')->get();
         $registrationTemplates  = ReportTemplate::active()->where('template_type', 'registration')->get();
         $diagnoses              = Diagnosis::active()->get();
         $chronicDiseases        = ChronicDisease::active()->get();
 
         return view('admin.sihati.rooms.create', compact(
-            'patients', 'headNurses', 'registrationTemplates', 'diagnoses', 'chronicDiseases'
+            'patients', 'superNurses', 'registrationTemplates', 'diagnoses', 'chronicDiseases'
         ));
     }
 
@@ -187,7 +187,7 @@ class RoomController extends Controller
     public function edit(Room $room)
     {
         $patients               = User::where('role', 'patient')->get();
-        $headNurses             = User::where('role', 'head_nurse')->get();
+        $superNurses            = User::where('role', 'super_nurse')->get();
         $registrationTemplates  = ReportTemplate::active()->where('template_type', 'registration')->get();
         $diagnoses              = Diagnosis::active()->get();
         $chronicDiseases        = ChronicDisease::active()->get();
@@ -195,7 +195,7 @@ class RoomController extends Controller
         $room->load('diagnoses', 'chronicDiseases', 'attachments');
 
         return view('admin.sihati.rooms.edit', compact(
-            'room', 'patients', 'headNurses', 'registrationTemplates', 'diagnoses', 'chronicDiseases'
+            'room', 'patients', 'superNurses', 'registrationTemplates', 'diagnoses', 'chronicDiseases'
         ));
     }
 

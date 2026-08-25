@@ -7,6 +7,7 @@ use App\Http\Resources\Api\XrayCategoryResource;
 use App\Http\Resources\Api\XrayRequestResource;
 use App\Http\Resources\Api\XrayTestResource;
 use App\Http\Traits\ApiResponse;
+use App\Models\Room;
 use App\Models\XrayCategory;
 use App\Models\XrayRequest;
 use App\Models\XrayRequestTest;
@@ -36,20 +37,30 @@ class XrayController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'date'       => 'required|date',
-            'time'       => 'required|string',
-            'address_id' => 'sometimes|nullable|exists:user_addresses,id',
-            'notes'      => 'sometimes|nullable|string',
-            'test_ids'   => 'required|array|min:1',
-            'test_ids.*' => 'exists:xray_tests,id',
+            'date'         => 'required|date',
+            'time'         => 'required|string',
+            'address_id'   => 'sometimes|nullable|exists:user_addresses,id',
+            'notes'        => 'sometimes|nullable|string',
+            'test_ids'     => 'required|array|min:1',
+            'test_ids.*'   => 'exists:xray_tests,id',
+            'patient_code' => 'sometimes|nullable|string|max:20',
         ]);
 
         $user = $request->user('user-api');
-        $room = $user->currentRoom();
+
+        $room = null;
+
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
 
         $xrayRequest = XrayRequest::create([
             'user_id'      => $user->id,
-            'patient_code' => $room?->patient_code ?? '',
+            'patient_code' => $request->patient_code ?? '',
             'room_id'      => $room?->id,
             'address_id'   => $request->address_id,
             'booking_date' => $request->date,

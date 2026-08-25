@@ -29,7 +29,7 @@
                         <select name="role" class="form-select @error('role') is-invalid @enderror" required>
                             <option value="doctor"             {{ old('role', $user->role) === 'doctor'             ? 'selected' : '' }}>طبيب</option>
                             <option value="nurse"              {{ old('role', $user->role) === 'nurse'              ? 'selected' : '' }}>ممرض</option>
-                            <option value="head_nurse"         {{ old('role', $user->role) === 'head_nurse'         ? 'selected' : '' }}>رئيس الممرضين</option>
+                            <option value="super_nurse"        {{ old('role', $user->role) === 'super_nurse'        ? 'selected' : '' }}>ممرض مسؤول</option>
                             <option value="university_manager" {{ old('role', $user->role) === 'university_manager' ? 'selected' : '' }}>مسؤول الجامعة</option>
                             <option value="patient"            {{ old('role', $user->role) === 'patient'            ? 'selected' : '' }}>مريض</option>
                             <option value="patient_family"     {{ old('role', $user->role) === 'patient_family'     ? 'selected' : '' }}>أهل المريض</option>

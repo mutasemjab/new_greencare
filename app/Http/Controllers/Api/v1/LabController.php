@@ -11,6 +11,7 @@ use App\Models\LabCategory;
 use App\Models\LabRequest;
 use App\Models\LabRequestTest;
 use App\Models\LabTest;
+use App\Models\Room;
 use Illuminate\Http\Request;
 
 class LabController extends Controller
@@ -36,20 +37,30 @@ class LabController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'date'       => 'required|date',
-            'time'       => 'required|string',
-            'address_id' => 'sometimes|nullable|exists:user_addresses,id',
-            'notes'      => 'sometimes|nullable|string',
-            'test_ids'   => 'required|array|min:1',
-            'test_ids.*' => 'exists:lab_tests,id',
+            'date'         => 'required|date',
+            'time'         => 'required|string',
+            'address_id'   => 'sometimes|nullable|exists:user_addresses,id',
+            'notes'        => 'sometimes|nullable|string',
+            'test_ids'     => 'required|array|min:1',
+            'test_ids.*'   => 'exists:lab_tests,id',
+            'patient_code' => 'sometimes|nullable|string|max:20',
         ]);
 
         $user = $request->user('user-api');
-        $room = $user->currentRoom();
+
+        $room = null;
+
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
 
         $labRequest = LabRequest::create([
             'user_id'      => $user->id,
-            'patient_code' => $room?->patient_code ?? '',
+            'patient_code' => $request->patient_code ?? '',
             'room_id'      => $room?->id,
             'address_id'   => $request->address_id,
             'booking_date' => $request->date,

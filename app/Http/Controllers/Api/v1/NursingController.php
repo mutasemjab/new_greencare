@@ -8,6 +8,7 @@ use App\Http\Resources\Api\NursingTypeResource;
 use App\Http\Traits\ApiResponse;
 use App\Models\NursingRequest;
 use App\Models\NursingServiceType;
+use App\Models\Room;
 use Illuminate\Http\Request;
 
 class NursingController extends Controller
@@ -24,18 +25,27 @@ class NursingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'type_id'    => 'required|exists:nursing_service_types,id',
-            'date'       => 'required|date',
-            'time'       => 'required|string',
-            'address_id' => 'sometimes|nullable|exists:user_addresses,id',
-            'notes'      => 'sometimes|nullable|string',
+            'type_id'      => 'required|exists:nursing_service_types,id',
+            'date'         => 'required|date',
+            'time'         => 'required|string',
+            'address_id'   => 'sometimes|nullable|exists:user_addresses,id',
+            'notes'        => 'sometimes|nullable|string',
+            'patient_code' => 'sometimes|nullable|string|max:20',
         ]);
 
         $user = $request->user('user-api');
 
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
+
         $nursing = NursingRequest::create([
             'user_id'                 => $user->id,
-            'patient_code'            => $user->currentRoom()?->patient_code ?? '',
+            'patient_code'            => $request->patient_code ?? '',
             'nursing_service_type_id' => $request->type_id,
             'address_id'              => $request->address_id,
             'booking_date'            => $request->date,

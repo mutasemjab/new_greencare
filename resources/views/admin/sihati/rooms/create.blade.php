@@ -45,12 +45,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">أنشأها (رئيس الممرضين) <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">أنشأها (ممرض مسؤول) <span class="text-danger">*</span></label>
                             <select name="created_by" class="form-select @error('created_by') is-invalid @enderror">
-                                <option value="">اختر رئيس الممرضين</option>
-                                @foreach($headNurses as $headNurse)
-                                    <option value="{{ $headNurse->id }}" {{ old('created_by') == $headNurse->id ? 'selected' : '' }}>
-                                        {{ $headNurse->name }}
+                                <option value="">اختر ممرض مسؤول</option>
+                                @foreach($superNurses as $superNurse)
+                                    <option value="{{ $superNurse->id }}" {{ old('created_by') == $superNurse->id ? 'selected' : '' }}>
+                                        {{ $superNurse->name }}
                                     </option>
                                 @endforeach
                             </select>

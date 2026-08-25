@@ -7,6 +7,7 @@ use App\Http\Resources\Api\BathingRequestResource;
 use App\Http\Traits\ApiResponse;
 use App\Models\BathingCard;
 use App\Models\BathingRequest;
+use App\Models\Room;
 use Illuminate\Http\Request;
 
 class BathingController extends Controller
@@ -16,11 +17,12 @@ class BathingController extends Controller
     public function redeem(Request $request)
     {
         $request->validate([
-            'code'       => 'required|string',
-            'date'       => 'required|date',
-            'time'       => 'required|string',
-            'address_id' => 'sometimes|nullable|exists:user_addresses,id',
-            'notes'      => 'sometimes|nullable|string',
+            'code'         => 'required|string',
+            'date'         => 'required|date',
+            'time'         => 'required|string',
+            'address_id'   => 'sometimes|nullable|exists:user_addresses,id',
+            'notes'        => 'sometimes|nullable|string',
+            'patient_code' => 'sometimes|nullable|string|max:20',
         ]);
 
         $card = BathingCard::where('code', $request->code)
@@ -37,9 +39,17 @@ class BathingController extends Controller
 
         $user = $request->user('user-api');
 
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
+
         $bathingRequest = BathingRequest::create([
             'user_id'        => $user->id,
-            'patient_code'   => $user->currentRoom()?->patient_code ?? '',
+            'patient_code'   => $request->patient_code ?? '',
             'payment_type'   => 'card',
             'bathing_card_id'=> $card->id,
             'address_id'     => $request->address_id,
@@ -60,17 +70,26 @@ class BathingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'address_id' => 'required|exists:user_addresses,id',
-            'date'       => 'required|date',
-            'time'       => 'required|string',
-            'notes'      => 'sometimes|nullable|string',
+            'address_id'   => 'required|exists:user_addresses,id',
+            'date'         => 'required|date',
+            'time'         => 'required|string',
+            'notes'        => 'sometimes|nullable|string',
+            'patient_code' => 'sometimes|nullable|string|max:20',
         ]);
 
         $user = $request->user('user-api');
 
+        if ($request->filled('patient_code')) {
+            $room = Room::where('patient_code', $request->patient_code)->first();
+
+            if ($room && ! $room->hasMember($user)) {
+                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
+            }
+        }
+
         $bathingRequest = BathingRequest::create([
             'user_id'         => $user->id,
-            'patient_code'    => $user->currentRoom()?->patient_code ?? '',
+            'patient_code'    => $request->patient_code ?? '',
             'payment_type'    => 'cash',
             'bathing_card_id' => null,
             'address_id'      => $request->address_id,

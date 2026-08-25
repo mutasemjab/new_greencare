@@ -16,6 +16,7 @@ class CareRequestResource extends JsonResource
             'time'       => $this->booking_time,
             'address'    => $this->address_id,
             'notes'      => $this->notes,
+            'total'      => (float) $this->total,
             'status'     => $this->status,
             'services'   => $this->whenLoaded('services', fn () =>
                 $this->services->map(fn ($pivot) => [
