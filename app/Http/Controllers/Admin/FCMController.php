@@ -40,7 +40,7 @@ class FCMController extends BaseController
         });
     }
 
-    public static function sendMessage($title, $body, $fcmToken, $userId, $screen = "order")
+    public static function sendMessage($title, $body, $fcmToken, $userId, $screen = "order", $extraData = [])
     {
         if (!$fcmToken) {
             Log::error("FCM Error: No FCM token provided for user ID $userId");
@@ -62,10 +62,10 @@ class FCMController extends BaseController
                         "title" => $title,
                         "body" => $body
                     ],
-                    "data" => [
+                    "data" => array_merge([
                         'screen' => $screen,
                         "click_action" => "FLUTTER_NOTIFICATION_CLICK"
-                    ],
+                    ], array_map('strval', $extraData)),
                     "android" => [
                         "priority" => "high"
                     ]
@@ -143,7 +143,7 @@ class FCMController extends BaseController
      * regardless of whether the push itself succeeds (missing/expired
      * token, offline device, etc).
      */
-    public static function sendToUser($userId, $title, $body, $screen = "order", $type = 'general', $sentBy = null)
+    public static function sendToUser($userId, $title, $body, $screen = "order", $type = 'general', $sentBy = null, $data = [])
     {
         $user = User::find($userId);
         $sent = false;
@@ -154,7 +154,7 @@ class FCMController extends BaseController
         }
 
         if ($user->fcm_token) {
-            $sent = self::sendMessage($title, $body, $user->fcm_token, $user->id, $screen);
+            $sent = self::sendMessage($title, $body, $user->fcm_token, $user->id, $screen, $data);
         } else {
             Log::error("No FCM token for user ID: $userId");
         }
@@ -164,6 +164,7 @@ class FCMController extends BaseController
             'title'    => $title,
             'body'     => $body,
             'screen'   => $screen,
+            'data'     => $data ?: null,
             'type'     => $type,
             'fcm_sent' => $sent,
             'sent_by'  => $sentBy,

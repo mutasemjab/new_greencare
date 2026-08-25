@@ -157,6 +157,7 @@ Route::prefix('v1')->group(function () {
         Route::post('sihati/rooms/{id}/medications',                   [SihatiController::class, 'addMedication']);
         Route::post('sihati/rooms/{id}/complaints',                    [SihatiController::class, 'storeComplaint']);
         Route::post('sihati/rooms/{id}/chat-image',                    [SihatiController::class, 'uploadChatImage']);
+        Route::post('sihati/rooms/{id}/notify-message',                [SihatiController::class, 'notifyMessage']);
 
         // Sihati — medical visit forms (parallel, chat-less item type)
         Route::get('sihati/visit-form-schema',  [VisitFormController::class, 'schema']);

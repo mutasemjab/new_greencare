@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Http\Controllers\Admin\FCMController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\ChronicDiseaseResource;
 use App\Http\Resources\Api\ComplaintResource;
@@ -742,6 +743,43 @@ class SihatiController extends Controller
         $path = $request->file('image')->store('rooms/chat', 'public');
 
         return $this->success(['url' => Storage::disk('public')->url($path)]);
+    }
+
+    /**
+     * POST /sihati/rooms/{id}/notify-message — pushes a notification to
+     * every room member except the sender when a new chat message lands in
+     * Firestore. The app calls this fire-and-forget right after writing
+     * the message document, so this never blocks or reflects back on
+     * whether the chat message itself was delivered.
+     */
+    public function notifyMessage(Request $request, int $id)
+    {
+        $room = Room::with('patient')->findOrFail($id);
+        $this->verifyRoomAccess($room);
+
+        $data = $request->validate([
+            'sender_id' => 'required|integer|exists:users,id',
+            'body'      => 'required|string',
+        ]);
+
+        $title = $room->name ?: ($room->patient->name ?? 'غرفة صحتي');
+
+        $recipientIds = collect($room->memberUserIds())
+            ->reject(fn ($userId) => $userId === (int) $data['sender_id']);
+
+        foreach ($recipientIds as $userId) {
+            FCMController::sendToUser(
+                $userId,
+                $title,
+                $data['body'],
+                'chat_message',
+                'chat_message',
+                null,
+                ['room_id' => $room->id]
+            );
+        }
+
+        return $this->success(null, 'تم إرسال الإشعارات');
     }
 
     /**
