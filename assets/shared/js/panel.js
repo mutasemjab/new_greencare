@@ -43,36 +43,35 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Mark active nav link based on current URL
-    const currentPath = window.location.pathname;
-    document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && href !== '#' && currentPath.startsWith(href)) {
-            link.classList.add('active');
-            // Expand parent submenu if inside one
-            const parentSubmenu = link.closest('.nav-submenu');
-            if (parentSubmenu) {
-                parentSubmenu.classList.add('show');
-                const parentToggle = document.querySelector(`[data-submenu="${parentSubmenu.id}"]`);
-                if (parentToggle) parentToggle.setAttribute('aria-expanded', 'true');
-            }
-        }
-    });
-
-    // Submenu accordion toggle
-    document.querySelectorAll('.nav-link[data-submenu]').forEach(link => {
-        link.addEventListener('click', function (e) {
+    // Submenu accordion toggle — active/open state for the current page is
+    // already rendered server-side (Blade checks request()->routeIs(...)),
+    // this just lets the user manually expand/collapse a section.
+    document.querySelectorAll('.has-submenu > .submenu-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function (e) {
             e.preventDefault();
-            const targetId  = this.dataset.submenu;
-            const submenu   = document.getElementById(targetId);
-            if (!submenu) return;
-            const isOpen = submenu.classList.toggle('show');
-            this.setAttribute('aria-expanded', isOpen);
+            this.closest('.has-submenu').classList.toggle('open');
         });
     });
 
+    // Remember the sidebar's scroll position across full-page navigations.
+    // Without this, clicking a link far down a long, fully-expanded sidebar
+    // reloads the page and resets the scroll to the top, losing the section
+    // the user was just in.
+    const sidebarNav = sidebar ? sidebar.querySelector('.sidebar-nav') : null;
+    if (sidebarNav) {
+        const savedScroll = sessionStorage.getItem('sidebarScrollTop');
+        if (savedScroll !== null) {
+            sidebarNav.scrollTop = parseInt(savedScroll, 10);
+        }
+        sidebarNav.querySelectorAll('a[href]:not([href="#"])').forEach(link => {
+            link.addEventListener('click', () => {
+                sessionStorage.setItem('sidebarScrollTop', sidebarNav.scrollTop);
+            });
+        });
+    }
+
     // Close sidebar on mobile when a regular nav link is clicked
-    document.querySelectorAll('.sidebar-nav .nav-link:not([data-submenu])').forEach(link => {
+    document.querySelectorAll('.sidebar-nav .nav-link:not(.submenu-toggle)').forEach(link => {
         link.addEventListener('click', () => {
             if (window.innerWidth < 768) {
                 sidebar.classList.remove('mobile-open');
