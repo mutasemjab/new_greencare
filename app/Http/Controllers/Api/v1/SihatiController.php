@@ -51,13 +51,19 @@ class SihatiController extends Controller
      */
     private function verifyRoomAccess(Room $room): void
     {
-        $userId = auth('user-api')->id();
+        $user = auth('user-api')->user();
 
-        if ($room->patient_id === $userId) {
+        // super_nurse has full access to every room, not just the ones
+        // they created or were added to as a member.
+        if ($user->role === 'super_nurse') {
             return;
         }
 
-        $isMember = $room->members()->where('user_id', $userId)->exists();
+        if ($room->patient_id === $user->id) {
+            return;
+        }
+
+        $isMember = $room->members()->where('user_id', $user->id)->exists();
 
         if (!$isMember) {
             abort(403, 'غير مصرح لك بالوصول إلى هذه الغرفة');
