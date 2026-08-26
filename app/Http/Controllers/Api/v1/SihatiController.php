@@ -168,6 +168,7 @@ class SihatiController extends Controller
         $data = $request->validate([
             'assigned_user_id'       => 'required|exists:users,id',
             'name'                   => 'required|string|max:255',
+            'address'                => 'nullable|string|max:255',
             'room_name'              => 'required|string|max:255',
             'age'                    => 'required|integer|min:0|max:150',
             'gender'                 => 'required|in:male,female',
@@ -194,6 +195,7 @@ class SihatiController extends Controller
             'patient_id'         => $data['assigned_user_id'],
             'created_by'         => $user->id,
             'name'               => $data['room_name'],
+            'address'               => $data['address'] ?? null,
             'age'                => $data['age'],
             'gender'             => $data['gender'],
             'weight'             => $data['weight'],
