@@ -9,6 +9,7 @@ use App\Models\ReportTemplate;
 use App\Models\Room;
 use App\Models\RoomAttachment;
 use App\Models\RoomMember;
+use App\Models\RoomReport;
 use App\Models\RoomTemplateAssignment;
 use App\Models\User;
 use App\Services\FirebaseService;
@@ -182,6 +183,16 @@ class RoomController extends Controller
             'medications',
             'availableTemplates',
         ));
+    }
+
+    public function showReport(Room $room, RoomReport $report)
+    {
+        abort_if($report->room_id !== $room->id, 404);
+
+        $report->load(['answers.templateField', 'submittedBy']);
+        $room->load('patient');
+
+        return view('admin.sihati.rooms.report', compact('room', 'report'));
     }
 
     public function edit(Room $room)
