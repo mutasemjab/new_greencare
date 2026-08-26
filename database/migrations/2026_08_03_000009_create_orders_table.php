@@ -11,8 +11,12 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('room_id')->nullable()
+                  ->constrained('rooms')->nullOnDelete();
             $table->foreignId('address_id')->nullable()->constrained('user_addresses')->nullOnDelete();
             $table->foreignId('delivery_zone_id')->nullable()->constrained('delivery_zones')->nullOnDelete();
+            $table->string('patient_code', 20)->nullable();
+            $table->foreignId('patient_id')->nullable()->constrained('users')->nullOnDelete();
             $table->decimal('subtotal', 10, 2)->default(0);
             $table->decimal('delivery_fee', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);

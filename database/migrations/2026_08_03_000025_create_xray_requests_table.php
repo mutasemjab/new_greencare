@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::create('xray_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('room_id')->nullable()
+                ->constrained('rooms')->nullOnDelete();
             $table->string('patient_code', 20);
             $table->foreignId('address_id')->nullable()->constrained('user_addresses')->nullOnDelete();
             $table->date('booking_date');

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('medication_name');
             $table->string('dosage')->nullable();
             $table->string('frequency')->nullable();
+            $table->json('times')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->text('notes')->nullable();

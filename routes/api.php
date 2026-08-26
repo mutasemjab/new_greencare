@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\v1\AuthController;
 use App\Http\Controllers\Api\v1\AddressController;
 use App\Http\Controllers\Api\v1\BannerController;
 use App\Http\Controllers\Api\v1\BathingController;
-use App\Http\Controllers\Api\v1\CareerController;
 use App\Http\Controllers\Api\v1\CartController;
 use App\Http\Controllers\Api\v1\CareController;
 use App\Http\Controllers\Api\v1\DeliveryZoneController;
@@ -174,8 +173,5 @@ Route::prefix('v1')->group(function () {
         Route::get('medications',         [MedicationController::class, 'index']);
         Route::post('medications',        [MedicationController::class, 'store']);
         Route::delete('medications/{id}', [MedicationController::class, 'destroy']);
-
-        // Careers
-        Route::post('careers/apply', [CareerController::class, 'apply']);
     });
 });

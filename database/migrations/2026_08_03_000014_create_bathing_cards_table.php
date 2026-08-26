@@ -15,6 +15,8 @@ return new class extends Migration
             $table->unsignedTinyInteger('used_count')->default(0);
             $table->boolean('is_active')->default(true);
             $table->foreignId('sold_at_point_id')->nullable()->constrained('points_of_sale')->nullOnDelete();
+            $table->foreignId('bathing_card_group_id')->nullable()
+                ->constrained('bathing_card_groups')->nullOnDelete();
             $table->timestamps();
         });
     }

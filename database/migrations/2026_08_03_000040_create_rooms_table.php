@@ -23,6 +23,8 @@ return new class extends Migration
                   ->nullOnDelete();
             $table->string('firebase_room_id')->nullable();                     // للتكامل مع Firebase
             $table->boolean('is_active')->default(true);
+                        $table->string('patient_code', 20)->unique()->nullable();
+
             $table->timestamps();
         });
     }
