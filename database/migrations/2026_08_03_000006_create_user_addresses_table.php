@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('label')->nullable(); // home, work, etc.
-            $table->string('address'); // full address text
+            $table->string('address')->nullable(); // full address text
             $table->string('city')->nullable();
             $table->foreignId('delivery_zone_id')->nullable()->constrained('delivery_zones')->nullOnDelete();
             $table->decimal('latitude', 10, 7)->nullable();

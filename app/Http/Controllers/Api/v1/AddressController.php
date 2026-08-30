@@ -25,8 +25,8 @@ class AddressController extends Controller
     {
         $request->validate([
             'label'            => 'required|string|max:255',
-            'address'          => 'required|string',
-            'city'             => 'required|string|max:255',
+            'address'          => 'nullable|string',
+            'city'             => 'nullable|string|max:255',
             'delivery_zone_id' => 'required|exists:delivery_zones,id',
             'latitude'         => 'required|numeric',
             'longitude'        => 'required|numeric',
@@ -41,8 +41,8 @@ class AddressController extends Controller
 
         $address = $user->addresses()->create([
             'label'            => $request->label,
-            'address'          => $request->address,
-            'city'             => $request->city,
+            'address'          => $request->address ?? null,
+            'city'             => $request->city ?? null,
             'delivery_zone_id' => $request->delivery_zone_id,
             'latitude'         => $request->latitude,
             'longitude'        => $request->longitude,
