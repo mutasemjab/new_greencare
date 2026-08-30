@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id', 'address_id', 'delivery_zone_id',
-        'patient_code', 'patient_id', 'room_id',
+        'patient_code', 'patient_id', 'room_id', 'visit_form_id',
         'subtotal', 'delivery_fee', 'total',
         'status', 'payment_status', 'notes',
     ];
@@ -45,6 +45,11 @@ class Order extends Model
     public function room()
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function visitForm()
+    {
+        return $this->belongsTo(VisitForm::class);
     }
 
     public function items()

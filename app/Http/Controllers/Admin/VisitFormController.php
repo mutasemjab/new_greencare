@@ -13,7 +13,8 @@ class VisitFormController extends Controller
         $query = VisitForm::with(['patient', 'submittedBy'])->latest();
 
         if ($request->filled('search')) {
-            $query->whereHas('patient', fn ($q) => $q->where('name', 'like', "%{$request->search}%"));
+            $query->where('code', 'like', "%{$request->search}%")
+                ->orWhereHas('patient', fn ($q) => $q->where('name', 'like', "%{$request->search}%"));
         }
 
         $visitForms = $query->paginate(20)->withQueryString();
@@ -23,8 +24,22 @@ class VisitFormController extends Controller
 
     public function show(VisitForm $visitForm)
     {
-        $visitForm->load(['patient', 'submittedBy', 'answers', 'attachments']);
+        $visitForm->load([
+            'patient', 'submittedBy', 'answers', 'attachments',
+            'labRequests.tests.test', 'xrayRequests.tests.test',
+        ]);
 
         return view('admin.sihati.visit-forms.show', compact('visitForm'));
+    }
+
+    public function updateDiscount(Request $request, VisitForm $visitForm)
+    {
+        $request->validate([
+            'discount_value' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $visitForm->update(['discount_value' => $request->discount_value ?? 0]);
+
+        return back()->with('success', 'تم تحديث نسبة الخصم بنجاح');
     }
 }

@@ -7,7 +7,7 @@ use App\Http\Resources\Api\XrayCategoryResource;
 use App\Http\Resources\Api\XrayRequestResource;
 use App\Http\Resources\Api\XrayTestResource;
 use App\Http\Traits\ApiResponse;
-use App\Models\Room;
+use App\Http\Traits\ResolvesPatientCode;
 use App\Models\XrayCategory;
 use App\Models\XrayRequest;
 use App\Models\XrayRequestTest;
@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 
 class XrayController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, ResolvesPatientCode;
 
     public function __construct(private FirebaseService $firebase)
     {
@@ -53,25 +53,24 @@ class XrayController extends Controller
 
         $user = $request->user('user-api');
 
-        $room = null;
+        [$room, $visitForm, $codeError] = $this->resolveCodeSource($request->patient_code, $user);
 
-        if ($request->filled('patient_code')) {
-            $room = Room::where('patient_code', $request->patient_code)->first();
-
-            if ($room && ! $room->hasMember($user)) {
-                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
-            }
+        if ($codeError) {
+            return $this->error($codeError, null, 403);
         }
 
+        $discountSource = $room ?? $visitForm;
+
         $xrayRequest = XrayRequest::create([
-            'user_id'      => $user->id,
-            'patient_code' => $request->patient_code ?? '',
-            'room_id'      => $room?->id,
-            'address_id'   => $request->address_id,
-            'booking_date' => $request->date,
-            'booking_time' => $request->time,
-            'notes'        => $request->notes,
-            'status'       => 'pending',
+            'user_id'       => $user->id,
+            'patient_code'  => $request->patient_code ?? '',
+            'room_id'       => $room?->id,
+            'visit_form_id' => $visitForm?->id,
+            'address_id'    => $request->address_id,
+            'booking_date'  => $request->date,
+            'booking_time'  => $request->time,
+            'notes'         => $request->notes,
+            'status'        => 'pending',
         ]);
 
         $tests = XrayTest::whereIn('id', $request->test_ids)->get();
@@ -84,7 +83,7 @@ class XrayController extends Controller
         }
 
         $total = $tests->sum('price');
-        $total = $room ? $room->applyDiscount($total) : $total;
+        $total = $discountSource ? $discountSource->applyDiscount($total) : $total;
         $xrayRequest->update(['total' => $total]);
 
         $xrayRequest->load('tests.test');

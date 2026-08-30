@@ -5,16 +5,16 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\OrderResource;
 use App\Http\Traits\ApiResponse;
+use App\Http\Traits\ResolvesPatientCode;
 use App\Models\Cart;
 use App\Models\Order;
-use App\Models\Room;
 use App\Models\UserAddress;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, ResolvesPatientCode;
 
     public function __construct(private FirebaseService $firebase)
     {
@@ -46,19 +46,17 @@ class OrderController extends Controller
         $subtotal    = $cart->items->sum(fn ($item) => $item->unit_price * $item->quantity);
         $deliveryFee = $address->deliveryZone ? (float) $address->deliveryZone->fee : 0;
 
-        $room = null;
+        [$room, $visitForm, $codeError] = $this->resolveCodeSource($request->patient_code, $user);
 
-        if ($request->filled('patient_code')) {
-            $room = Room::where('patient_code', $request->patient_code)->first();
-
-            if ($room && ! $room->hasMember($user)) {
-                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
-            }
+        if ($codeError) {
+            return $this->error($codeError, null, 403);
         }
 
-        // The room's discount applies to the goods (subtotal) only — delivery
-        // is charged at full price regardless.
-        $discountedSubtotal = $room ? $room->applyDiscount($subtotal) : $subtotal;
+        $discountSource = $room ?? $visitForm;
+
+        // The discount applies to the goods (subtotal) only — delivery is
+        // charged at full price regardless.
+        $discountedSubtotal = $discountSource ? $discountSource->applyDiscount($subtotal) : $subtotal;
         $total = $discountedSubtotal + $deliveryFee;
 
         $order = Order::create([
@@ -66,8 +64,9 @@ class OrderController extends Controller
             'address_id'       => $address->id,
             'delivery_zone_id' => $address->delivery_zone_id,
             'patient_code'     => $request->patient_code,
-            'patient_id'       => $room?->patient_id,
+            'patient_id'       => $room?->patient_id ?? $visitForm?->patient_id,
             'room_id'          => $room?->id,
+            'visit_form_id'    => $visitForm?->id,
             'subtotal'         => $subtotal,
             'delivery_fee'     => $deliveryFee,
             'total'            => $total,

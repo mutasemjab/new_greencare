@@ -18,6 +18,7 @@ class OrderResource extends JsonResource
             'total'          => (float) $this->total,
             'notes'          => $this->notes,
             'room_id'        => $this->room_id ?? null,
+            'visit_form_id'  => $this->visit_form_id ?? null,
             'items'          => OrderItemResource::collection($this->whenLoaded('items')),
             'address'        => $this->whenLoaded('address', fn () =>
                 new AddressResource($this->address)

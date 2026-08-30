@@ -35,6 +35,7 @@
                         <tr>
                             <th>#</th>
                             <th>المريض</th>
+                            <th>كود الزيارة</th>
                             <th>الممرض المسؤول</th>
                             <th>التاريخ</th>
                             <th>الإجراءات</th>
@@ -45,6 +46,7 @@
                         <tr>
                             <td class="text-muted small">{{ $loop->iteration }}</td>
                             <td class="fw-semibold">{{ $visitForm->patient?->name ?? '—' }}</td>
+                            <td class="small text-primary">{{ $visitForm->code ?? '—' }}</td>
                             <td>{{ $visitForm->submittedBy?->name ?? '—' }}</td>
                             <td class="small text-muted">{{ $visitForm->created_at->format('Y/m/d H:i') }}</td>
                             <td>
@@ -56,7 +58,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-5">
+                            <td colspan="6" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                                 لا توجد نماذج بعد
                             </td>

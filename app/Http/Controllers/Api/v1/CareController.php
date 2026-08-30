@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\CareRequestResource;
 use App\Http\Resources\Api\CareServiceResource;
 use App\Http\Traits\ApiResponse;
+use App\Http\Traits\ResolvesPatientCode;
 use App\Models\CareRequest;
 use App\Models\CareRequestService;
 use App\Models\CareService;
-use App\Models\Room;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class CareController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, ResolvesPatientCode;
 
     public function __construct(private FirebaseService $firebase)
     {
@@ -42,15 +42,13 @@ class CareController extends Controller
 
         $user = $request->user('user-api');
 
-        $room = null;
+        [$room, $visitForm, $codeError] = $this->resolveCodeSource($request->patient_code, $user);
 
-        if ($request->filled('patient_code')) {
-            $room = Room::where('patient_code', $request->patient_code)->first();
-
-            if ($room && ! $room->hasMember($user)) {
-                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
-            }
+        if ($codeError) {
+            return $this->error($codeError, null, 403);
         }
+
+        $discountSource = $room ?? $visitForm;
 
         $careRequest = CareRequest::create([
             'user_id'      => $user->id,
@@ -72,7 +70,7 @@ class CareController extends Controller
         }
 
         $total = $services->sum('price');
-        $total = $room ? $room->applyDiscount($total) : $total;
+        $total = $discountSource ? $discountSource->applyDiscount($total) : $total;
         $careRequest->update(['total' => $total]);
 
         $careRequest->load('services.service');

@@ -5,15 +5,15 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\BathingRequestResource;
 use App\Http\Traits\ApiResponse;
+use App\Http\Traits\ResolvesPatientCode;
 use App\Models\BathingCard;
 use App\Models\BathingRequest;
-use App\Models\Room;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class BathingController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, ResolvesPatientCode;
 
     public function __construct(private FirebaseService $firebase)
     {
@@ -44,14 +44,10 @@ class BathingController extends Controller
 
         $user = $request->user('user-api');
 
-        $room = null;
+        [$room, $visitForm, $codeError] = $this->resolveCodeSource($request->patient_code, $user);
 
-        if ($request->filled('patient_code')) {
-            $room = Room::where('patient_code', $request->patient_code)->first();
-
-            if ($room && ! $room->hasMember($user)) {
-                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
-            }
+        if ($codeError) {
+            return $this->error($codeError, null, 403);
         }
 
         $bathingRequest = BathingRequest::create([
@@ -93,14 +89,10 @@ class BathingController extends Controller
 
         $user = $request->user('user-api');
 
-        $room = null;
+        [$room, $visitForm, $codeError] = $this->resolveCodeSource($request->patient_code, $user);
 
-        if ($request->filled('patient_code')) {
-            $room = Room::where('patient_code', $request->patient_code)->first();
-
-            if ($room && ! $room->hasMember($user)) {
-                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
-            }
+        if ($codeError) {
+            return $this->error($codeError, null, 403);
         }
 
         $bathingRequest = BathingRequest::create([

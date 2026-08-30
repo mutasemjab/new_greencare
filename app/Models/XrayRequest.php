@@ -11,7 +11,7 @@ class XrayRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'patient_code', 'address_id', 'room_id',
+        'user_id', 'patient_code', 'address_id', 'room_id', 'visit_form_id',
         'booking_date', 'booking_time', 'notes', 'total', 'status', 'result_file',
     ];
 
@@ -33,6 +33,11 @@ class XrayRequest extends Model
     public function room()
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function visitForm()
+    {
+        return $this->belongsTo(VisitForm::class);
     }
 
     public function tests()

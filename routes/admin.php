@@ -284,6 +284,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         // ── Sihati — Visit Forms (submissions, read-only) ───────────────────
         Route::get('sihati/visit-forms',                                      [VisitFormController::class, 'index'])->name('admin.sihati.visit-forms.index');
         Route::get('sihati/visit-forms/{visitForm}',                          [VisitFormController::class, 'show'])->name('admin.sihati.visit-forms.show');
+        Route::patch('sihati/visit-forms/{visitForm}/discount',               [VisitFormController::class, 'updateDiscount'])->name('admin.sihati.visit-forms.discount');
 
         // ── Notifications ────────────────────────────────────────────────────
         Route::get('notifications',                                           [NotificationController::class, 'index'])->name('admin.notifications.index');

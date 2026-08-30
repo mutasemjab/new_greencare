@@ -20,6 +20,7 @@ class LabRequestResource extends JsonResource
             'status_label' => $this->status_label,
             'total'      => (float) $this->total,
             'room_id'    => $this->room_id ?? null,
+            'visit_form_id' => $this->visit_form_id ?? null,
             'result_file_url' => $this->result_file_url,
             'result_uploaded_at' => $this->result_file ? $this->updated_at : null,
             'tests'      => $this->whenLoaded('tests', fn () =>

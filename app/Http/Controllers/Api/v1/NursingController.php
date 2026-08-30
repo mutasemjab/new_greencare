@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\NursingRequestResource;
 use App\Http\Resources\Api\NursingTypeResource;
 use App\Http\Traits\ApiResponse;
+use App\Http\Traits\ResolvesPatientCode;
 use App\Models\NursingRequest;
 use App\Models\NursingServiceType;
-use App\Models\Room;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class NursingController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, ResolvesPatientCode;
 
     public function __construct(private FirebaseService $firebase)
     {
@@ -40,14 +40,10 @@ class NursingController extends Controller
 
         $user = $request->user('user-api');
 
-        $room = null;
+        [$room, $visitForm, $codeError] = $this->resolveCodeSource($request->patient_code, $user);
 
-        if ($request->filled('patient_code')) {
-            $room = Room::where('patient_code', $request->patient_code)->first();
-
-            if ($room && ! $room->hasMember($user)) {
-                return $this->error('هذا الكود غير مرتبط بحسابك', null, 403);
-            }
+        if ($codeError) {
+            return $this->error($codeError, null, 403);
         }
 
         $nursing = NursingRequest::create([

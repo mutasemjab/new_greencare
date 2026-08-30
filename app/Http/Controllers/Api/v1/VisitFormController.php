@@ -106,7 +106,7 @@ class VisitFormController extends Controller
             }
         }
 
-        $visitForm->load('patient', 'answers', 'attachments');
+        $visitForm->load('patient', 'answers', 'attachments', 'labRequests', 'xrayRequests', 'orders');
 
         return $this->success(new VisitFormResource($visitForm), 'تم إرسال نموذج الزيارة', 201);
     }
@@ -121,7 +121,10 @@ class VisitFormController extends Controller
         $visitForm = VisitForm::where(function ($q) use ($user) {
             $q->where('submitted_by', $user->id)->orWhere('patient_id', $user->id);
         })
-            ->with('patient', 'answers', 'attachments')
+            ->with([
+                'patient', 'answers', 'attachments',
+                'labRequests.tests.test', 'xrayRequests.tests.test', 'orders.items',
+            ])
             ->findOrFail($id);
 
         return $this->success(new VisitFormResource($visitForm));
