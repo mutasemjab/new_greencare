@@ -34,12 +34,18 @@ class VisitForm extends Model
     }
 
     /**
-     * Whether the given user may use this visit form's code — only the
-     * patient it was filled for (no separate membership table like rooms).
+     * Whether the given user may use this visit form's code — the patient
+     * it was filled for, or the super_nurse who filled it (they're
+     * typically the one entering the code on the patient's behalf during
+     * the visit itself). No separate membership table like rooms have.
      */
     public function hasMember(?User $user): bool
     {
-        return $user && $this->patient_id === $user->id;
+        if (! $user) {
+            return false;
+        }
+
+        return $this->patient_id === $user->id || $this->submitted_by === $user->id;
     }
 
     public function applyDiscount(float $amount): float
