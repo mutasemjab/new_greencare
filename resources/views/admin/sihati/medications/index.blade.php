@@ -39,6 +39,7 @@
                         <th>المريض</th>
                         <th>الدواء</th>
                         <th>الجرعة</th>
+                        <th>طريقة الإعطاء</th>
                         <th>التكرار</th>
                         <th>تاريخ البدء</th>
                         <th>تاريخ الانتهاء</th>
@@ -55,6 +56,7 @@
                         </td>
                         <td class="fw-semibold">{{ $med->medication_name }}</td>
                         <td>{{ $med->dosage ?? '—' }}</td>
+                        <td>{{ $med->route_label ?? '—' }}</td>
                         <td>{{ $med->frequency ?? '—' }}</td>
                         <td class="small">{{ $med->start_date?->format('Y/m/d') ?? '—' }}</td>
                         <td class="small">
@@ -77,7 +79,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-5">
+                        <td colspan="9" class="text-center text-muted py-5">
                             <i class="bi bi-capsule fs-3 d-block mb-2"></i>
                             لا توجد أدوية مُسجَّلة
                         </td>

@@ -131,6 +131,37 @@
             </div>
 
             <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-transparent fw-bold">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>نتيجة الأشعة
+                </div>
+                <div class="card-body">
+                    @if($request->result_file)
+                        <a href="{{ Storage::disk('public')->url($request->result_file) }}"
+                            target="_blank" class="btn btn-outline-success w-100 mb-3">
+                            <i class="bi bi-download me-1"></i> عرض/تحميل النتيجة الحالية
+                        </a>
+                    @else
+                        <p class="text-muted small mb-3">لم يتم رفع نتيجة بعد.</p>
+                    @endif
+
+                    <form action="{{ route('admin.xray.requests.result', $request) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                {{ $request->result_file ? 'استبدال الملف' : 'رفع ملف PDF' }}
+                            </label>
+                            <input type="file" name="result_file" accept="application/pdf"
+                                class="form-control @error('result_file') is-invalid @enderror" required>
+                            @error('result_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-upload me-1"></i> رفع
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
                 <div class="card-body">
                     <div class="mb-2">
                         <span class="text-muted small">تاريخ الإنشاء:</span>

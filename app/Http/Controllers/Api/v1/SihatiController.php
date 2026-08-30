@@ -306,6 +306,7 @@ class SihatiController extends Controller
             'registrationTemplate.fields',
             'activeNurseAssignment.template.fields', 'activeDoctorAssignment.template.fields',
             'diagnoses', 'chronicDiseases', 'attachments',
+            'labRequests.tests.test', 'xrayRequests.tests.test',
         ])->findOrFail($id);
 
         $this->verifyRoomAccess($room);
@@ -665,6 +666,7 @@ class SihatiController extends Controller
         $request->validate([
             'medication_name' => 'required|string|max:255',
             'dosage'          => 'required|string|max:255',
+            'route'           => 'required|in:oral,iv,im,subcutaneous,topical,inhalation,other',
             'frequency'       => 'required|string|max:255',
             'frequency_type'  => 'required|in:daily,weekly,monthly',
             'times_per_day'   => 'required_if:frequency_type,daily|integer|min:1|max:6',
@@ -697,6 +699,7 @@ class SihatiController extends Controller
             'added_by'        => $user->id,
             'medication_name' => $request->medication_name,
             'dosage'          => $request->dosage,
+            'route'           => $request->route,
             'frequency'       => $request->frequency,
             'frequency_type'  => $request->frequency_type,
             'times_per_day'   => $request->frequency_type === 'daily' ? $request->times_per_day : null,
@@ -711,6 +714,99 @@ class SihatiController extends Controller
         $medication->load('addedBy');
 
         return $this->success(new RoomMedicationResource($medication), 'تم إضافة الدواء', 201);
+    }
+
+    /**
+     * PATCH /sihati/rooms/{id}/medications/{medicationId} — same
+     * super_nurse/doctor-only restriction as adding a medication.
+     */
+    public function updateMedication(Request $request, int $id, int $medicationId)
+    {
+        $room = Room::findOrFail($id);
+        $this->verifyRoomAccess($room);
+
+        $user = $request->user('user-api');
+
+        $canManage = $this->hasRoomRole($room, $user->id, 'super_nurse')
+            || $this->hasRoomRole($room, $user->id, 'doctor');
+
+        if (! $canManage) {
+            abort(403, 'فقط الممرض المسؤول أو الطبيب يمكنه تعديل الدواء');
+        }
+
+        $medication = RoomMedication::where('room_id', $room->id)->findOrFail($medicationId);
+
+        $request->validate([
+            'medication_name' => 'required|string|max:255',
+            'dosage'          => 'required|string|max:255',
+            'route'           => 'required|in:oral,iv,im,subcutaneous,topical,inhalation,other',
+            'frequency'       => 'required|string|max:255',
+            'frequency_type'  => 'required|in:daily,weekly,monthly',
+            'times_per_day'   => 'required_if:frequency_type,daily|integer|min:1|max:6',
+            'day_of_week'     => 'required_if:frequency_type,weekly|integer|min:0|max:6',
+            'day_of_month'    => 'required_if:frequency_type,monthly|integer|min:1|max:31',
+            'times'           => 'required|array|min:1',
+            'times.*'         => 'date_format:H:i',
+            'start_date'      => 'required|date',
+            'end_date'        => 'sometimes|nullable|date|after:start_date',
+            'notes'           => 'sometimes|nullable|string',
+        ]);
+
+        $times = $request->input('times', []);
+        $expectedCount = $request->frequency_type === 'daily' ? (int) $request->times_per_day : 1;
+
+        if (count($times) !== $expectedCount) {
+            return $this->error(
+                $request->frequency_type === 'daily'
+                    ? 'عدد الأوقات (times) يجب أن يساوي times_per_day بالضبط'
+                    : 'يجب إرسال وقت واحد بالضبط بحقل times لهذا النوع من التكرار',
+                null,
+                422
+            );
+        }
+
+        $medication->update([
+            'medication_name' => $request->medication_name,
+            'dosage'          => $request->dosage,
+            'route'           => $request->route,
+            'frequency'       => $request->frequency,
+            'frequency_type'  => $request->frequency_type,
+            'times_per_day'   => $request->frequency_type === 'daily' ? $request->times_per_day : null,
+            'day_of_week'     => $request->frequency_type === 'weekly' ? $request->day_of_week : null,
+            'day_of_month'    => $request->frequency_type === 'monthly' ? $request->day_of_month : null,
+            'times'           => $times,
+            'start_date'      => $request->start_date,
+            'end_date'        => $request->end_date,
+            'notes'           => $request->notes,
+        ]);
+
+        $medication->load('addedBy');
+
+        return $this->success(new RoomMedicationResource($medication), 'تم تعديل الدواء');
+    }
+
+    /**
+     * DELETE /sihati/rooms/{id}/medications/{medicationId} — same
+     * super_nurse/doctor-only restriction as adding a medication.
+     */
+    public function deleteMedication(Request $request, int $id, int $medicationId)
+    {
+        $room = Room::findOrFail($id);
+        $this->verifyRoomAccess($room);
+
+        $user = $request->user('user-api');
+
+        $canManage = $this->hasRoomRole($room, $user->id, 'super_nurse')
+            || $this->hasRoomRole($room, $user->id, 'doctor');
+
+        if (! $canManage) {
+            abort(403, 'فقط الممرض المسؤول أو الطبيب يمكنه حذف الدواء');
+        }
+
+        $medication = RoomMedication::where('room_id', $room->id)->findOrFail($medicationId);
+        $medication->delete();
+
+        return $this->success(null, 'تم حذف الدواء');
     }
 
     /**

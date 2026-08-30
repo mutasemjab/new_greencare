@@ -36,6 +36,12 @@ class RoomResource extends JsonResource
             'attachments'              => $this->whenLoaded('attachments', fn () =>
                 RoomAttachmentResource::collection($this->attachments->values())
             ),
+            'lab_results'              => $this->whenLoaded('labRequests', fn () =>
+                LabRequestResource::collection($this->labRequests->values())
+            ),
+            'xray_results'             => $this->whenLoaded('xrayRequests', fn () =>
+                XrayRequestResource::collection($this->xrayRequests->values())
+            ),
             'registration_template'    => $this->templateToArray($this->registrationTemplate),
             'active_assignment'        => $this->assignmentToArray($this->activeNurseAssignment),
             'doctor_active_assignment' => $this->assignmentToArray($this->activeDoctorAssignment),

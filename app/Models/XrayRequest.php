@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class XrayRequest extends Model
 {
@@ -11,7 +12,7 @@ class XrayRequest extends Model
 
     protected $fillable = [
         'user_id', 'patient_code', 'address_id', 'room_id',
-        'booking_date', 'booking_time', 'notes', 'total', 'status',
+        'booking_date', 'booking_time', 'notes', 'total', 'status', 'result_file',
     ];
 
     protected $casts = [
@@ -61,5 +62,15 @@ class XrayRequest extends Model
             'cancelled'   => 'danger',
             default       => 'secondary',
         };
+    }
+
+    public function getResultFileUrlAttribute(): ?string
+    {
+        return $this->result_file ? Storage::disk('public')->url($this->result_file) : null;
+    }
+
+    public function scopeWithResults($query)
+    {
+        return $query->whereNotNull('result_file');
     }
 }

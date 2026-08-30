@@ -91,7 +91,10 @@ class XrayController extends Controller
 
         if ($room) {
             $testNames = $tests->pluck('name')->implode('، ');
-            $this->firebase->postSystemMessage($room, "تم طلب أشعة: {$testNames} — بانتظار التأكيد");
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بطلب أشعة رقم #{$xrayRequest->id}: {$testNames} — بقيمة {$total} دينار — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new XrayRequestResource($xrayRequest), 'تم إرسال طلب الأشعة', 201);
@@ -114,5 +117,16 @@ class XrayController extends Controller
             ->findOrFail($id);
 
         return $this->success(new XrayRequestResource($xrayRequest));
+    }
+
+    public function results(Request $request)
+    {
+        $results = XrayRequest::where('user_id', $request->user('user-api')->id)
+            ->withResults()
+            ->with('tests.test')
+            ->latest('updated_at')
+            ->paginate(15);
+
+        return $this->success(XrayRequestResource::collection($results)->response()->getData(true));
     }
 }

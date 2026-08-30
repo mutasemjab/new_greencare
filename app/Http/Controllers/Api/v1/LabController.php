@@ -91,7 +91,10 @@ class LabController extends Controller
 
         if ($room) {
             $testNames = $tests->pluck('name')->implode('، ');
-            $this->firebase->postSystemMessage($room, "تم طلب تحاليل: {$testNames} — بانتظار التأكيد");
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بطلب تحاليل رقم #{$labRequest->id}: {$testNames} — بقيمة {$total} دينار — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new LabRequestResource($labRequest), 'تم إرسال طلب التحاليل', 201);

@@ -109,6 +109,7 @@ Route::prefix('v1')->group(function () {
         // Xray
         Route::post('xray/requests',     [XrayController::class, 'store']);
         Route::get('xray/requests',      [XrayController::class, 'index']);
+        Route::get('xray/results',       [XrayController::class, 'results']);
         Route::get('xray/requests/{id}', [XrayController::class, 'show']);
 
         // Doctors & bookings
@@ -154,6 +155,8 @@ Route::prefix('v1')->group(function () {
         Route::post('sihati/rooms/{id}/doctor-orders/{orderId}/reply', [SihatiController::class, 'replyOrder']);
         Route::get('sihati/rooms/{id}/medications',                    [SihatiController::class, 'roomMedications']);
         Route::post('sihati/rooms/{id}/medications',                   [SihatiController::class, 'addMedication']);
+        Route::patch('sihati/rooms/{id}/medications/{medicationId}',   [SihatiController::class, 'updateMedication']);
+        Route::delete('sihati/rooms/{id}/medications/{medicationId}',  [SihatiController::class, 'deleteMedication']);
         Route::post('sihati/rooms/{id}/complaints',                    [SihatiController::class, 'storeComplaint']);
         Route::post('sihati/rooms/{id}/chat-image',                    [SihatiController::class, 'uploadChatImage']);
         Route::post('sihati/rooms/{id}/notify-message',                [SihatiController::class, 'notifyMessage']);

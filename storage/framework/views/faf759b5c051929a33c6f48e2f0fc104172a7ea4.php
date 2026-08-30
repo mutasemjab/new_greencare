@@ -96,6 +96,12 @@
                 <span class="badge bg-secondary ms-1"><?php echo e($medications->count()); ?></span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-lab-xray">
+                <i class="bi bi-eyedropper me-1"></i>التحاليل والأشعة
+                <span class="badge bg-secondary ms-1"><?php echo e($labRequests->count() + $xrayRequests->count()); ?></span>
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content">
@@ -640,6 +646,7 @@ unset($__errorArgs, $__bag); ?>
                                 <th>#</th>
                                 <th>الدواء</th>
                                 <th>الجرعة</th>
+                                <th>طريقة الإعطاء</th>
                                 <th>التكرار</th>
                                 <th>من</th>
                                 <th>حتى</th>
@@ -652,6 +659,7 @@ unset($__errorArgs, $__bag); ?>
                                 <td class="text-muted small"><?php echo e($loop->iteration); ?></td>
                                 <td class="fw-semibold"><?php echo e($med->medication_name); ?></td>
                                 <td><?php echo e($med->dosage ?? '—'); ?></td>
+                                <td><?php echo e($med->route_label ?? '—'); ?></td>
                                 <td><?php echo e($med->frequency ?? '—'); ?></td>
                                 <td class="small"><?php echo e($med->start_date?->format('Y/m/d') ?? '—'); ?></td>
                                 <td class="small"><?php echo e($med->end_date?->format('Y/m/d') ?? '—'); ?></td>
@@ -659,7 +667,7 @@ unset($__errorArgs, $__bag); ?>
                             </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-5">
+                                <td colspan="8" class="text-center text-muted py-5">
                                     <i class="bi bi-capsule fs-3 d-block mb-2"></i>
                                     لا توجد أدوية مُسجَّلة
                                 </td>
@@ -668,6 +676,109 @@ unset($__errorArgs, $__bag); ?>
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        
+        <div class="tab-pane fade" id="tab-lab-xray">
+            <div class="d-flex flex-column gap-4">
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent fw-bold">
+                        <i class="bi bi-eyedropper me-2"></i>طلبات التحاليل
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>الفحوصات</th>
+                                    <th>طلبها</th>
+                                    <th>التاريخ</th>
+                                    <th>القيمة</th>
+                                    <th>الحالة</th>
+                                    <th>النتيجة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $__empty_1 = true; $__currentLoopData = $labRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lab): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <tr>
+                                    <td class="text-muted small"><?php echo e($loop->iteration); ?></td>
+                                    <td><?php echo e($lab->tests->pluck('test.name')->filter()->implode('، ') ?: '—'); ?></td>
+                                    <td class="small"><?php echo e($lab->user?->name ?? '—'); ?></td>
+                                    <td class="small"><?php echo e($lab->booking_date?->format('Y/m/d') ?? '—'); ?></td>
+                                    <td class="small"><?php echo e(number_format($lab->total, 2)); ?> د.أ</td>
+                                    <td>
+                                        <span class="badge bg-<?php echo e($lab->status_color); ?>-subtle text-<?php echo e($lab->status_color); ?>">
+                                            <?php echo e($lab->status_label); ?>
+
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php if($lab->result_file_url): ?>
+                                            <a href="<?php echo e($lab->result_file_url); ?>" target="_blank" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-file-earmark-pdf"></i> عرض
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted small">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        لا توجد طلبات تحاليل مرتبطة بهذه الغرفة
+                                    </td>
+                                </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent fw-bold">
+                        <i class="bi bi-radioactive me-2"></i>طلبات الأشعة
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>الأشعة</th>
+                                    <th>طلبها</th>
+                                    <th>التاريخ</th>
+                                    <th>القيمة</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $__empty_1 = true; $__currentLoopData = $xrayRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $xray): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <tr>
+                                    <td class="text-muted small"><?php echo e($loop->iteration); ?></td>
+                                    <td><?php echo e($xray->tests->pluck('test.name')->filter()->implode('، ') ?: '—'); ?></td>
+                                    <td class="small"><?php echo e($xray->user?->name ?? '—'); ?></td>
+                                    <td class="small"><?php echo e($xray->booking_date?->format('Y/m/d') ?? '—'); ?></td>
+                                    <td class="small"><?php echo e(number_format($xray->total, 2)); ?> د.أ</td>
+                                    <td>
+                                        <span class="badge bg-<?php echo e($xray->status_color); ?>-subtle text-<?php echo e($xray->status_color); ?>">
+                                            <?php echo e($xray->status_label); ?>
+
+                                        </span>
+                                    </td>
+                                </tr>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        لا توجد طلبات أشعة مرتبطة بهذه الغرفة
+                                    </td>
+                                </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
 

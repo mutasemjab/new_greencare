@@ -79,7 +79,10 @@ class CareController extends Controller
 
         if ($room) {
             $serviceNames = $services->pluck('name')->implode('، ');
-            $this->firebase->postSystemMessage($room, "تم طلب خدمة رعاية: {$serviceNames} — بانتظار التأكيد");
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بطلب خدمة رعاية رقم #{$careRequest->id}: {$serviceNames} — بقيمة {$total} دينار — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new CareRequestResource($careRequest), 'تم إرسال طلب الرعاية', 201);

@@ -36,6 +36,10 @@
                             <span>{{ $medication->dosage ?? '—' }}</span>
                         </li>
                         <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">طريقة الإعطاء</span>
+                            <span>{{ $medication->route_label ?? '—' }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
                             <span class="text-muted">التكرار</span>
                             <span>{{ $medication->frequency ?? '—' }}</span>
                         </li>

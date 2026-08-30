@@ -94,6 +94,12 @@
                 <span class="badge bg-secondary ms-1">{{ $medications->count() }}</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-lab-xray">
+                <i class="bi bi-eyedropper me-1"></i>التحاليل والأشعة
+                <span class="badge bg-secondary ms-1">{{ $labRequests->count() + $xrayRequests->count() }}</span>
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content">
@@ -584,6 +590,7 @@
                                 <th>#</th>
                                 <th>الدواء</th>
                                 <th>الجرعة</th>
+                                <th>طريقة الإعطاء</th>
                                 <th>التكرار</th>
                                 <th>من</th>
                                 <th>حتى</th>
@@ -596,6 +603,7 @@
                                 <td class="text-muted small">{{ $loop->iteration }}</td>
                                 <td class="fw-semibold">{{ $med->medication_name }}</td>
                                 <td>{{ $med->dosage ?? '—' }}</td>
+                                <td>{{ $med->route_label ?? '—' }}</td>
                                 <td>{{ $med->frequency ?? '—' }}</td>
                                 <td class="small">{{ $med->start_date?->format('Y/m/d') ?? '—' }}</td>
                                 <td class="small">{{ $med->end_date?->format('Y/m/d') ?? '—' }}</td>
@@ -603,7 +611,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-5">
+                                <td colspan="8" class="text-center text-muted py-5">
                                     <i class="bi bi-capsule fs-3 d-block mb-2"></i>
                                     لا توجد أدوية مُسجَّلة
                                 </td>
@@ -612,6 +620,117 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        {{-- ── Tab: Lab & Xray Results ───────────────────────────────────── --}}
+        <div class="tab-pane fade" id="tab-lab-xray">
+            <div class="d-flex flex-column gap-4">
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent fw-bold">
+                        <i class="bi bi-eyedropper me-2"></i>طلبات التحاليل
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>الفحوصات</th>
+                                    <th>طلبها</th>
+                                    <th>التاريخ</th>
+                                    <th>القيمة</th>
+                                    <th>الحالة</th>
+                                    <th>النتيجة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($labRequests as $lab)
+                                <tr>
+                                    <td class="text-muted small">{{ $loop->iteration }}</td>
+                                    <td>{{ $lab->tests->pluck('test.name')->filter()->implode('، ') ?: '—' }}</td>
+                                    <td class="small">{{ $lab->user?->name ?? '—' }}</td>
+                                    <td class="small">{{ $lab->booking_date?->format('Y/m/d') ?? '—' }}</td>
+                                    <td class="small">{{ number_format($lab->total, 2) }} د.أ</td>
+                                    <td>
+                                        <span class="badge bg-{{ $lab->status_color }}-subtle text-{{ $lab->status_color }}">
+                                            {{ $lab->status_label }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($lab->result_file_url)
+                                            <a href="{{ $lab->result_file_url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-file-earmark-pdf"></i> عرض
+                                            </a>
+                                        @else
+                                            <span class="text-muted small">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        لا توجد طلبات تحاليل مرتبطة بهذه الغرفة
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent fw-bold">
+                        <i class="bi bi-radioactive me-2"></i>طلبات الأشعة
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>الأشعة</th>
+                                    <th>طلبها</th>
+                                    <th>التاريخ</th>
+                                    <th>القيمة</th>
+                                    <th>الحالة</th>
+                                    <th>النتيجة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($xrayRequests as $xray)
+                                <tr>
+                                    <td class="text-muted small">{{ $loop->iteration }}</td>
+                                    <td>{{ $xray->tests->pluck('test.name')->filter()->implode('، ') ?: '—' }}</td>
+                                    <td class="small">{{ $xray->user?->name ?? '—' }}</td>
+                                    <td class="small">{{ $xray->booking_date?->format('Y/m/d') ?? '—' }}</td>
+                                    <td class="small">{{ number_format($xray->total, 2) }} د.أ</td>
+                                    <td>
+                                        <span class="badge bg-{{ $xray->status_color }}-subtle text-{{ $xray->status_color }}">
+                                            {{ $xray->status_label }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($xray->result_file_url)
+                                            <a href="{{ $xray->result_file_url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-file-earmark-pdf"></i> عرض
+                                            </a>
+                                        @else
+                                            <span class="text-muted small">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        لا توجد طلبات أشعة مرتبطة بهذه الغرفة
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
 

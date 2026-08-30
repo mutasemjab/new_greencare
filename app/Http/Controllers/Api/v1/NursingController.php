@@ -64,7 +64,10 @@ class NursingController extends Controller
         $nursing->load('serviceType');
 
         if ($room) {
-            $this->firebase->postSystemMessage($room, "تم طلب خدمة تمريض: {$nursing->serviceType->name} — بانتظار التأكيد");
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بطلب خدمة تمريض رقم #{$nursing->id}: {$nursing->serviceType->name} — بقيمة {$nursing->serviceType->price} دينار — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new NursingRequestResource($nursing), 'تم إرسال طلب التمريض', 201);

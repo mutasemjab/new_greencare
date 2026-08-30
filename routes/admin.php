@@ -169,6 +169,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('xray/requests',                            [XrayController::class, 'requests'])->name('admin.xray.requests');
         Route::get('xray/requests/{request}',                  [XrayController::class, 'showRequest'])->name('admin.xray.requests.show');
         Route::patch('xray/requests/{request}/status',         [XrayController::class, 'updateRequestStatus'])->name('admin.xray.requests.status');
+        Route::post('xray/requests/{request}/result',          [XrayController::class, 'uploadResult'])->name('admin.xray.requests.result');
 
         // ── Doctors ───────────────────────────────────────────────────────────
         Route::resource('doctors', DoctorController::class, ['as' => 'admin']);

@@ -12,6 +12,8 @@ class RoomMedicationResource extends JsonResource
             'id'              => $this->id,
             'medication_name' => $this->medication_name,
             'dosage'          => $this->dosage,
+            'route'           => $this->route,
+            'route_label'     => $this->route_label,
             'frequency'       => $this->frequency,
             'frequency_type'  => $this->frequency_type,
             'times_per_day'   => $this->times_per_day,

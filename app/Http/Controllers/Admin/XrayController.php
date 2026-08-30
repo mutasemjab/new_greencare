@@ -199,4 +199,23 @@ class XrayController extends Controller
 
         return back()->with('success', 'تم تحديث الحالة بنجاح');
     }
+
+    public function uploadResult(Request $httpRequest, XrayRequest $request)
+    {
+        $httpRequest->validate([
+            'result_file' => 'required|file|mimes:pdf|max:10240',
+        ], [
+            'result_file.mimes' => 'يجب أن يكون الملف بصيغة PDF فقط',
+        ]);
+
+        if ($request->result_file) {
+            Storage::disk('public')->delete($request->result_file);
+        }
+
+        $path = $httpRequest->file('result_file')->store('xray-results', 'public');
+
+        $request->update(['result_file' => $path]);
+
+        return back()->with('success', 'تم رفع نتيجة الأشعة بنجاح');
+    }
 }

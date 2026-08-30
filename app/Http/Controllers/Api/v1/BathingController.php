@@ -69,7 +69,10 @@ class BathingController extends Controller
         $card->increment('used_count');
 
         if ($room) {
-            $this->firebase->postSystemMessage($room, 'تم طلب استحمام ببطاقة — بانتظار التأكيد');
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بطلب استحمام رقم #{$bathingRequest->id} (ببطاقة) — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new BathingRequestResource($bathingRequest), 'تم استخدام البطاقة وإنشاء الطلب', 201);
@@ -113,7 +116,10 @@ class BathingController extends Controller
         ]);
 
         if ($room) {
-            $this->firebase->postSystemMessage($room, 'تم طلب استحمام — بانتظار التأكيد');
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بطلب استحمام رقم #{$bathingRequest->id} — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new BathingRequestResource($bathingRequest), 'تم إرسال طلب الاستحمام', 201);

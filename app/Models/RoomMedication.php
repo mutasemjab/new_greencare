@@ -8,7 +8,7 @@ class RoomMedication extends Model
 {
     protected $fillable = [
         'room_id', 'added_by', 'medication_name',
-        'dosage', 'frequency', 'frequency_type', 'times_per_day', 'day_of_week', 'day_of_month',
+        'dosage', 'route', 'frequency', 'frequency_type', 'times_per_day', 'day_of_week', 'day_of_month',
         'times', 'start_date', 'end_date', 'notes',
     ];
 
@@ -26,5 +26,19 @@ class RoomMedication extends Model
     public function addedBy()
     {
         return $this->belongsTo(User::class, 'added_by');
+    }
+
+    public function getRouteLabelAttribute(): ?string
+    {
+        return match ($this->route) {
+            'oral'         => 'عن طريق الفم',
+            'iv'           => 'عن طريق الوريد',
+            'im'           => 'عن طريق العضل',
+            'subcutaneous' => 'تحت الجلد',
+            'topical'      => 'موضعي',
+            'inhalation'   => 'استنشاق',
+            'other'        => 'أخرى',
+            default        => null,
+        };
     }
 }

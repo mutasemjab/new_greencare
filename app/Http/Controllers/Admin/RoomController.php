@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ChronicDisease;
 use App\Models\Diagnosis;
+use App\Models\LabRequest;
 use App\Models\ReportTemplate;
 use App\Models\Room;
 use App\Models\RoomAttachment;
 use App\Models\RoomMember;
 use App\Models\RoomReport;
 use App\Models\RoomTemplateAssignment;
+use App\Models\XrayRequest;
 use App\Models\User;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
@@ -172,6 +174,16 @@ class RoomController extends Controller
             ->whereIn('template_type', ['nurse', 'doctor'])
             ->get();
 
+        $labRequests = LabRequest::where('room_id', $room->id)
+            ->with(['user', 'tests.test'])
+            ->latest('booking_date')
+            ->get();
+
+        $xrayRequests = XrayRequest::where('room_id', $room->id)
+            ->with(['user', 'tests.test'])
+            ->latest('booking_date')
+            ->get();
+
         return view('admin.sihati.rooms.show', compact(
             'room',
             'members',
@@ -182,6 +194,8 @@ class RoomController extends Controller
             'doctorOrders',
             'medications',
             'availableTemplates',
+            'labRequests',
+            'xrayRequests',
         ));
     }
 

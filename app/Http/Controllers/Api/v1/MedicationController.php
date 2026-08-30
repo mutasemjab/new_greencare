@@ -26,6 +26,7 @@ class MedicationController extends Controller
         $request->validate([
             'medication_name' => 'required|string|max:255',
             'dosage'          => 'required|string|max:255',
+            'route'           => 'required|in:oral,iv,im,subcutaneous,topical,inhalation,other',
             'frequency'       => 'required|string|max:255',
             'times'           => 'sometimes|nullable|array',
             'times.*'         => 'date_format:H:i',
@@ -38,6 +39,7 @@ class MedicationController extends Controller
             'user_id'         => $request->user('user-api')->id,
             'medication_name' => $request->medication_name,
             'dosage'          => $request->dosage,
+            'route'           => $request->route,
             'frequency'       => $request->frequency,
             'times'           => $request->times,
             'start_date'      => $request->start_date,

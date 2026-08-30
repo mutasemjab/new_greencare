@@ -92,7 +92,11 @@ class OrderController extends Controller
         $order->load('items', 'address.deliveryZone');
 
         if ($room) {
-            $this->firebase->postSystemMessage($room, "تم إنشاء طلب من المتجر بقيمة {$total} دينار — بانتظار التأكيد");
+            $itemsSummary = $order->items->map(fn ($i) => "{$i->product_name} × {$i->quantity}")->implode('، ');
+            $this->firebase->postSystemMessage(
+                $room,
+                "قام {$user->name} بإنشاء طلب من المتجر رقم #{$order->id}: {$itemsSummary} — بقيمة {$total} دينار — بانتظار التأكيد"
+            );
         }
 
         return $this->success(new OrderResource($order), 'تم إنشاء الطلب بنجاح', 201);

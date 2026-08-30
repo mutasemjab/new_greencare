@@ -12,6 +12,8 @@ class MedicationResource extends JsonResource
             'id'              => $this->id,
             'medication_name' => $this->medication_name,
             'dosage'          => $this->dosage,
+            'route'           => $this->route,
+            'route_label'     => $this->route_label,
             'frequency'       => $this->frequency,
             'times'           => $this->times ?? [],
             'start_date'      => $this->start_date
