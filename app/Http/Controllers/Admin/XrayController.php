@@ -67,7 +67,9 @@ class XrayController extends Controller
         ]);
 
         if ($request->hasFile('icon')) {
-            Storage::disk('public')->delete($category->icon);
+            if ($category->icon) {
+                Storage::disk('public')->delete($category->icon);
+            }
             $data['icon'] = $request->file('icon')->store('xray/icons', 'public');
         }
 
@@ -81,7 +83,9 @@ class XrayController extends Controller
 
     public function destroyCategory(XrayCategory $category)
     {
-        Storage::disk('public')->delete($category->icon);
+        if ($category->icon) {
+            Storage::disk('public')->delete($category->icon);
+        }
         $category->delete();
 
         return redirect()->route('admin.xray.categories')

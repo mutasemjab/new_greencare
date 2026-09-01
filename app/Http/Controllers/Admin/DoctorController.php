@@ -89,7 +89,9 @@ class DoctorController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            Storage::disk('public')->delete($doctor->photo);
+            if ($doctor->photo) {
+                Storage::disk('public')->delete($doctor->photo);
+            }
             $data['photo'] = $request->file('photo')->store('doctors', 'public');
         }
 
@@ -103,7 +105,9 @@ class DoctorController extends Controller
 
     public function destroy(Doctor $doctor)
     {
-        Storage::disk('public')->delete($doctor->photo);
+        if ($doctor->photo) {
+            Storage::disk('public')->delete($doctor->photo);
+        }
         $doctor->delete();
 
         return redirect()->route('admin.doctors.index')

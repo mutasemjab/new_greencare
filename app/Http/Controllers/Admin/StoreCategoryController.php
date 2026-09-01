@@ -76,7 +76,9 @@ class StoreCategoryController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($storeCategory->image);
+            if ($storeCategory->image) {
+                Storage::disk('public')->delete($storeCategory->image);
+            }
             $data['image'] = $request->file('image')->store('store/categories', 'public');
         }
 
@@ -90,7 +92,10 @@ class StoreCategoryController extends Controller
 
     public function destroy(StoreCategory $storeCategory)
     {
-        Storage::disk('public')->delete($storeCategory->image);
+        if ($storeCategory->image) {
+            Storage::disk('public')->delete($storeCategory->image);
+        }
+
         $storeCategory->delete();
 
         return redirect()->route('admin.store.categories.index')

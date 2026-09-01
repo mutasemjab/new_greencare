@@ -67,7 +67,9 @@ class LabController extends Controller
         ]);
 
         if ($request->hasFile('icon')) {
-            Storage::disk('public')->delete($category->icon);
+            if ($category->icon) {
+                Storage::disk('public')->delete($category->icon);
+            }
             $data['icon'] = $request->file('icon')->store('lab/icons', 'public');
         }
 
@@ -81,7 +83,9 @@ class LabController extends Controller
 
     public function destroyCategory(LabCategory $category)
     {
-        Storage::disk('public')->delete($category->icon);
+        if ($category->icon) {
+            Storage::disk('public')->delete($category->icon);
+        }
         $category->delete();
 
         return redirect()->route('admin.lab.categories')

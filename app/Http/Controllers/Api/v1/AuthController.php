@@ -177,6 +177,22 @@ class AuthController extends Controller
     }
 
     /**
+     * "Delete" the account — deactivates it (is_active = false) rather than
+     * removing the row, since the user is referenced from orders, room
+     * membership, chat history, etc. Revokes every issued token so the
+     * account can't keep being used from other logged-in devices.
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user('user-api');
+
+        $user->update(['is_active' => false]);
+        $user->tokens()->update(['revoked' => true]);
+
+        return $this->success(null, 'تم حذف الحساب بنجاح');
+    }
+
+    /**
      * Return the authenticated user.
      */
     public function me(Request $request)
