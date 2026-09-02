@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('points_of_sale', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('name_en')->nullable();
             $table->string('address')->nullable();
             $table->string('phone', 20)->nullable();
             $table->boolean('is_active')->default(true);

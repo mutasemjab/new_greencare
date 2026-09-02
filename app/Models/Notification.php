@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
+
+    protected array $translatable = ['title', 'body'];
 
     protected $fillable = [
-        'user_id', 'title', 'body', 'screen', 'data',
+        'user_id', 'title', 'title_en', 'body', 'body_en', 'screen', 'data',
         'type', 'fcm_sent', 'is_read', 'read_at', 'sent_by',
     ];
 

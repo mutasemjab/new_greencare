@@ -2,93 +2,126 @@
 @section('title', __('messages.create_role'))
 
 @section('content')
-    <div class="container-fluid">
+<div class="container-fluid">
 
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box">
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-
-                            <li class="breadcrumb-item"><a
-                                    href="{{ route('admin.role.index') }}">{{ __('messages.role') }}</a>
-                            </li>
-                            <li class="breadcrumb-item active">{{ __('messages.create') }}</li>
-                        </ol>
-                    </div>
-                    <h4 class="page-title">{{ __('messages.create_role') }}</h4>
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('admin.role.index') }}">{{ __('messages.role') }}</a>
+                        </li>
+                        <li class="breadcrumb-item active">{{ __('messages.create') }}</li>
+                    </ol>
                 </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <form action="{{ route('admin.role.store') }}" method="post">
-                            @csrf
-                            <div class="my-3">
-                                <input type="text"
-                                    class="form-control @if ($errors->has('name')) is-invalid @endif" id="name"
-                                    placeholder=" {{ __('messages.name_field') }}" value="{{ old('name') }}" name="name">
-                                @error('name')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                                <span class="emsg text-danger"></span>
-                            </div>
-                            <h1>{{ __('messages.permission') }}</h1>
-                            <div class="my-3">
-                                @foreach($data as $value)
-                                    <br>
-                                    <input {{in_array( $value->id,old('perms')? old('perms'): []) ? 'checked':''}} class="ml-5" type="checkbox" name="perms[]" id="perm_{{$value->id}}" value="{{ $value->id }}">
-                                    <label for="perm_{{$value->id}}"> {{ $value->name }}. </label>
-                                    <br>
-                                @endforeach
-                            </div>
-                            <div class="row" id="permissions">
-                                @error('perms')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                                <span class="emsg text-danger"></span>
-                            </div>
-
-
-
-
-                            <div class="text-right">
-                                <button type="submit"
-                                    class="btn btn-success waves-effect waves-light">{{ __('messages.Save') }}</button>
-                                <a type="button" href="{{ route('admin.role.index') }}"
-                                    class="btn btn-danger waves-effect waves-light m-l-10">{{ __('messages.Cancel') }}
-                                </a>
-                            </div>
-
-
-                        </form>
-                    </div>
-                </div>
+                <h4 class="page-title">{{ __('messages.create_role') }}</h4>
             </div>
         </div>
     </div>
+
+    <form action="{{ route('admin.role.store') }}" method="post">
+        @csrf
+        <div class="row">
+
+            {{-- Role Name --}}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <label class="font-weight-bold">{{ __('messages.name_field') }}</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text"
+                                    class="form-control @error('name') is-invalid @enderror"
+                                    name="name" value="{{ old('name') }}"
+                                    placeholder="{{ __('messages.name_field') }}">
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Permissions --}}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">{{ __('messages.permission') }}</h5>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">تحديد الكل</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">إلغاء الكل</button>
+                        </div>
+                    </div>
+                    @error('perms')
+                        <div class="alert alert-danger mx-3 mt-2">{{ $message }}</div>
+                    @enderror
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach($grouped as $sectionLabel => $permissions)
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card border shadow-sm h-100">
+                                    <div class="card-header bg-light py-2 d-flex align-items-center justify-content-between">
+                                        <span class="font-weight-bold text-dark">{{ $sectionLabel }}</span>
+                                        <input type="checkbox" class="section-check"
+                                            data-section="{{ Str::slug($sectionLabel) }}"
+                                            title="تحديد القسم كله"
+                                            onchange="toggleSection('{{ Str::slug($sectionLabel) }}', this.checked)">
+                                    </div>
+                                    <div class="card-body py-2">
+                                        @foreach($permissions as $perm)
+                                        <div class="custom-control custom-checkbox mb-1">
+                                            <input type="checkbox"
+                                                class="custom-control-input perm-check-{{ Str::slug($sectionLabel) }}"
+                                                id="perm_{{ $perm->id }}"
+                                                name="perms[]"
+                                                value="{{ $perm->id }}"
+                                                {{ in_array($perm->id, old('perms', [])) ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="perm_{{ $perm->id }}">
+                                                {{ $perm->name }}
+                                            </label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Buttons --}}
+            <div class="col-12 mb-4">
+                <button type="submit" class="btn btn-success waves-effect waves-light">
+                    {{ __('messages.Save') }}
+                </button>
+                <a href="{{ route('admin.role.index') }}" class="btn btn-danger waves-effect waves-light ml-2">
+                    {{ __('messages.Cancel') }}
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+</div>
 @endsection
 
 @push('scripts')
-    <script>
-        $('#guard_name').change(function(e) {
-            guard_name = $('#guard_name').val();
-            e.preventDefault();
-            $.ajax({
-                type: "GET",
-                url: "/admin" + '/permissions/' + guard_name,
-                success: function(response) {
-                    $('#permissions').empty();
-                    $.each(response, function(i, val) {
-                        $('#permissions').append(
-                            '<div class="col-8"><input type="checkbox" class="mx-2" name="permissions[]" value=' +
-                            val.id + '>' + val.name + '</div>');
-                    });
-                }
-            });
-        });
-    </script>
+<script>
+    function toggleSection(section, checked) {
+        document.querySelectorAll('.perm-check-' + section).forEach(cb => cb.checked = checked);
+    }
+    function selectAll() {
+        document.querySelectorAll('input[name="perms[]"]').forEach(cb => cb.checked = true);
+        document.querySelectorAll('.section-check').forEach(cb => cb.checked = true);
+    }
+    function deselectAll() {
+        document.querySelectorAll('input[name="perms[]"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.section-check').forEach(cb => cb.checked = false);
+    }
+</script>
 @endpush

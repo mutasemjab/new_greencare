@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('forum_sub_categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('forum_category_id')->constrained('forum_categories')->cascadeOnDelete();
-            $table->string('name');           // مثل: رعاية الأطفال، التغذية، الصحة العامة
+            $table->string('name');
+            $table->string('name_en')->nullable();
             $table->boolean('is_active')->default(true);
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->timestamps();

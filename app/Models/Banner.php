@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['title', 'image', 'url', 'section', 'is_active', 'sort_order'];
+    protected array $translatable = ['title'];
+
+    protected $fillable = ['title', 'title_en', 'image', 'url', 'section', 'is_active', 'sort_order'];
 
     protected $casts = ['is_active' => 'boolean'];
 

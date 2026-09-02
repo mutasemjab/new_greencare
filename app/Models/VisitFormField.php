@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VisitFormField extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['question', 'field_type', 'options', 'sort_order', 'is_active'];
+    protected array $translatable = ['question'];
+
+    protected $fillable = ['question', 'question_en', 'field_type', 'options', 'sort_order', 'is_active'];
 
     protected $casts = [
         'options'   => 'array',

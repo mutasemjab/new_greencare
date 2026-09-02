@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
+            $table->string('title_en')->nullable();
             $table->string('image');
             $table->string('url')->nullable();
             $table->enum('section', ['home', 'store'])->default('home');

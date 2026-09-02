@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('room_id')->nullable()
                   ->constrained('rooms')->nullOnDelete();
+            $table->unsignedBigInteger('visit_form_id')->nullable();
             $table->foreignId('address_id')->nullable()->constrained('user_addresses')->nullOnDelete();
             $table->foreignId('delivery_zone_id')->nullable()->constrained('delivery_zones')->nullOnDelete();
             $table->string('patient_code', 20)->nullable();

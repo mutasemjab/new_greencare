@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Doctor extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
+
+    protected array $translatable = ['name', 'specialty', 'description'];
 
     protected $fillable = [
-        'name', 'photo', 'specialty',
+        'name', 'name_en', 'photo', 'specialty', 'specialty_en',
         'home_visit_price', 'appointment_price',
-        'rating', 'years_experience', 'description',
+        'rating', 'years_experience', 'description', 'description_en',
         'booking_phone', 'is_active', 'sort_order',
     ];
 

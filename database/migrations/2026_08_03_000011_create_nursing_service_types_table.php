@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('nursing_service_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('icon')->nullable(); // icon path or class
+            $table->string('name_en')->nullable();
+            $table->string('icon')->nullable();
             $table->decimal('price', 10, 2);
             $table->boolean('is_active')->default(true);
             $table->unsignedSmallInteger('sort_order')->default(0);

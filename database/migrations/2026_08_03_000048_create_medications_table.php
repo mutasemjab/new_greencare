@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // the patient
             $table->string('medication_name');
             $table->string('dosage')->nullable();
+            $table->enum('route', ['oral', 'iv', 'im', 'subcutaneous', 'topical', 'inhalation', 'other'])->nullable();
             $table->string('frequency')->nullable();
             $table->json('times')->nullable();
             $table->date('start_date')->nullable();

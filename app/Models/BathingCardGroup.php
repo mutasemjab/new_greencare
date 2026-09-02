@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BathingCardGroup extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'unit_price', 'sold_at_point_id'];
+    protected array $translatable = ['name'];
+
+    protected $fillable = ['name', 'name_en', 'unit_price', 'sold_at_point_id'];
 
     protected $casts = ['unit_price' => 'decimal:2'];
 

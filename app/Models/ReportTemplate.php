@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ReportTemplate extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'template_type', 'description', 'is_active'];
+    protected array $translatable = ['name', 'description'];
+
+    protected $fillable = ['name', 'name_en', 'template_type', 'description', 'description_en', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
 

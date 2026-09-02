@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LabTest extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['lab_category_id', 'name', 'description', 'price', 'is_active'];
+    protected array $translatable = ['name', 'description'];
+
+    protected $fillable = ['lab_category_id', 'name', 'name_en', 'description', 'description_en', 'price', 'is_active'];
 
     protected $casts = [
         'price'     => 'decimal:2',

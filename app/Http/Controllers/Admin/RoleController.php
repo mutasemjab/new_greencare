@@ -43,9 +43,8 @@ class RoleController extends Controller
      */
     public function create()
     {
-
-        $data = Permission::where('guard_name','admin')->get();
-        return view('admin.roles.create', compact('data'));
+        $grouped = $this->groupedPermissions();
+        return view('admin.roles.create', compact('grouped'));
     }
 
     /**
@@ -110,11 +109,10 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
-
-        $permissions = Permission::where('guard_name','admin')->get();
-        $role_permissions = DB::table('role_has_permissions')->where('role_id',$id)->pluck('permission_id')->toArray();
+        $grouped = $this->groupedPermissions();
+        $role_permissions = DB::table('role_has_permissions')->where('role_id', $id)->pluck('permission_id')->toArray();
         $data = Role::find($id);
-         return view('admin.roles.edit', compact('permissions','role_permissions','data'));
+        return view('admin.roles.edit', compact('grouped', 'role_permissions', 'data'));
     }
 
     /**
@@ -164,9 +162,51 @@ class RoleController extends Controller
      */
     public function delete(Request $request)
     {
+        Role::where('id', $request->id)->delete();
+        return 1;
+    }
 
-        Role::where('id',$request->id)->delete();
-       return 1;
+    private function groupedPermissions(): array
+    {
+        $all = Permission::where('guard_name', 'admin')->get();
 
+        $sections = [
+            'الأدوار والموظفين'       => ['role-', 'employee-'],
+            'المستخدمون'              => ['user-'],
+            'المتجر الإلكتروني'       => ['banner-', 'store-category-', 'product-', 'order-', 'delivery-zone-'],
+            'الأطباء'                 => ['doctor-'],
+            'خدمات التمريض'           => ['nursing-type-', 'nursing-request-'],
+            'خدمات الاستحمام'         => ['bathing-'],
+            'خدمات الرعاية'           => ['care-service-', 'care-request-'],
+            'المختبر'                 => ['lab-category-', 'lab-test-', 'lab-request-', 'lab-staff-'],
+            'الأشعة'                  => ['xray-category-', 'xray-test-', 'xray-request-'],
+            'المقالات والمنتدى'       => ['article-', 'forum-category-', 'forum-post-'],
+            'الإشعارات'               => ['notification-', 'fcm-'],
+            'الغرف والرعاية الصحية'   => ['room-', 'template-', 'diagnosis-', 'chronic-disease-', 'complaint-', 'visit-form-', 'document-template-', 'medication-', 'display-note-'],
+            'نقل المرضى والتغذية'     => ['transfer-', 'nutrition-'],
+            'الإعدادات'               => ['setting-'],
+        ];
+
+        $grouped = [];
+        $used = [];
+
+        foreach ($sections as $label => $prefixes) {
+            $grouped[$label] = $all->filter(function ($perm) use ($prefixes, &$used) {
+                foreach ($prefixes as $prefix) {
+                    if (str_starts_with($perm->name, $prefix)) {
+                        $used[] = $perm->id;
+                        return true;
+                    }
+                }
+                return false;
+            })->values();
+        }
+
+        $remaining = $all->whereNotIn('id', $used)->values();
+        if ($remaining->isNotEmpty()) {
+            $grouped['أخرى'] = $remaining;
+        }
+
+        return array_filter($grouped, fn ($g) => $g->isNotEmpty());
     }
 }

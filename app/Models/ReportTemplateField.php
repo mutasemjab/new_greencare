@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class ReportTemplateField extends Model
 {
+    use Translatable;
+
+    protected array $translatable = ['question'];
+
     protected $fillable = [
-        'report_template_id', 'question',
+        'report_template_id', 'question', 'question_en',
         'answer_type', 'is_required', 'sort_order',
     ];
 

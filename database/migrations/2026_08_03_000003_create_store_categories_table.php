@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('store_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('name_en')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('store_categories')->nullOnDelete();
             $table->string('image')->nullable();
             $table->boolean('is_active')->default(true);
