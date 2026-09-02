@@ -36,15 +36,15 @@ class DashboardController extends Controller
         $totalFamilies = User::where('role', 'patient_family')->count();
 
         // ── Recent data ──────────────────────────────────────────────────────
-        $recentOrders  = Order::with('user')->latest()->limit(6)->get();
-        $recentLab     = LabRequest::with('user')->latest()->limit(6)->get();
-        $recentDoctors = DoctorBooking::with(['user', 'doctor'])->latest()->limit(6)->get();
+        $recentUsers   = User::latest()->limit(8)->get();
+        $recentOrders  = Order::with('user')->latest()->limit(7)->get();
+        $recentDoctors = DoctorBooking::with(['user', 'doctor'])->latest()->limit(7)->get();
 
         return view('admin.dashboard', compact(
             'pendingOrders', 'pendingDoctors', 'pendingLab', 'pendingXray',
             'pendingNursing', 'pendingCare', 'pendingBathing', 'pendingTransfer',
             'totalRooms', 'totalPatients', 'totalDoctors', 'totalNurses', 'totalFamilies',
-            'recentOrders', 'recentLab', 'recentDoctors'
+            'recentUsers', 'recentOrders', 'recentDoctors'
         ));
     }
 }
