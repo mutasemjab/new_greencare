@@ -51,6 +51,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 
         // ── Roles & Employees ─────────────────────────────────────────
         Route::resource('employee', EmployeeController::class, ['as' => 'admin']);
+        Route::post('admin/employee/delete', [EmployeeController::class, 'delete'])->name('admin.employee.delete');
+
         Route::get('role',               [RoleController::class, 'index'])->name('admin.role.index');
         Route::get('role/create',        [RoleController::class, 'create'])->name('admin.role.create');
         Route::get('role/{id}/edit',     [RoleController::class, 'edit'])->name('admin.role.edit');

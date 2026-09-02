@@ -5,7 +5,7 @@
         <div class="brand-icon">
             <i class="bi bi-heart-pulse-fill"></i>
         </div>
-        <span class="brand-text">Green Medical</span>
+        <span class="brand-text">Green Care</span>
     </div>
 
     {{-- Navigation --}}
