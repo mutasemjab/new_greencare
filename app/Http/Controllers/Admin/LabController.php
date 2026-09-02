@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\FCMController;
 use App\Models\LabCategory;
 use App\Models\LabRequest;
 use App\Models\LabTest;
@@ -201,6 +202,64 @@ class LabController extends Controller
 
         $request->update(['status' => $httpRequest->status]);
 
+        $this->notifyUser($request, $httpRequest->status);
+
         return back()->with('success', 'تم تحديث الحالة بنجاح');
+    }
+
+    public function uploadResult(Request $httpRequest, LabRequest $request)
+    {
+        $httpRequest->validate([
+            'result_file' => 'required|file|mimes:pdf|max:10240',
+        ], [
+            'result_file.mimes' => 'يجب أن يكون الملف بصيغة PDF فقط',
+        ]);
+
+        if ($request->result_file) {
+            Storage::disk('public')->delete($request->result_file);
+        }
+
+        $path = $httpRequest->file('result_file')->store('lab-results', 'public');
+        $request->update(['result_file' => $path]);
+
+        if ($request->user_id) {
+            FCMController::sendToUser(
+                $request->user_id,
+                'نتائج فحص المختبر جاهزة',
+                'يمكنك الاطلاع على نتائج فحوصاتك الآن',
+                'lab_request',
+                'lab',
+                auth('admin')->id(),
+                ['request_id' => (string) $request->id]
+            );
+        }
+
+        return back()->with('success', 'تم رفع نتيجة الفحص بنجاح');
+    }
+
+    private function notifyUser(LabRequest $request, string $status): void
+    {
+        if (! $request->user_id) return;
+
+        $messages = [
+            'confirmed'   => ['تم تأكيد طلب المختبر',       'سيتواصل معك فريقنا قريباً لتحديد الموعد'],
+            'in_progress' => ['طلب المختبر قيد التنفيذ',     'جاري تجهيز الفحوصات المطلوبة'],
+            'completed'   => ['نتائج المختبر جاهزة',         'يمكنك الاطلاع على نتائج فحوصاتك الآن'],
+            'cancelled'   => ['تم إلغاء طلب المختبر',        'للاستفسار تواصل مع فريق الدعم'],
+        ];
+
+        if (! isset($messages[$status])) return;
+
+        [$title, $body] = $messages[$status];
+
+        FCMController::sendToUser(
+            $request->user_id,
+            $title,
+            $body,
+            'lab_request',
+            'lab',
+            auth('admin')->id(),
+            ['request_id' => (string) $request->id]
+        );
     }
 }

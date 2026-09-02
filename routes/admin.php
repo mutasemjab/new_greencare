@@ -146,6 +146,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('lab/requests',                             [LabController::class, 'requests'])->name('admin.lab.requests');
         Route::get('lab/requests/{request}',                   [LabController::class, 'showRequest'])->name('admin.lab.requests.show');
         Route::patch('lab/requests/{request}/status',          [LabController::class, 'updateRequestStatus'])->name('admin.lab.requests.status');
+        Route::post('lab/requests/{request}/result',           [LabController::class, 'uploadResult'])->name('admin.lab.requests.result');
 
         // ── Lab — Staff Accounts (lab dashboard logins) ──────────────────────
         Route::get('lab/staff',                                [LabStaffController::class, 'index'])->name('admin.lab.staff.index');
