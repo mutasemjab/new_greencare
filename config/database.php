@@ -60,7 +60,15 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            ]) + [
+                // Force native PHP types (int/float) for numeric columns.
+                // Without this explicitly set, some hosting environments'
+                // PHP/PDO builds default to stringifying every fetched
+                // value, which turns every id/foreign key into a JSON
+                // string instead of a number.
+                PDO::ATTR_STRINGIFY_FETCHES => false,
+                PDO::ATTR_EMULATE_PREPARES  => false,
+            ] : [],
         ],
 
         'pgsql' => [
