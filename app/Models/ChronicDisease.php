@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ChronicDisease extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'is_active'];
+    protected array $translatable = ['name'];
+
+    protected $fillable = ['name', 'name_en', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
 

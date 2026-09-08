@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\FCMController;
 use App\Models\XrayCategory;
 use App\Models\XrayRequest;
 use App\Models\XrayTest;
@@ -201,6 +202,8 @@ class XrayController extends Controller
 
         $request->update(['status' => $httpRequest->status]);
 
+        $this->notifyUser($request, $httpRequest->status);
+
         return back()->with('success', 'تم تحديث الحالة بنجاح');
     }
 
@@ -217,9 +220,46 @@ class XrayController extends Controller
         }
 
         $path = $httpRequest->file('result_file')->store('xray-results', 'public');
-
         $request->update(['result_file' => $path]);
 
+        if ($request->user_id) {
+            FCMController::sendToUser(
+                $request->user_id,
+                'نتائج فحص الأشعة جاهزة',
+                'يمكنك الاطلاع على نتائج فحوصاتك الآن',
+                'xray_request',
+                'xray',
+                auth('admin')->id(),
+                ['request_id' => (string) $request->id]
+            );
+        }
+
         return back()->with('success', 'تم رفع نتيجة الأشعة بنجاح');
+    }
+
+    private function notifyUser(XrayRequest $request, string $status): void
+    {
+        if (! $request->user_id) return;
+
+        $messages = [
+            'confirmed'   => ['تم تأكيد طلب الأشعة',       'سيتواصل معك فريقنا قريباً لتحديد الموعد'],
+            'in_progress' => ['طلب الأشعة قيد التنفيذ',     'جاري تجهيز فحوصات الأشعة المطلوبة'],
+            'completed'   => ['نتائج الأشعة جاهزة',         'يمكنك الاطلاع على نتائج فحوصاتك الآن'],
+            'cancelled'   => ['تم إلغاء طلب الأشعة',        'للاستفسار تواصل مع فريق الدعم'],
+        ];
+
+        if (! isset($messages[$status])) return;
+
+        [$title, $body] = $messages[$status];
+
+        FCMController::sendToUser(
+            $request->user_id,
+            $title,
+            $body,
+            'xray_request',
+            'xray',
+            auth('admin')->id(),
+            ['request_id' => (string) $request->id]
+        );
     }
 }

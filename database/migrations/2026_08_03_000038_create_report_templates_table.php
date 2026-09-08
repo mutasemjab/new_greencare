@@ -11,11 +11,10 @@ return new class extends Migration
         Schema::create('report_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            // registration = filled once at room creation by admin/head_nurse
-            // nurse        = filled every hour by nurse
-            // doctor       = filled every month by doctor
+            $table->string('name_en')->nullable();
             $table->enum('template_type', ['registration', 'nurse', 'doctor']);
             $table->text('description')->nullable();
+            $table->text('description_en')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

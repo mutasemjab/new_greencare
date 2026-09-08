@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone', 20)->unique()->nullable();
             $table->string('email')->unique()->nullable();
-            $table->enum('role', ['doctor', 'nurse', 'head_nurse', 'university_manager', 'patient', 'patient_family']);
+            $table->enum('role', ['doctor', 'nurse', 'university_manager', 'patient', 'patient_family', 'super_nurse']);
             $table->string('fcm_token')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();

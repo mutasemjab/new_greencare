@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('submitted_by')->constrained('users')->cascadeOnDelete();
+            $table->string('code', 20)->unique()->nullable();
+            $table->decimal('discount_value', 5, 2)->default(0);
             $table->timestamps();
         });
     }

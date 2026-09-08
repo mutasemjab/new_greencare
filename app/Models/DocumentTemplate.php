@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class DocumentTemplate extends Model
 {
-    protected $fillable = ['type', 'title', 'content', 'updated_by'];
+    use Translatable;
+
+    protected array $translatable = ['title', 'content'];
+
+    protected $fillable = ['type', 'title', 'title_en', 'content', 'content_en', 'updated_by'];
 
     public function updatedBy()
     {

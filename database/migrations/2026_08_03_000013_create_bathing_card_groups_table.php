@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('bathing_card_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('name_en')->nullable();
             $table->decimal('unit_price', 10, 2)->default(0);
             $table->foreignId('sold_at_point_id')->nullable()->constrained('points_of_sale')->nullOnDelete();
             $table->timestamps();

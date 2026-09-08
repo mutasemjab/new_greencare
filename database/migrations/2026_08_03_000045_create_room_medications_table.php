@@ -13,8 +13,14 @@ return new class extends Migration
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
             $table->foreignId('added_by')->constrained('users'); // doctor or patient
             $table->string('medication_name');
-            $table->string('dosage')->nullable();        // e.g. "500mg"
-            $table->string('frequency')->nullable();     // e.g. "مرتان يومياً"
+            $table->string('dosage')->nullable();
+            $table->enum('route', ['oral', 'iv', 'im', 'subcutaneous', 'topical', 'inhalation', 'other'])->nullable();
+            $table->string('frequency')->nullable();
+            $table->json('times')->nullable();
+            $table->enum('frequency_type', ['daily', 'weekly', 'monthly'])->nullable();
+            $table->unsignedTinyInteger('times_per_day')->nullable();
+            $table->unsignedTinyInteger('day_of_week')->nullable();
+            $table->unsignedTinyInteger('day_of_month')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->text('notes')->nullable();

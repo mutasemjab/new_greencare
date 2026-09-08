@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PointOfSale extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
+
+    protected array $translatable = ['name'];
 
     protected $table = 'points_of_sale';
 
-    protected $fillable = ['name', 'address', 'phone', 'is_active'];
+    protected $fillable = ['name', 'name_en', 'address', 'phone', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
 

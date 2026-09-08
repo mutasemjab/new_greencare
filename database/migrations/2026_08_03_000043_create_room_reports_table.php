@@ -20,7 +20,13 @@ return new class extends Migration
             $table->foreignId('submitted_by')->constrained('users');
             $table->enum('report_type', ['registration', 'nurse', 'doctor']);
             $table->timestamp('submitted_at');
+            $table->string('report_hour', 5)->nullable();
+            $table->text('note')->nullable();
+            $table->string('report_month', 7)->nullable();
             $table->timestamps();
+
+            $table->unique(['room_id', 'report_hour']);
+            $table->unique(['room_id', 'report_month']);
         });
     }
 

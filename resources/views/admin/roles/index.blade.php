@@ -1,87 +1,113 @@
 @extends('admin.layouts.app')
-@section('title', __('messages.role'))
+@section('title', 'الأدوار')
 
 @section('content')
-    <!-- Start Content-->
-    <div class="container-fluid">
+<div class="container-fluid">
 
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box">
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">{{ env('APP_NAME') }}</a></li>
-                            <li class="breadcrumb-item active">{{ __('messages.role') }}</li>
-                        </ol>
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">الرئيسية</a></li>
+                        <li class="breadcrumb-item active">الأدوار</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">إدارة الأدوار</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="row align-items-center mb-3">
+                        <div class="col-sm-6">
+                            {{ $data->links() }}
+                        </div>
+                        <div class="col-sm-6 text-sm-right mt-2 mt-sm-0">
+                            <a href="{{ route('admin.role.create') }}"
+                                class="btn btn-primary waves-effect waves-light">
+                                <i class="mdi mdi-plus"></i> إضافة دور
+                            </a>
+                        </div>
                     </div>
-                    <h4 class="page-title">{{ __('messages.role') }}</h4>
+
+                    {{-- Alerts --}}
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="mdi mdi-check-circle ml-1"></i> {{ session('success') }}
+                            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                        </div>
+                    @endif
+
+                    <div class="table-responsive">
+                        <table class="table table-centered table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width:200px;">اسم الدور</th>
+                                    <th>الصلاحيات</th>
+                                    <th style="width:120px;" class="text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($data as $role)
+                                <tr>
+                                    <td><span class="font-weight-bold">{{ $role->name }}</span></td>
+                                    <td>
+                                        @php
+                                            $groups = $role->permissions->groupBy(function($p) {
+                                                $parts = explode('-', $p->name);
+                                                return count($parts) >= 3
+                                                    ? $parts[0] . '-' . $parts[1]
+                                                    : $parts[0];
+                                            });
+                                        @endphp
+                                        @foreach($groups as $section => $perms)
+                                            <span class="badge badge-soft-primary mr-1 mb-1">
+                                                {{ $section }}
+                                                <span class="badge badge-primary badge-pill ml-1">{{ $perms->count() }}</span>
+                                            </span>
+                                        @endforeach
+                                        @if($role->permissions->isEmpty())
+                                            <span class="text-muted font-italic small">لا توجد صلاحيات</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ route('admin.role.edit', $role->id) }}"
+                                            class="btn btn-sm btn-outline-info">
+                                            <i class="mdi mdi-pencil-box"></i> تعديل
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            @if(env('Environment') == 'sendbox')
+                                                onclick="myFunction()"
+                                            @else
+                                                onclick="Delete('{{ $role->id }}','{{ route('admin.role.delete') }}')"
+                                            @endif>
+                                            <i class="mdi mdi-trash-can"></i> حذف
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-5">
+                                        <i class="mdi mdi-shield-off mdi-36px d-block mb-2"></i>
+                                        لا توجد أدوار بعد
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
+    </div>
 
-
-        <div class="row">
-            <div class="col">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row mb-2">
-                                <div class="col-md-12">
-
-                                </div>
-                            <div class="col-sm-4">
-
-                                {{ $data->links() }}
-
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="text-sm-right">
-                                    <a type="button" href="{{ route("admin.role.create") }}"
-                                        class="btn btn-primary waves-effect waves-light mb-2 text-white">{{ __('messages.new_role') }}
-                                    </a>
-                                </div>
-                            </div><!-- end col-->
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-centered table-nowrap table-hover mb-0">
-                                <thead class="thead-light">
-
-                                    <tr>
-                                         <th>{{ __('messages.name_field') }}</th>
-                                        <th>{{ __('messages.permissions') }}</th>
-                                         <th style="width: 82px;">{{ __('messages.action') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($data as $value)
-                                        <tr>
-                                            <td><span class="font-weight-bold">{{ $value->name }}</span></td>
-                                            <td>
-                                                @foreach ($value->permissions as $permission)
-                                                    {{ $permission->name }}<br>
-                                                @endforeach
-                                            </td>
-                                             <td>
-                                                <a class="btn btn-sm btn-outline-info"
-                                                    href="{{ route("admin.role.edit",  $value->id) }}"><i
-                                                        class="mdi mdi-pencil-box"></i> {{ __('messages.Edit') }}</a>
-                                              <a class="btn btn-sm btn-outline-danger" href="javascript:void(0)"
-                                                   @if (env('Environment') == 'sendbox') onclick="myFunction()" @else onclick="Delete('{{ $value->id }}','{{ route('admin.role.delete') }}')" @endif><i
-                                                        class="mdi mdi-trash-can"></i>{{ __('messages.Delete') }}</a>
-
-                                            </td>
-                                        </tr>
-                                    @endforeach
-
-                                </tbody>
-                            </table>
-                        </div>
-
-                    </div> <!-- end card-body-->
-                </div> <!-- end card-->
-            </div>
-        </div>
-    </div> <!-- container -->
+</div>
 @endsection
 
 @push('scripts')

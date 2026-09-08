@@ -1,105 +1,129 @@
 @extends('admin.layouts.app')
-@section('title', __('messages.edit_employee'))
-
-@push('styles')
-    <link href="{{ asset('assets/libs/dropzone/dropzone.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/libs/dropify/dropify.min.css') }}" rel="stylesheet" type="text/css" />
-@endpush
+@section('title', 'تعديل موظف')
 
 @section('content')
-    <div class="container-fluid">
+<div class="container-fluid">
 
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box">
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a
-                                    href="{{ route('admin.employee.index') }}">{{ __('messages.employee_title') }}</a></li>
-                            <li class="breadcrumb-item active">{{ __('messages.Edit') }}</li>
-                        </ol>
-                    </div>
-                    <h4 class="page-title">{{ __('messages.edit_employee') }}</h4>
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.employee.index') }}">الموظفون</a></li>
+                        <li class="breadcrumb-item active">تعديل</li>
+                    </ol>
                 </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <form action="{{ route('admin.employee.update',$admin->id) }}" method="post" enctype="multipart/form-data">
-                            @csrf
-                            {{ method_field('PATCH') }}
-                            <div class="form-group">
-                                <label for="name">{{ __('messages.name_field') }} <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text"
-                                        class="form-control @if ($errors->has('name')) is-invalid @endif"
-                                        id="name" placeholder="{{ __('messages.name_field') }}" value="{{ $admin->name }}" name="name">
-                                    @if ($errors->has('name'))
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('name') }}</strong>
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="username">{{ __('messages.username_label') }} <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="username"
-                                        class="form-control @if ($errors->has('username')) is-invalid @endif"
-                                        id="username" placeholder="{{ __('messages.username_label') }}" value="{{ $admin->username }}" name="username">
-                                    @if ($errors->has('username'))
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('username') }}</strong>
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password">{{ __('messages.password_label') }} <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="password"
-                                        class="form-control @if ($errors->has('password')) is-invalid @endif"
-                                        id="password" placeholder="{{ __('messages.password_label') }}" value="" name="password">
-                                    @if ($errors->has('password'))
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('password') }}</strong>
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="image">{{ __('messages.roles_permissions') }} :</label>
-                                @foreach ($roles as $role)
-                                    <br>
-                                    <input {{ in_array($role->id, old('roles') ? old('roles') : []) ? 'checked' : '' }}
-                                        class="ml-5" type="checkbox" name="roles[]" id="role_{{ $role->id }}"
-                                        value="{{ $role->id }}" {{in_array($role->id,$adminRole)? 'checked' : ''}}>
-                                    <label for="role_{{ $role->id }}"> {{ $role->name }}. </label>
-                                    <br>
-                                @endforeach
-                            </div>
-                            <hr>
-
-                            <div class="text-right">
-                                <button type="submit"
-                                    class="btn btn-success waves-effect waves-light">{{ __('messages.Save') }}</button>
-                                <a type="button" href="{{ route('admin.employee.index') }}"
-                                    class="btn btn-danger waves-effect waves-light m-l-10">{{ __('messages.Cancel') }}
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <h4 class="page-title">تعديل بيانات: {{ $admin->name }}</h4>
             </div>
         </div>
     </div>
+
+    <form action="{{ route('admin.employee.update', $admin->id) }}" method="post">
+        @csrf
+        @method('PATCH')
+        <div class="row">
+
+            {{-- بيانات الموظف --}}
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">البيانات الأساسية</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label for="name">الاسم الكامل <span class="text-danger">*</span></label>
+                            <input type="text" id="name" name="name"
+                                value="{{ old('name', $admin->name) }}"
+                                class="form-control @error('name') is-invalid @enderror"
+                                placeholder="أدخل الاسم الكامل">
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">البريد الإلكتروني <span class="text-danger">*</span></label>
+                            <input type="email" id="email" name="email"
+                                value="{{ old('email', $admin->email) }}"
+                                class="form-control @error('email') is-invalid @enderror"
+                                placeholder="example@domain.com"
+                                dir="ltr">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="username">اسم المستخدم <span class="text-danger">*</span></label>
+                            <input type="text" id="username" name="username"
+                                value="{{ old('username', $admin->username) }}"
+                                class="form-control @error('username') is-invalid @enderror"
+                                dir="ltr">
+                            @error('username')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">
+                                كلمة المرور
+                                <small class="text-muted font-weight-normal">(اتركها فارغة إن لم ترد تغييرها)</small>
+                            </label>
+                            <input type="password" id="password" name="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                placeholder="أدخل كلمة مرور جديدة">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            {{-- الأدوار --}}
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">الأدوار والصلاحيات <span class="text-danger">*</span></h5>
+                    </div>
+                    <div class="card-body">
+                        @error('roles')
+                            <div class="alert alert-danger py-2">{{ $message }}</div>
+                        @enderror
+
+                        @forelse($roles as $role)
+                            <div class="custom-control custom-checkbox mb-2">
+                                <input type="checkbox"
+                                    class="custom-control-input"
+                                    id="role_{{ $role->id }}"
+                                    name="roles[]"
+                                    value="{{ $role->id }}"
+                                    {{ in_array($role->id, old('roles', $adminRole)) ? 'checked' : '' }}>
+                                <label class="custom-control-label font-weight-normal" for="role_{{ $role->id }}">
+                                    {{ $role->name }}
+                                </label>
+                            </div>
+                        @empty
+                            <p class="text-muted">لا توجد أدوار.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            {{-- أزرار --}}
+            <div class="col-12 mb-4">
+                <button type="submit" class="btn btn-success waves-effect waves-light">
+                    <i class="mdi mdi-check ml-1"></i> حفظ التعديلات
+                </button>
+                <a href="{{ route('admin.employee.index') }}" class="btn btn-secondary waves-effect ml-2">
+                    إلغاء
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+</div>
 @endsection
-@push('scripts')
-    <script src="{{ asset('assets/libs/dropzone/dropzone.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/dropify/dropify.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/form-fileuploads.init.js') }}"></script>
-@endpush

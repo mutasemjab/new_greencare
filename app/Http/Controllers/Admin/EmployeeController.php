@@ -13,204 +13,159 @@ use Spatie\Permission\Models\Role;
 
 class EmployeeController extends Controller
 {
-
     public function index(Request $request)
     {
-        $data = Admin::where('is_super', 0);
-        if ($request->search != '' ||  $request->search) {
-            $data->where(function ($query) use ($request) {
-                $query->where('admins.name', 'LIKE', "%$request->search%")
-                    ->orWhere('admins.email',  'LIKE', "%$request->search%")
-                    ->orWhere('admins.mobile',  'LIKE', "%$request->search%");
+        if (!auth()->user()->can('employee-table')) {
+            abort(403);
+        }
+
+        $query = Admin::where('is_super', false);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('username', 'LIKE', "%{$search}%");
             });
         }
-        $data = $data->paginate(10);
+
+        $data = $query->latest()->paginate(15)->withQueryString();
+
         return view('admin.employee.index', compact('data'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        if (auth()->user()->can('employee-add')) {
-            $roles = Role::get();
-            return view('admin.employee.create', compact('roles'));
-        } else {
-            return redirect()->back()
-                ->with('error', "Access Denied");
+        if (!auth()->user()->can('employee-add')) {
+            abort(403);
         }
+
+        $roles = Role::where('guard_name', 'admin')->get();
+        return view('admin.employee.create', compact('roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        if (auth()->user()->can('employee-add')) {
-            $this->validate($request, [
-                'name' => 'required',
-                'email' => 'required|unique:admins,email',
-                'password' => 'required',
-                'roles' => 'required'
-            ]);
-
-            DB::beginTransaction();
-            try {
-
-
-                $admin = new Admin([
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'username' => $request->username,
-                    'password' => Hash::make($request->password),
-
-                ]);
-
-                $admin->save();
-                foreach ($request->roles as $role) {
-                    DB::table('model_has_roles')->insert([
-                        'role_id' => $role,
-                        'model_type' => 'App\Models\admin',
-                        'model_id' => $admin->id
-                    ]);
-                }
-                DB::commit();
-                return redirect()->route('admin.employee.index')
-                    ->with('success', 'Employee created successfully');
-            } catch (Exception $e) {
-                DB::rollBack();
-                Log::info("Error Occured", ['message' => $e]);
-                return redirect()->route('admin.employee.index')
-                    ->with('error', 'Something Wrong');
-            }
-        } else {
-            return redirect()->back()
-                ->with('error', "Access Denied");
+        if (!auth()->user()->can('employee-add')) {
+            abort(403);
         }
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        if (auth()->user()->can('employee-delete')) {
-            DB::beginTransaction();
-            try {
-                Admin::find($id)->delete();
-                DB::table('model_has_roles')->where('model_type', 'App\Models\admin')->where('model_id', $id)->delete();
-                DB::commit();
-                return redirect()->route('admin.employee.index')
-                    ->with('success', 'Admin deleted successfully');
-            } catch (Exception $e) {
-                DB::rollback();
-                return redirect()->route('admin.employee.index')
-                    ->with('error', 'Something Error');
-            }
-        } else {
-            return redirect()->back()
-                ->with('error', "Access Denied");
-        }
-    }
+        $request->validate([
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:admins,email',
+            'username' => 'required|string|max:100|unique:admins,username',
+            'password' => 'required|string|min:6',
+            'roles'    => 'required|array',
+        ], [
+            'name.required'     => 'الاسم مطلوب',
+            'email.required'    => 'البريد الإلكتروني مطلوب',
+            'email.unique'      => 'البريد الإلكتروني مستخدم مسبقاً',
+            'username.required' => 'اسم المستخدم مطلوب',
+            'username.unique'   => 'اسم المستخدم مستخدم مسبقاً',
+            'password.required' => 'كلمة المرور مطلوبة',
+            'password.min'      => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+            'roles.required'    => 'يجب اختيار دور واحد على الأقل',
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        if (auth()->user()->can('employee-edit')) {
-            $admin = Admin::find($id);
-            $roles = Role::all();
-            $adminRole = $admin->roles->pluck('id')->all();
-            return view('admin.employee.edit', compact('admin', 'roles', 'adminRole'));
-        } else {
-            return redirect()->back()
-                ->with('error', "Access Denied");
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        if (auth()->user()->can('employee-edit')) {
-            $this->validate($request, [
-                'name' => 'required',
-                'email' => 'required|unique:admins,email,' . $id,
-                'roles' => 'required'
-            ]);
-
-            DB::beginTransaction();
-            try {
-                $admin = Admin::find($id);
-
-                $admin->name = $request->name;
-                $admin->email = $request->email;
-                $admin->username = $request->username;
-                if ($request->password) {
-                    $admin->password = Hash::make($request->password);
-                }
-                $admin->save();
-                DB::table('model_has_roles')->where('model_type', 'App\Models\admin')
-                    ->where('model_id', $id)->delete();
-                foreach ($request->roles as $role) {
-                    DB::table('model_has_roles')->insert([
-                        'role_id' => $role,
-                        'model_type' => 'App\Models\admin',
-                        'model_id' => $admin->id
-                    ]);
-                }
-                DB::commit();
-                return redirect()->route('admin.employee.index')
-                    ->with('success', 'Employee updated successfully');
-            } catch (Exception $e) {
-                DB::rollBack();
-                Log::info("Error Occured", ['message' => $e]);
-                return redirect()->route('admin.employee.index')
-                    ->with('error', 'Something Wrong');
-            }
-        } else {
-            return redirect()->back()
-                ->with('error', "Access Denied");
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
         DB::beginTransaction();
         try {
-            Admin::find($id)->delete();
-            DB::table('model_has_roles')->where('model_type', 'App\Models\admin')->where('model_id', $id)->delete();
+            $admin = Admin::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+            ]);
+
+            $admin->syncRoles($request->roles);
+
             DB::commit();
-            return redirect()->route('admins.index')
-                ->with('success', 'Admin deleted successfully');
+            return redirect()->route('admin.employee.index')
+                ->with('success', 'تم إضافة الموظف بنجاح');
         } catch (Exception $e) {
-            DB::rollback();
-            return redirect()->route('admins.index')
-                ->with('error', 'Something Error');
+            DB::rollBack();
+            Log::error('Employee store: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'حدث خطأ أثناء الحفظ');
+        }
+    }
+
+    public function edit($id)
+    {
+        if (!auth()->user()->can('employee-edit')) {
+            abort(403);
+        }
+
+        $admin     = Admin::findOrFail($id);
+        $roles     = Role::where('guard_name', 'admin')->get();
+        $adminRole = $admin->roles->pluck('id')->all();
+
+        return view('admin.employee.edit', compact('admin', 'roles', 'adminRole'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (!auth()->user()->can('employee-edit')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:admins,email,' . $id,
+            'username' => 'required|string|max:100|unique:admins,username,' . $id,
+            'roles'    => 'required|array',
+            'password' => 'nullable|string|min:6',
+        ], [
+            'name.required'     => 'الاسم مطلوب',
+            'email.required'    => 'البريد الإلكتروني مطلوب',
+            'email.unique'      => 'البريد الإلكتروني مستخدم مسبقاً',
+            'username.required' => 'اسم المستخدم مطلوب',
+            'username.unique'   => 'اسم المستخدم مستخدم مسبقاً',
+            'roles.required'    => 'يجب اختيار دور واحد على الأقل',
+            'password.min'      => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $admin           = Admin::findOrFail($id);
+            $admin->name     = $request->name;
+            $admin->email    = $request->email;
+            $admin->username = $request->username;
+
+            if ($request->filled('password')) {
+                $admin->password = Hash::make($request->password);
+            }
+
+            $admin->save();
+            $admin->syncRoles($request->roles);
+
+            DB::commit();
+            return redirect()->route('admin.employee.index')
+                ->with('success', 'تم تحديث بيانات الموظف بنجاح');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Employee update: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'حدث خطأ أثناء التحديث');
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        if (!auth()->user()->can('employee-delete')) {
+            return 0;
+        }
+
+        try {
+            $admin = Admin::where('id', $request->id)
+                          ->where('is_super', false)
+                          ->firstOrFail();
+            $admin->syncRoles([]);
+            $admin->delete();
+            return 1;
+        } catch (Exception $e) {
+            Log::error('Employee delete: ' . $e->getMessage());
+            return 0;
         }
     }
 }

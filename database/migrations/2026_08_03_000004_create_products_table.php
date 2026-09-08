@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('store_category_id')->constrained('store_categories')->cascadeOnDelete();
             $table->string('name');
+            $table->string('name_en')->nullable();
             $table->text('description')->nullable();
+            $table->text('description_en')->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('sale_price', 10, 2)->nullable();
             $table->json('images')->nullable(); // array of image paths

@@ -51,6 +51,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 
         // ── Roles & Employees ─────────────────────────────────────────
         Route::resource('employee', EmployeeController::class, ['as' => 'admin']);
+        Route::post('admin/employee/delete', [EmployeeController::class, 'delete'])->name('admin.employee.delete');
+
         Route::get('role',               [RoleController::class, 'index'])->name('admin.role.index');
         Route::get('role/create',        [RoleController::class, 'create'])->name('admin.role.create');
         Route::get('role/{id}/edit',     [RoleController::class, 'edit'])->name('admin.role.edit');
@@ -144,6 +146,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('lab/requests',                             [LabController::class, 'requests'])->name('admin.lab.requests');
         Route::get('lab/requests/{request}',                   [LabController::class, 'showRequest'])->name('admin.lab.requests.show');
         Route::patch('lab/requests/{request}/status',          [LabController::class, 'updateRequestStatus'])->name('admin.lab.requests.status');
+        Route::post('lab/requests/{request}/result',           [LabController::class, 'uploadResult'])->name('admin.lab.requests.result');
 
         // ── Lab — Staff Accounts (lab dashboard logins) ──────────────────────
         Route::get('lab/staff',                                [LabStaffController::class, 'index'])->name('admin.lab.staff.index');

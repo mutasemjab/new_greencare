@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class StoreCategory extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'parent_id', 'image', 'is_active', 'sort_order'];
+    protected array $translatable = ['name'];
+
+    protected $fillable = ['name', 'name_en', 'parent_id', 'image', 'is_active', 'sort_order'];
 
     protected $casts = ['is_active' => 'boolean'];
 

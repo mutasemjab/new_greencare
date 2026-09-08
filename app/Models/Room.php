@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
+
+    protected array $translatable = ['name', 'description'];
 
     protected $fillable = [
-        'patient_id', 'patient_code', 'created_by', 'name', 'description',
+        'patient_id', 'patient_code', 'created_by', 'name', 'name_en', 'description', 'description_en',
         'address', 'discount_value', 'registration_template_id',
         'firebase_room_id', 'is_active',
         'age', 'gender', 'weight', 'has_allergies', 'allergy_details',

@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->enum('type', ['authorization', 'pledge'])->unique(); // only 2 records ever
             $table->string('title');
-            $table->longText('content'); // HTML content editable by admin
+            $table->string('title_en')->nullable();
+            $table->longText('content');
+            $table->longText('content_en')->nullable();
             $table->foreignId('updated_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->timestamps();
         });

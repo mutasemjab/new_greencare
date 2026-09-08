@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('delivery_zones', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // e.g. "داخل عمان", "خارج عمان"
+            $table->string('name');
+            $table->string('name_en')->nullable();
             $table->decimal('fee', 8, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

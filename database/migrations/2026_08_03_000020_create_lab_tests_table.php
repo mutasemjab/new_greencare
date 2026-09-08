@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('lab_category_id')->constrained('lab_categories')->cascadeOnDelete();
             $table->string('name');
+            $table->string('name_en')->nullable();
             $table->text('description')->nullable();
+            $table->text('description_en')->nullable();
             $table->decimal('price', 10, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
