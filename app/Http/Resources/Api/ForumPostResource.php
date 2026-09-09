@@ -15,7 +15,7 @@ class ForumPostResource extends JsonResource
             'type'            => $this->type,
             'is_pinned'       => (bool) $this->is_pinned,
             'replies_count'   => $this->replies_count,
-            'sub_category_id' => $this->forum_sub_category_id,
+            'sub_category_id' => (int) $this->forum_sub_category_id,
             'user'            => $this->whenLoaded('user', fn () => [
                 'id'    => $this->user->id,
                 'name'  => $this->user->name,
