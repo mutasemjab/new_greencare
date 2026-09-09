@@ -17,7 +17,7 @@ class ForumPostResource extends JsonResource
             'replies_count'   => (int) $this->replies_count,
             'sub_category_id' => (int) $this->forum_sub_category_id,
             'user'            => $this->whenLoaded('user', fn () => [
-                'id'    => $this->user->id,
+                'id'    => (int) $this->user->id,
                 'name'  => $this->user->name,
                 'phone' => $this->user->phone,
             ]),
