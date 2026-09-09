@@ -21,7 +21,7 @@ class ProductResource extends JsonResource
             'price'       => (float) $this->price,
             'sale_price'  => $this->sale_price !== null ? (float) $this->sale_price : null,
             'images'      => $images,
-            'category_id' => $this->store_category_id,
+            'category_id' => (int) $this->store_category_id,
             'is_active'   => $this->is_active,
             'sort_order'  => $this->sort_order ?? null,
             'category'    => $this->whenLoaded('category', fn () =>
