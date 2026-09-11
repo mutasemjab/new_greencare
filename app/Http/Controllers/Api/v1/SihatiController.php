@@ -59,7 +59,7 @@ class SihatiController extends Controller
             return;
         }
 
-        if ($room->patient_id === $user->id) {
+        if ((int) $room->patient_id === (int) $user->id) {
             return;
         }
 
@@ -845,6 +845,23 @@ class SihatiController extends Controller
         $request->validate(['image' => 'required|image|max:10240']);
 
         $path = $request->file('image')->store('rooms/chat', 'public');
+
+        return $this->success(['url' => Storage::disk('public')->url($path)]);
+    }
+
+    /**
+     * POST /sihati/rooms/{id}/chat-file — uploads a generic chat attachment
+     * (document, audio, etc — anything besides an image), returns its URL
+     * so the Flutter client can store it in the Firestore message.
+     */
+    public function uploadChatFile(Request $request, int $id)
+    {
+        $room = Room::findOrFail($id);
+        $this->verifyRoomAccess($room);
+
+        $request->validate(['file' => 'required|file|max:20480']);
+
+        $path = $request->file('file')->store('rooms/chat', 'public');
 
         return $this->success(['url' => Storage::disk('public')->url($path)]);
     }

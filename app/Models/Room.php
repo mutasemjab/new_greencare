@@ -55,7 +55,7 @@ class Room extends Model
             return false;
         }
 
-        if ($this->patient_id === $user->id) {
+        if ((int) $this->patient_id === (int) $user->id) {
             return true;
         }
 
@@ -228,7 +228,7 @@ class Room extends Model
             return null;
         }
 
-        if ($this->patient_id === $user->id) {
+        if ((int) $this->patient_id === (int) $user->id) {
             return 'patient';
         }
 

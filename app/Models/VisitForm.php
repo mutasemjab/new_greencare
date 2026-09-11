@@ -45,7 +45,7 @@ class VisitForm extends Model
             return false;
         }
 
-        return $this->patient_id === $user->id || $this->submitted_by === $user->id;
+        return (int) $this->patient_id === (int) $user->id || (int) $this->submitted_by === (int) $user->id;
     }
 
     public function applyDiscount(float $amount): float

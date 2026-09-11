@@ -160,6 +160,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('sihati/rooms/{id}/medications/{medicationId}',  [SihatiController::class, 'deleteMedication']);
         Route::post('sihati/rooms/{id}/complaints',                    [SihatiController::class, 'storeComplaint']);
         Route::post('sihati/rooms/{id}/chat-image',                    [SihatiController::class, 'uploadChatImage']);
+        Route::post('sihati/rooms/{id}/chat-file',                     [SihatiController::class, 'uploadChatFile']);
         Route::post('sihati/rooms/{id}/notify-message',                [SihatiController::class, 'notifyMessage']);
 
         // Sihati — medical visit forms (parallel, chat-less item type)
