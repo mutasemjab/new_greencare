@@ -12,7 +12,7 @@ class CartResource extends JsonResource
             'id'          => $this->id,
             'items'       => CartItemResource::collection($this->whenLoaded('items')),
             'total'       => (float) $this->total,
-            'items_count' => $this->items_count,
+            'items_count' => (int) $this->items_count,
         ];
     }
 }

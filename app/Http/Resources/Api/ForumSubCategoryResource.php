@@ -12,9 +12,9 @@ class ForumSubCategoryResource extends JsonResource
             'id'          => $this->id,
             'name'        => $this->name,
             'description' => $this->description ?? null,
-            'category_id' => $this->forum_category_id,
+            'category_id' => (int) $this->forum_category_id,
             'category'    => $this->whenLoaded('category', fn () => [
-                'id'   => $this->category->id,
+                'id'   => (int) $this->category->id,
                 'name' => $this->category->name,
             ]),
         ];

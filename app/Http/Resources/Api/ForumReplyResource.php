@@ -12,7 +12,7 @@ class ForumReplyResource extends JsonResource
             'id'         => $this->id,
             'body'       => $this->content,
             'user'       => $this->whenLoaded('user', fn () => [
-                'id'   => $this->user->id,
+                'id'   => (int) $this->user->id,
                 'name' => $this->user->name,
             ]),
             'created_at' => $this->created_at,

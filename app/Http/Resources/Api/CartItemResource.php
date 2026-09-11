@@ -10,11 +10,11 @@ class CartItemResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'product_id' => $this->product_id,
+            'product_id' => (int) $this->product_id,
             'product'    => $this->whenLoaded('product', fn () =>
                 new ProductResource($this->product)
             ),
-            'quantity'   => $this->quantity,
+            'quantity'   => (int) $this->quantity,
             'unit_price' => (float) $this->unit_price,
             'subtotal'   => (float) ($this->unit_price * $this->quantity),
         ];
