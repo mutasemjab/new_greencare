@@ -294,6 +294,13 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('notifications/create',                                    [NotificationController::class, 'create'])->name('admin.notifications.create');
         Route::post('notifications',                                          [NotificationController::class, 'store'])->name('admin.notifications.store');
 
+        // ── API Clients (external integrations) ─────────────────────────────
+        Route::get('api-clients',                                             [\App\Http\Controllers\Admin\ApiClientController::class, 'index'])->name('admin.api-clients.index');
+        Route::get('api-clients/create',                                      [\App\Http\Controllers\Admin\ApiClientController::class, 'create'])->name('admin.api-clients.create');
+        Route::post('api-clients',                                            [\App\Http\Controllers\Admin\ApiClientController::class, 'store'])->name('admin.api-clients.store');
+        Route::patch('api-clients/{apiClient}/toggle',                        [\App\Http\Controllers\Admin\ApiClientController::class, 'toggle'])->name('admin.api-clients.toggle');
+        Route::delete('api-clients/{apiClient}',                              [\App\Http\Controllers\Admin\ApiClientController::class, 'destroy'])->name('admin.api-clients.destroy');
+
     });
 });
 

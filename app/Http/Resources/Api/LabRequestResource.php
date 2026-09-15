@@ -30,6 +30,9 @@ class LabRequestResource extends JsonResource
                     'unit_price' => (float) $pivot->unit_price,
                 ])->values()
             ),
+            'user'       => $this->whenLoaded('user', fn () =>
+                new UserResource($this->user)
+            ),
             'created_at' => $this->created_at,
         ];
     }

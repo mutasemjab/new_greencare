@@ -179,4 +179,85 @@ Route::prefix('v1')->group(function () {
         Route::post('medications',        [MedicationController::class, 'store']);
         Route::delete('medications/{id}', [MedicationController::class, 'destroy']);
     });
+
+    // ── External integrations (API key auth, X-API-Key header) ─────────────
+    Route::prefix('integration')->middleware('api.key')->group(function () {
+        Route::get('products',           [\App\Http\Controllers\Api\v1\Integration\ProductController::class, 'index']);
+        Route::get('products/{id}',      [\App\Http\Controllers\Api\v1\Integration\ProductController::class, 'show']);
+        Route::post('products',          [\App\Http\Controllers\Api\v1\Integration\ProductController::class, 'store']);
+        Route::put('products/{id}',      [\App\Http\Controllers\Api\v1\Integration\ProductController::class, 'update']);
+        Route::patch('products/{id}',    [\App\Http\Controllers\Api\v1\Integration\ProductController::class, 'update']);
+        Route::post('products/{id}',     [\App\Http\Controllers\Api\v1\Integration\ProductController::class, 'update']);
+
+        Route::get('categories',         [\App\Http\Controllers\Api\v1\Integration\CategoryController::class, 'index']);
+        Route::get('categories/{id}',    [\App\Http\Controllers\Api\v1\Integration\CategoryController::class, 'show']);
+        Route::post('categories',        [\App\Http\Controllers\Api\v1\Integration\CategoryController::class, 'store']);
+        Route::put('categories/{id}',    [\App\Http\Controllers\Api\v1\Integration\CategoryController::class, 'update']);
+        Route::patch('categories/{id}',  [\App\Http\Controllers\Api\v1\Integration\CategoryController::class, 'update']);
+        Route::post('categories/{id}',   [\App\Http\Controllers\Api\v1\Integration\CategoryController::class, 'update']);
+
+        Route::get('orders',             [\App\Http\Controllers\Api\v1\Integration\OrderController::class, 'index']);
+        Route::get('orders/{id}',        [\App\Http\Controllers\Api\v1\Integration\OrderController::class, 'show']);
+        Route::patch('orders/{id}/status', [\App\Http\Controllers\Api\v1\Integration\OrderController::class, 'updateStatus']);
+        Route::post('orders/{id}/status',  [\App\Http\Controllers\Api\v1\Integration\OrderController::class, 'updateStatus']);
+
+        Route::get('users',              [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'index']);
+        Route::get('users/{id}',         [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'show']);
+        Route::post('users',             [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'store']);
+        Route::put('users/{id}',         [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'update']);
+        Route::patch('users/{id}',       [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'update']);
+        Route::post('users/{id}',        [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'update']);
+        Route::delete('users/{id}',      [\App\Http\Controllers\Api\v1\Integration\UserController::class, 'destroy']);
+
+        Route::get('doctors',            [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'index']);
+        Route::get('doctors/{id}',       [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'show']);
+        Route::post('doctors',           [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'store']);
+        Route::put('doctors/{id}',       [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'update']);
+        Route::patch('doctors/{id}',     [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'update']);
+        Route::post('doctors/{id}',      [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'update']);
+        Route::delete('doctors/{id}',    [\App\Http\Controllers\Api\v1\Integration\DoctorController::class, 'destroy']);
+
+        Route::get('articles',           [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'index']);
+        Route::get('articles/{id}',      [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'show']);
+        Route::post('articles',          [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'store']);
+        Route::put('articles/{id}',      [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'update']);
+        Route::patch('articles/{id}',    [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'update']);
+        Route::post('articles/{id}',     [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'update']);
+        Route::delete('articles/{id}',   [\App\Http\Controllers\Api\v1\Integration\ArticleController::class, 'destroy']);
+
+        Route::get('banners',            [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'index']);
+        Route::get('banners/{id}',       [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'show']);
+        Route::post('banners',           [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'store']);
+        Route::put('banners/{id}',       [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'update']);
+        Route::patch('banners/{id}',     [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'update']);
+        Route::post('banners/{id}',      [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'update']);
+        Route::delete('banners/{id}',    [\App\Http\Controllers\Api\v1\Integration\BannerController::class, 'destroy']);
+
+        Route::get('nursing-requests',                [\App\Http\Controllers\Api\v1\Integration\NursingRequestController::class, 'index']);
+        Route::get('nursing-requests/{id}',            [\App\Http\Controllers\Api\v1\Integration\NursingRequestController::class, 'show']);
+        Route::patch('nursing-requests/{id}/status',   [\App\Http\Controllers\Api\v1\Integration\NursingRequestController::class, 'updateStatus']);
+        Route::post('nursing-requests/{id}/status',    [\App\Http\Controllers\Api\v1\Integration\NursingRequestController::class, 'updateStatus']);
+
+        Route::get('care-requests',                    [\App\Http\Controllers\Api\v1\Integration\CareRequestController::class, 'index']);
+        Route::get('care-requests/{id}',                [\App\Http\Controllers\Api\v1\Integration\CareRequestController::class, 'show']);
+        Route::patch('care-requests/{id}/status',       [\App\Http\Controllers\Api\v1\Integration\CareRequestController::class, 'updateStatus']);
+        Route::post('care-requests/{id}/status',        [\App\Http\Controllers\Api\v1\Integration\CareRequestController::class, 'updateStatus']);
+
+        Route::get('bathing-requests',                  [\App\Http\Controllers\Api\v1\Integration\BathingRequestController::class, 'index']);
+        Route::get('bathing-requests/{id}',              [\App\Http\Controllers\Api\v1\Integration\BathingRequestController::class, 'show']);
+        Route::patch('bathing-requests/{id}/status',     [\App\Http\Controllers\Api\v1\Integration\BathingRequestController::class, 'updateStatus']);
+        Route::post('bathing-requests/{id}/status',      [\App\Http\Controllers\Api\v1\Integration\BathingRequestController::class, 'updateStatus']);
+
+        Route::get('lab-requests',                      [\App\Http\Controllers\Api\v1\Integration\LabRequestController::class, 'index']);
+        Route::get('lab-requests/{id}',                  [\App\Http\Controllers\Api\v1\Integration\LabRequestController::class, 'show']);
+        Route::patch('lab-requests/{id}/status',         [\App\Http\Controllers\Api\v1\Integration\LabRequestController::class, 'updateStatus']);
+        Route::post('lab-requests/{id}/status',          [\App\Http\Controllers\Api\v1\Integration\LabRequestController::class, 'updateStatus']);
+        Route::post('lab-requests/{id}/result',          [\App\Http\Controllers\Api\v1\Integration\LabRequestController::class, 'uploadResult']);
+
+        Route::get('xray-requests',                      [\App\Http\Controllers\Api\v1\Integration\XrayRequestController::class, 'index']);
+        Route::get('xray-requests/{id}',                  [\App\Http\Controllers\Api\v1\Integration\XrayRequestController::class, 'show']);
+        Route::patch('xray-requests/{id}/status',         [\App\Http\Controllers\Api\v1\Integration\XrayRequestController::class, 'updateStatus']);
+        Route::post('xray-requests/{id}/status',          [\App\Http\Controllers\Api\v1\Integration\XrayRequestController::class, 'updateStatus']);
+        Route::post('xray-requests/{id}/result',          [\App\Http\Controllers\Api\v1\Integration\XrayRequestController::class, 'uploadResult']);
+    });
 });

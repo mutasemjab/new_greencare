@@ -23,6 +23,9 @@ class OrderResource extends JsonResource
             'address'        => $this->whenLoaded('address', fn () =>
                 new AddressResource($this->address)
             ),
+            'user'           => $this->whenLoaded('user', fn () =>
+                new UserResource($this->user)
+            ),
             'created_at'     => $this->created_at,
         ];
     }

@@ -20,6 +20,9 @@ class NursingRequestResource extends JsonResource
             'address'    => $this->address_id,
             'notes'      => $this->notes,
             'status'     => $this->status,
+            'user'       => $this->whenLoaded('user', fn () =>
+                new UserResource($this->user)
+            ),
             'created_at' => $this->created_at,
         ];
     }

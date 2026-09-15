@@ -18,6 +18,9 @@ class BathingRequestResource extends JsonResource
             'notes'        => $this->notes,
             'payment_type' => $this->payment_type,
             'status'       => $this->status,
+            'user'         => $this->whenLoaded('user', fn () =>
+                new UserResource($this->user)
+            ),
             'created_at'   => $this->created_at,
         ];
     }

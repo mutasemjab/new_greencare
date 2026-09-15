@@ -83,6 +83,7 @@ class Kernel extends HttpKernel
         'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'api.locale'         => \App\Http\Middleware\SetApiLocale::class,
+        'api.key'            => \App\Http\Middleware\VerifyApiKey::class,
 
     ];
 }
