@@ -11,7 +11,7 @@ class RequestController extends Controller
 {
     public function index(Request $request)
     {
-        $query = LabRequest::with(['user', 'tests.test'])->latest();
+        $query = LabRequest::with(['user', 'address', 'tests.test.category'])->latest();
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);

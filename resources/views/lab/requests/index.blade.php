@@ -50,7 +50,9 @@
                             <th>#</th>
                             <th>المستخدم</th>
                             <th>كود المريض</th>
-                            <th>عدد الفحوصات</th>
+                            <th>الفحوصات المطلوبة</th>
+                            <th>العنوان</th>
+                            <th>ملاحظات</th>
                             <th>الإجمالي</th>
                             <th>تاريخ الحجز</th>
                             <th>النتيجة</th>
@@ -77,11 +79,19 @@
                                 <div class="small text-muted">{{ $req->user?->phone }}</div>
                             </td>
                             <td class="small text-muted">{{ $req->patient_code ?? '—' }}</td>
-                            <td>
-                                <span class="badge bg-secondary rounded-pill">
-                                    {{ $req->tests->count() }} فحص
-                                </span>
+                            <td class="small">
+                                @forelse($req->tests as $reqTest)
+                                    <div>{{ $reqTest->test?->name ?? '—' }}
+                                        @if($reqTest->test?->category)
+                                            <span class="text-muted">({{ $reqTest->test->category->name }})</span>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <span class="text-muted">—</span>
+                                @endforelse
                             </td>
+                            <td class="small">{{ $req->address?->address ?? '—' }}</td>
+                            <td class="small text-muted">{{ $req->notes ?? '—' }}</td>
                             <td class="fw-semibold">{{ number_format($req->total, 2) }} JD</td>
                             <td>{{ $req->booking_date ? \Carbon\Carbon::parse($req->booking_date)->format('Y/m/d') : '—' }}</td>
                             <td>
@@ -103,7 +113,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-5">
+                            <td colspan="11" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                                 لا توجد طلبات بعد
                             </td>
