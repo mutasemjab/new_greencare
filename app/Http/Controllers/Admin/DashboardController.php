@@ -18,6 +18,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->can('dashboard-table')) {
+            abort(403);
+        }
+
         // ── Pending requests ─────────────────────────────────────────────────
         $pendingOrders    = Order::where('status', 'pending')->count();
         $pendingDoctors   = DoctorBooking::where('status', 'pending')->count();

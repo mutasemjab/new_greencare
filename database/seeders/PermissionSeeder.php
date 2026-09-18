@@ -10,6 +10,9 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // لوحة التحكم
+            'dashboard-table',
+
             // الأدوار والموظفين
             'role-table', 'role-add', 'role-edit', 'role-delete',
             'employee-table', 'employee-add', 'employee-edit', 'employee-delete',

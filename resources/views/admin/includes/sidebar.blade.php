@@ -12,6 +12,7 @@
     <nav class="sidebar-nav">
 
         {{-- Dashboard --}}
+        @can('dashboard-table')
         <div class="nav-label">الرئيسية</div>
         <ul>
             <li class="nav-item">
@@ -22,6 +23,7 @@
                 </a>
             </li>
         </ul>
+        @endcan
 
         {{-- Users --}}
         <div class="nav-label">المستخدمون</div>
