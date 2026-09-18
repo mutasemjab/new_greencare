@@ -34,6 +34,15 @@
         </div>
     @endif
 
+    @cannot('dashboard-table')
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-speedometer2 fs-1 d-block mb-2 opacity-25"></i>
+                مرحباً بك، استخدم القائمة الجانبية للتنقل بين الأقسام
+            </div>
+        </div>
+    @else
+
     {{-- ══════════════════════════════════════════════
          ROW 1 — أهم 4 أرقام
     ══════════════════════════════════════════════ --}}
@@ -310,6 +319,8 @@
         </div>
 
     </div>
+
+    @endcannot
 
 </div>
 @endsection
