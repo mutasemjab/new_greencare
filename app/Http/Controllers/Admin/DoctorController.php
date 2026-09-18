@@ -12,6 +12,10 @@ class DoctorController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('doctor-table')) {
+            abort(403);
+        }
+
         $query = Doctor::latest();
 
         if ($request->filled('search')) {
@@ -26,11 +30,19 @@ class DoctorController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('doctor-add')) {
+            abort(403);
+        }
+
         return view('admin.doctors.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('doctor-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'               => 'required|string|max:255',
             'photo'              => 'nullable|image|max:2048',
@@ -59,6 +71,10 @@ class DoctorController extends Controller
 
     public function show(Doctor $doctor)
     {
+        if (!auth()->user()->can('doctor-table')) {
+            abort(403);
+        }
+
         $bookings = DoctorBooking::with('user')
             ->where('doctor_id', $doctor->id)
             ->latest()
@@ -69,11 +85,19 @@ class DoctorController extends Controller
 
     public function edit(Doctor $doctor)
     {
+        if (!auth()->user()->can('doctor-edit')) {
+            abort(403);
+        }
+
         return view('admin.doctors.edit', compact('doctor'));
     }
 
     public function update(Request $request, Doctor $doctor)
     {
+        if (!auth()->user()->can('doctor-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'               => 'required|string|max:255',
             'photo'              => 'nullable|image|max:2048',
@@ -105,6 +129,10 @@ class DoctorController extends Controller
 
     public function destroy(Doctor $doctor)
     {
+        if (!auth()->user()->can('doctor-delete')) {
+            abort(403);
+        }
+
         if ($doctor->photo) {
             Storage::disk('public')->delete($doctor->photo);
         }
@@ -118,6 +146,10 @@ class DoctorController extends Controller
 
     public function bookings(Request $request)
     {
+        if (!auth()->user()->can('doctor-booking-table')) {
+            abort(403);
+        }
+
         $query = DoctorBooking::with(['user', 'doctor'])->latest();
 
         if ($request->filled('status')) {
@@ -140,6 +172,10 @@ class DoctorController extends Controller
 
     public function updateBookingStatus(Request $request, DoctorBooking $booking)
     {
+        if (!auth()->user()->can('doctor-booking-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);

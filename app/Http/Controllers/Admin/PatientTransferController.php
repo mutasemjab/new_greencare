@@ -10,6 +10,10 @@ class PatientTransferController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('transfer-table')) {
+            abort(403);
+        }
+
         $query = PatientTransfer::with(['user'])->latest();
 
         if ($request->filled('status')) {
@@ -28,6 +32,10 @@ class PatientTransferController extends Controller
 
     public function show(PatientTransfer $transfer)
     {
+        if (!auth()->user()->can('transfer-table')) {
+            abort(403);
+        }
+
         $transfer->load(['user']);
 
         return view('admin.transfers.show', compact('transfer'));
@@ -35,6 +43,10 @@ class PatientTransferController extends Controller
 
     public function updateStatus(Request $request, PatientTransfer $transfer)
     {
+        if (!auth()->user()->can('transfer-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);

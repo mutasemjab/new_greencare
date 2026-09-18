@@ -13,6 +13,10 @@ class CareController extends Controller
 
     public function services(Request $request)
     {
+        if (!auth()->user()->can('care-service-table')) {
+            abort(403);
+        }
+
         $query = CareService::orderBy('sort_order');
 
         if ($request->filled('search')) {
@@ -26,11 +30,19 @@ class CareController extends Controller
 
     public function createService()
     {
+        if (!auth()->user()->can('care-service-add')) {
+            abort(403);
+        }
+
         return view('admin.care.services.create');
     }
 
     public function storeService(Request $request)
     {
+        if (!auth()->user()->can('care-service-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -53,11 +65,19 @@ class CareController extends Controller
 
     public function editService(CareService $service)
     {
+        if (!auth()->user()->can('care-service-edit')) {
+            abort(403);
+        }
+
         return view('admin.care.services.edit', compact('service'));
     }
 
     public function updateService(Request $request, CareService $service)
     {
+        if (!auth()->user()->can('care-service-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -80,6 +100,10 @@ class CareController extends Controller
 
     public function destroyService(CareService $service)
     {
+        if (!auth()->user()->can('care-service-delete')) {
+            abort(403);
+        }
+
         $service->delete();
 
         return redirect()->route('admin.care.services')
@@ -90,6 +114,10 @@ class CareController extends Controller
 
     public function requests(Request $request)
     {
+        if (!auth()->user()->can('care-request-table')) {
+            abort(403);
+        }
+
         $query = CareRequest::with(['user', 'services.service'])->latest();
 
         if ($request->filled('status')) {
@@ -108,6 +136,10 @@ class CareController extends Controller
 
     public function showRequest(CareRequest $request)
     {
+        if (!auth()->user()->can('care-request-table')) {
+            abort(403);
+        }
+
         $request->load(['user', 'address', 'services.service']);
 
         return view('admin.care.requests.show', compact('request'));
@@ -115,6 +147,10 @@ class CareController extends Controller
 
     public function updateRequestStatus(Request $httpRequest, CareRequest $request)
     {
+        if (!auth()->user()->can('care-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);

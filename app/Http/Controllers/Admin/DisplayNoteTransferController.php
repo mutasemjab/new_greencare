@@ -10,6 +10,10 @@ class DisplayNoteTransferController extends Controller
 {
     public function edit()
     {
+        if (!auth()->user()->can('display-note-table')) {
+            abort(403);
+        }
+
         $note = DisplayNoteTransfer::first() ?? new DisplayNoteTransfer();
 
         return view('admin.transfers.note', compact('note'));
@@ -17,6 +21,10 @@ class DisplayNoteTransferController extends Controller
 
     public function update(Request $request)
     {
+        if (!auth()->user()->can('display-note-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name_en' => 'required|string',
             'name_ar' => 'required|string',

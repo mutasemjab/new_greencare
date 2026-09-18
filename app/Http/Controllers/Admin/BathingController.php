@@ -16,6 +16,10 @@ class BathingController extends Controller
 
     public function pointsOfSale(Request $request)
     {
+        if (!auth()->user()->can('bathing-table')) {
+            abort(403);
+        }
+
         $query = PointOfSale::latest();
 
         if ($request->filled('search')) {
@@ -32,11 +36,19 @@ class BathingController extends Controller
 
     public function createPoint()
     {
+        if (!auth()->user()->can('bathing-add')) {
+            abort(403);
+        }
+
         return view('admin.bathing.pos.create');
     }
 
     public function storePoint(Request $request)
     {
+        if (!auth()->user()->can('bathing-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'address'   => 'nullable|string|max:500',
@@ -54,11 +66,19 @@ class BathingController extends Controller
 
     public function editPoint(PointOfSale $point)
     {
+        if (!auth()->user()->can('bathing-edit')) {
+            abort(403);
+        }
+
         return view('admin.bathing.pos.edit', compact('point'));
     }
 
     public function updatePoint(Request $request, PointOfSale $point)
     {
+        if (!auth()->user()->can('bathing-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'address'   => 'nullable|string|max:500',
@@ -76,6 +96,10 @@ class BathingController extends Controller
 
     public function destroyPoint(PointOfSale $point)
     {
+        if (!auth()->user()->can('bathing-delete')) {
+            abort(403);
+        }
+
         $point->delete();
 
         return redirect()->route('admin.bathing.pos')
@@ -86,6 +110,10 @@ class BathingController extends Controller
 
     public function cards(Request $request)
     {
+        if (!auth()->user()->can('bathing-card-table')) {
+            abort(403);
+        }
+
         $query = BathingCardGroup::withCount('cards')->with('pointOfSale')->latest();
 
         if ($request->filled('search')) {
@@ -99,6 +127,10 @@ class BathingController extends Controller
 
     public function generateCards(Request $request)
     {
+        if (!auth()->user()->can('bathing-card-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'              => 'required|string|max:255',
             'unit_price'        => 'required|numeric|min:0',
@@ -136,6 +168,10 @@ class BathingController extends Controller
 
     public function generateCardsForm()
     {
+        if (!auth()->user()->can('bathing-card-add')) {
+            abort(403);
+        }
+
         $points = PointOfSale::active()->get();
 
         return view('admin.bathing.cards.generate', compact('points'));
@@ -143,6 +179,10 @@ class BathingController extends Controller
 
     public function showGroup(BathingCardGroup $group)
     {
+        if (!auth()->user()->can('bathing-card-table')) {
+            abort(403);
+        }
+
         $group->load('pointOfSale');
 
         $cards = $group->cards()
@@ -155,6 +195,10 @@ class BathingController extends Controller
 
     public function destroyCard(BathingCard $card)
     {
+        if (!auth()->user()->can('bathing-card-delete')) {
+            abort(403);
+        }
+
         $groupId = $card->bathing_card_group_id;
         $card->delete();
 
@@ -165,6 +209,10 @@ class BathingController extends Controller
 
     public function destroyGroup(BathingCardGroup $group)
     {
+        if (!auth()->user()->can('bathing-card-delete')) {
+            abort(403);
+        }
+
         $group->delete();
 
         return redirect()->route('admin.bathing.cards')
@@ -175,6 +223,10 @@ class BathingController extends Controller
 
     public function requests(Request $request)
     {
+        if (!auth()->user()->can('bathing-request-table')) {
+            abort(403);
+        }
+
         $query = BathingRequest::with(['user', 'bathingCard', 'pointOfSale'])->latest();
 
         if ($request->filled('status')) {
@@ -197,6 +249,10 @@ class BathingController extends Controller
 
     public function showRequest(BathingRequest $request)
     {
+        if (!auth()->user()->can('bathing-request-table')) {
+            abort(403);
+        }
+
         $request->load(['user', 'bathingCard.pointOfSale', 'pointOfSale', 'address']);
 
         return view('admin.bathing.requests.show', compact('request'));
@@ -204,6 +260,10 @@ class BathingController extends Controller
 
     public function updateRequestStatus(Request $httpRequest, BathingRequest $request)
     {
+        if (!auth()->user()->can('bathing-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);

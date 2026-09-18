@@ -11,7 +11,7 @@
         <div class="card-body">
 
 
-        @can('setting-table')
+        @can('setting-edit')
       <form action="{{ route('admin.login.update',$data['id']) }}" method="post" >
         <div class="row">
         @csrf

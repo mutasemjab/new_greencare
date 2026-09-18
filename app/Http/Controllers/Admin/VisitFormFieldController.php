@@ -22,6 +22,10 @@ class VisitFormFieldController extends Controller
 
     public function index()
     {
+        if (!auth()->user()->can('visit-form-field-table')) {
+            abort(403);
+        }
+
         $fields = VisitFormField::orderBy('sort_order')->paginate(20);
 
         return view('admin.sihati.visit-form-fields.index', compact('fields'));
@@ -29,11 +33,19 @@ class VisitFormFieldController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('visit-form-field-add')) {
+            abort(403);
+        }
+
         return view('admin.sihati.visit-form-fields.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('visit-form-field-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'question'   => 'required|string|max:500',
             'field_type' => 'required|in:text,number,choice,checklist',
@@ -58,11 +70,19 @@ class VisitFormFieldController extends Controller
 
     public function edit(VisitFormField $visitFormField)
     {
+        if (!auth()->user()->can('visit-form-field-edit')) {
+            abort(403);
+        }
+
         return view('admin.sihati.visit-form-fields.edit', ['field' => $visitFormField]);
     }
 
     public function update(Request $request, VisitFormField $visitFormField)
     {
+        if (!auth()->user()->can('visit-form-field-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'question'   => 'required|string|max:500',
             'field_type' => 'required|in:text,number,choice,checklist',
@@ -86,6 +106,10 @@ class VisitFormFieldController extends Controller
 
     public function destroy(VisitFormField $visitFormField)
     {
+        if (!auth()->user()->can('visit-form-field-delete')) {
+            abort(403);
+        }
+
         $visitFormField->delete();
 
         return redirect()->route('admin.sihati.visit-form-fields.index')

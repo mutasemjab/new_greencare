@@ -26,6 +26,7 @@
         {{-- Users --}}
         <div class="nav-label">المستخدمون</div>
         <ul>
+            @can('user-table')
             <li class="nav-item">
                 <a href="{{ route('admin.users.index') }}"
                     class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
@@ -33,11 +34,13 @@
                     <span>المستخدمون</span>
                 </a>
             </li>
+            @endcan
         </ul>
 
         {{-- Banners --}}
         <div class="nav-label">البنرات</div>
         <ul>
+            @can('banner-table')
             <li class="nav-item">
                 <a href="{{ route('admin.banners.index', ['section' => 'home']) }}"
                     class="nav-link {{ request()->routeIs('admin.banners.*') && request('section') !== 'store' ? 'active' : '' }}">
@@ -52,11 +55,13 @@
                     <span>بنر المتجر</span>
                 </a>
             </li>
+            @endcan
         </ul>
 
         {{-- Store --}}
         <div class="nav-label">المتجر الإلكتروني</div>
         <ul>
+            @can('store-category-table')
             <li class="nav-item">
                 <a href="{{ route('admin.store.categories.index') }}"
                     class="nav-link {{ request()->routeIs('admin.store.categories.*') ? 'active' : '' }}">
@@ -64,6 +69,8 @@
                     <span>التصنيفات</span>
                 </a>
             </li>
+            @endcan
+            @can('product-table')
             <li class="nav-item">
                 <a href="{{ route('admin.store.products.index') }}"
                     class="nav-link {{ request()->routeIs('admin.store.products.*') ? 'active' : '' }}">
@@ -71,6 +78,8 @@
                     <span>المنتجات</span>
                 </a>
             </li>
+            @endcan
+            @can('delivery-zone-table')
             <li class="nav-item">
                 <a href="{{ route('admin.delivery-zones.index') }}"
                     class="nav-link {{ request()->routeIs('admin.delivery-zones.*') ? 'active' : '' }}">
@@ -78,6 +87,8 @@
                     <span>مناطق التوصيل</span>
                 </a>
             </li>
+            @endcan
+            @can('order-table')
             <li class="nav-item">
                 <a href="{{ route('admin.orders.index') }}"
                     class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
@@ -85,12 +96,14 @@
                     <span>الطلبات</span>
                 </a>
             </li>
+            @endcan
         </ul>
 
         {{-- Home Healthcare --}}
         <div class="nav-label">رعاية صحية منزلية</div>
         <ul>
             {{-- Nursing --}}
+            @canany(['nursing-type-table', 'nursing-request-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.nursing.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-person-badge"></i>
@@ -98,6 +111,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('nursing-type-table')
                     <li>
                         <a href="{{ route('admin.nursing.types') }}"
                             class="nav-link {{ request()->routeIs('admin.nursing.types*') ? 'active' : '' }}">
@@ -105,6 +119,8 @@
                             <span>أنواع الخدمة</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('nursing-request-table')
                     <li>
                         <a href="{{ route('admin.nursing.requests') }}"
                             class="nav-link {{ request()->routeIs('admin.nursing.requests*') ? 'active' : '' }}">
@@ -112,10 +128,13 @@
                             <span>الطلبات</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
 
             {{-- Bathing --}}
+            @canany(['bathing-table', 'bathing-card-table', 'bathing-request-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.bathing.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-droplet"></i>
@@ -123,6 +142,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('bathing-table')
                     <li>
                         <a href="{{ route('admin.bathing.pos') }}"
                             class="nav-link {{ request()->routeIs('admin.bathing.pos*') ? 'active' : '' }}">
@@ -130,6 +150,8 @@
                             <span>نقاط البيع</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('bathing-card-table')
                     <li>
                         <a href="{{ route('admin.bathing.cards') }}"
                             class="nav-link {{ request()->routeIs('admin.bathing.cards*') ? 'active' : '' }}">
@@ -137,6 +159,8 @@
                             <span>البطاقات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('bathing-request-table')
                     <li>
                         <a href="{{ route('admin.bathing.requests') }}"
                             class="nav-link {{ request()->routeIs('admin.bathing.requests*') ? 'active' : '' }}">
@@ -144,10 +168,13 @@
                             <span>الطلبات</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
 
             {{-- Care --}}
+            @canany(['care-service-table', 'care-request-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.care.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-heart-pulse"></i>
@@ -155,6 +182,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('care-service-table')
                     <li>
                         <a href="{{ route('admin.care.services') }}"
                             class="nav-link {{ request()->routeIs('admin.care.services*') ? 'active' : '' }}">
@@ -162,6 +190,8 @@
                             <span>الخدمات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('care-request-table')
                     <li>
                         <a href="{{ route('admin.care.requests') }}"
                             class="nav-link {{ request()->routeIs('admin.care.requests*') ? 'active' : '' }}">
@@ -169,10 +199,13 @@
                             <span>الطلبات</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
 
             {{-- Lab --}}
+            @canany(['lab-category-table', 'lab-test-table', 'lab-request-table', 'lab-staff-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.lab.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-eyedropper"></i>
@@ -180,6 +213,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('lab-category-table')
                     <li>
                         <a href="{{ route('admin.lab.categories') }}"
                             class="nav-link {{ request()->routeIs('admin.lab.categories*') ? 'active' : '' }}">
@@ -187,6 +221,8 @@
                             <span>الفئات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('lab-test-table')
                     <li>
                         <a href="{{ route('admin.lab.tests') }}"
                             class="nav-link {{ request()->routeIs('admin.lab.tests*') ? 'active' : '' }}">
@@ -194,6 +230,8 @@
                             <span>الفحوصات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('lab-request-table')
                     <li>
                         <a href="{{ route('admin.lab.requests') }}"
                             class="nav-link {{ request()->routeIs('admin.lab.requests*') ? 'active' : '' }}">
@@ -201,6 +239,8 @@
                             <span>الطلبات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('lab-staff-table')
                     <li>
                         <a href="{{ route('admin.lab.staff.index') }}"
                             class="nav-link {{ request()->routeIs('admin.lab.staff*') ? 'active' : '' }}">
@@ -208,10 +248,13 @@
                             <span>حسابات لوحة المختبر</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
 
             {{-- Xray --}}
+            @canany(['xray-category-table', 'xray-test-table', 'xray-request-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.xray.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-radioactive"></i>
@@ -219,6 +262,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('xray-category-table')
                     <li>
                         <a href="{{ route('admin.xray.categories') }}"
                             class="nav-link {{ request()->routeIs('admin.xray.categories*') ? 'active' : '' }}">
@@ -226,6 +270,8 @@
                             <span>الفئات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('xray-test-table')
                     <li>
                         <a href="{{ route('admin.xray.tests') }}"
                             class="nav-link {{ request()->routeIs('admin.xray.tests*') ? 'active' : '' }}">
@@ -233,6 +279,8 @@
                             <span>الأشعة</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('xray-request-table')
                     <li>
                         <a href="{{ route('admin.xray.requests') }}"
                             class="nav-link {{ request()->routeIs('admin.xray.requests*') ? 'active' : '' }}">
@@ -240,14 +288,17 @@
                             <span>الطلبات</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
         </ul>
 
         {{-- Medical Services --}}
         <div class="nav-label">خدمات طبية منزلية</div>
         <ul>
             {{-- Doctors --}}
+            @canany(['doctor-table', 'doctor-booking-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.doctors.*') || request()->routeIs('admin.doctor-bookings.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-person-vcard"></i>
@@ -255,6 +306,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('doctor-table')
                     <li>
                         <a href="{{ route('admin.doctors.index') }}"
                             class="nav-link {{ request()->routeIs('admin.doctors.*') ? 'active' : '' }}">
@@ -262,6 +314,8 @@
                             <span>قائمة الأطباء</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('doctor-booking-table')
                     <li>
                         <a href="{{ route('admin.doctor-bookings.index') }}"
                             class="nav-link {{ request()->routeIs('admin.doctor-bookings.*') ? 'active' : '' }}">
@@ -269,10 +323,13 @@
                             <span>الحجوزات</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
 
             {{-- Nutrition --}}
+            @can('nutrition-table')
             <li class="nav-item">
                 <a href="{{ route('admin.nutrition.index') }}"
                     class="nav-link {{ request()->routeIs('admin.nutrition.*') ? 'active' : '' }}">
@@ -280,8 +337,10 @@
                     <span>طلبات التغذية</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Patient Transfer --}}
+            @canany(['transfer-table', 'display-note-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.transfers.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-truck-front"></i>
@@ -289,6 +348,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('transfer-table')
                     <li>
                         <a href="{{ route('admin.transfers.index') }}"
                             class="nav-link {{ request()->routeIs('admin.transfers.index') || request()->routeIs('admin.transfers.show') ? 'active' : '' }}">
@@ -296,6 +356,8 @@
                             <span>الطلبات</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('display-note-table')
                     <li>
                         <a href="{{ route('admin.transfers.note.edit') }}"
                             class="nav-link {{ request()->routeIs('admin.transfers.note*') ? 'active' : '' }}">
@@ -303,13 +365,16 @@
                             <span>الملاحظة التوضيحية</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
         </ul>
 
         {{-- Content --}}
         <div class="nav-label">المحتوى</div>
         <ul>
+            @can('article-table')
             <li class="nav-item">
                 <a href="{{ route('admin.articles.index') }}"
                     class="nav-link {{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
@@ -317,8 +382,10 @@
                     <span>المقالات</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Mothers Forum --}}
+            @canany(['forum-category-table', 'forum-sub-category-table', 'forum-post-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.forum.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-chat-heart"></i>
@@ -326,6 +393,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('forum-category-table')
                     <li>
                         <a href="{{ route('admin.forum.categories') }}"
                             class="nav-link {{ request()->routeIs('admin.forum.categories*') ? 'active' : '' }}">
@@ -333,6 +401,8 @@
                             <span>الأقسام الرئيسية</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('forum-sub-category-table')
                     <li>
                         <a href="{{ route('admin.forum.sub-categories') }}"
                             class="nav-link {{ request()->routeIs('admin.forum.sub-categories*') ? 'active' : '' }}">
@@ -340,6 +410,8 @@
                             <span>الأقسام الفرعية</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('forum-post-table')
                     <li>
                         <a href="{{ route('admin.forum.posts') }}"
                             class="nav-link {{ request()->routeIs('admin.forum.posts*') ? 'active' : '' }}">
@@ -347,14 +419,17 @@
                             <span>المنشورات</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
         </ul>
 
         {{-- Sihati --}}
         <div class="nav-label">صحتي</div>
         <ul>
             {{-- Rooms --}}
+            @can('room-table')
             <li class="nav-item">
                 <a href="{{ route('admin.sihati.rooms.index') }}"
                     class="nav-link {{ request()->routeIs('admin.sihati.rooms.*') ? 'active' : '' }}">
@@ -362,8 +437,10 @@
                     <span>الغرف</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Report Templates --}}
+            @can('template-table')
             <li class="nav-item">
                 <a href="{{ route('admin.sihati.templates.index') }}"
                     class="nav-link {{ request()->routeIs('admin.sihati.templates.*') || request()->routeIs('admin.sihati.fields.*') ? 'active' : '' }}">
@@ -371,8 +448,10 @@
                     <span>قوالب التقارير</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Document Templates --}}
+            @can('document-template-table')
             <li class="nav-item has-submenu {{ request()->routeIs('admin.sihati.documents.*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-file-earmark-text"></i>
@@ -396,8 +475,10 @@
                     </li>
                 </ul>
             </li>
+            @endcan
 
             {{-- Outside Medications --}}
+            @can('medication-table')
             <li class="nav-item">
                 <a href="{{ route('admin.sihati.medications.index') }}"
                     class="nav-link {{ request()->routeIs('admin.sihati.medications.*') ? 'active' : '' }}">
@@ -405,8 +486,10 @@
                     <span>أدوية المرضى</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Diagnoses --}}
+            @can('diagnosis-table')
             <li class="nav-item">
                 <a href="{{ route('admin.sihati.diagnoses.index') }}"
                     class="nav-link {{ request()->routeIs('admin.sihati.diagnoses.*') ? 'active' : '' }}">
@@ -414,8 +497,10 @@
                     <span>التشخيصات</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Chronic Diseases --}}
+            @can('chronic-disease-table')
             <li class="nav-item">
                 <a href="{{ route('admin.sihati.chronic-diseases.index') }}"
                     class="nav-link {{ request()->routeIs('admin.sihati.chronic-diseases.*') ? 'active' : '' }}">
@@ -423,8 +508,10 @@
                     <span>الأمراض المزمنة</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Complaints --}}
+            @can('complaint-table')
             <li class="nav-item">
                 <a href="{{ route('admin.sihati.complaints.index') }}"
                     class="nav-link {{ request()->routeIs('admin.sihati.complaints.*') ? 'active' : '' }}">
@@ -432,8 +519,10 @@
                     <span>الشكاوى</span>
                 </a>
             </li>
+            @endcan
 
             {{-- Medical Visit Forms --}}
+            @canany(['visit-form-field-table', 'visit-form-table'])
             <li class="nav-item has-submenu {{ request()->routeIs('admin.sihati.visit-form*') ? 'open' : '' }}">
                 <a href="#" class="nav-link submenu-toggle">
                     <i class="nav-icon bi bi-file-earmark-medical"></i>
@@ -441,6 +530,7 @@
                     <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @can('visit-form-field-table')
                     <li>
                         <a href="{{ route('admin.sihati.visit-form-fields.index') }}"
                             class="nav-link {{ request()->routeIs('admin.sihati.visit-form-fields.*') ? 'active' : '' }}">
@@ -448,6 +538,8 @@
                             <span>الحقول</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('visit-form-table')
                     <li>
                         <a href="{{ route('admin.sihati.visit-forms.index') }}"
                             class="nav-link {{ request()->routeIs('admin.sihati.visit-forms.*') ? 'active' : '' }}">
@@ -455,13 +547,16 @@
                             <span>النماذج المُرسلة</span>
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcanany
         </ul>
 
         {{-- System --}}
         <div class="nav-label">النظام</div>
         <ul>
+            @can('notification-table')
             <li class="nav-item">
                 <a href="{{ route('admin.notifications.index') }}"
                     class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
@@ -469,6 +564,8 @@
                     <span>الإشعارات</span>
                 </a>
             </li>
+            @endcan
+            @can('role-table')
             <li class="nav-item">
                 <a href="{{ route('admin.role.index') }}"
                     class="nav-link {{ request()->routeIs('admin.role.*') ? 'active' : '' }}">
@@ -476,6 +573,8 @@
                     <span>الأدوار والصلاحيات</span>
                 </a>
             </li>
+            @endcan
+            @can('employee-table')
             <li class="nav-item">
                 <a href="{{ route('admin.employee.index') }}"
                     class="nav-link {{ request()->routeIs('admin.employee.*') ? 'active' : '' }}">
@@ -483,6 +582,8 @@
                     <span>المشرفون</span>
                 </a>
             </li>
+            @endcan
+            @can('api-client-table')
             <li class="nav-item">
                 <a href="{{ route('admin.api-clients.index') }}"
                     class="nav-link {{ request()->routeIs('admin.api-clients.*') ? 'active' : '' }}">
@@ -490,6 +591,7 @@
                     <span>مفاتيح API</span>
                 </a>
             </li>
+            @endcan
         </ul>
 
     </nav>

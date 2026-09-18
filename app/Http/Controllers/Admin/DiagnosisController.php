@@ -10,6 +10,10 @@ class DiagnosisController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('diagnosis-table')) {
+            abort(403);
+        }
+
         $query = Diagnosis::latest();
 
         if ($request->filled('search')) {
@@ -23,11 +27,19 @@ class DiagnosisController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('diagnosis-add')) {
+            abort(403);
+        }
+
         return view('admin.sihati.diagnoses.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('diagnosis-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'is_active' => 'boolean',
@@ -43,11 +55,19 @@ class DiagnosisController extends Controller
 
     public function edit(Diagnosis $diagnosis)
     {
+        if (!auth()->user()->can('diagnosis-edit')) {
+            abort(403);
+        }
+
         return view('admin.sihati.diagnoses.edit', compact('diagnosis'));
     }
 
     public function update(Request $request, Diagnosis $diagnosis)
     {
+        if (!auth()->user()->can('diagnosis-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'is_active' => 'boolean',
@@ -63,6 +83,10 @@ class DiagnosisController extends Controller
 
     public function destroy(Diagnosis $diagnosis)
     {
+        if (!auth()->user()->can('diagnosis-delete')) {
+            abort(403);
+        }
+
         $diagnosis->delete();
 
         return redirect()->route('admin.sihati.diagnoses.index')

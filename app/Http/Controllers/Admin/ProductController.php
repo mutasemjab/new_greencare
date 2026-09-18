@@ -12,6 +12,10 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('product-table')) {
+            abort(403);
+        }
+
         $query = Product::with('category')->latest();
 
         if ($request->filled('category_id')) {
@@ -30,6 +34,10 @@ class ProductController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('product-add')) {
+            abort(403);
+        }
+
         $categories = StoreCategory::active()->get();
 
         return view('admin.store.products.create', compact('categories'));
@@ -37,6 +45,10 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('product-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'store_category_id' => 'required|exists:store_categories,id',
             'name'              => 'required|string|max:255',
@@ -67,6 +79,10 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        if (!auth()->user()->can('product-edit')) {
+            abort(403);
+        }
+
         $categories = StoreCategory::active()->get();
 
         return view('admin.store.products.edit', compact('product', 'categories'));
@@ -74,6 +90,10 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        if (!auth()->user()->can('product-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'store_category_id' => 'required|exists:store_categories,id',
             'name'              => 'required|string|max:255',
@@ -113,6 +133,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if (!auth()->user()->can('product-delete')) {
+            abort(403);
+        }
+
         foreach ($product->images ?? [] as $image) {
             Storage::disk('public')->delete($image);
         }

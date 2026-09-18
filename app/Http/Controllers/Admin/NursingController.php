@@ -13,6 +13,10 @@ class NursingController extends Controller
 
     public function types(Request $request)
     {
+        if (!auth()->user()->can('nursing-type-table')) {
+            abort(403);
+        }
+
         $query = NursingServiceType::orderBy('sort_order');
 
         if ($request->filled('search')) {
@@ -26,11 +30,19 @@ class NursingController extends Controller
 
     public function createType()
     {
+        if (!auth()->user()->can('nursing-type-add')) {
+            abort(403);
+        }
+
         return view('admin.nursing.types.create');
     }
 
     public function storeType(Request $request)
     {
+        if (!auth()->user()->can('nursing-type-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -53,11 +65,19 @@ class NursingController extends Controller
 
     public function editType(NursingServiceType $type)
     {
+        if (!auth()->user()->can('nursing-type-edit')) {
+            abort(403);
+        }
+
         return view('admin.nursing.types.edit', compact('type'));
     }
 
     public function updateType(Request $request, NursingServiceType $type)
     {
+        if (!auth()->user()->can('nursing-type-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -80,6 +100,10 @@ class NursingController extends Controller
 
     public function destroyType(NursingServiceType $type)
     {
+        if (!auth()->user()->can('nursing-type-delete')) {
+            abort(403);
+        }
+
         $type->delete();
 
         return redirect()->route('admin.nursing.types')
@@ -90,6 +114,10 @@ class NursingController extends Controller
 
     public function requests(Request $request)
     {
+        if (!auth()->user()->can('nursing-request-table')) {
+            abort(403);
+        }
+
         $query = NursingRequest::with(['user', 'serviceType'])->latest();
 
         if ($request->filled('status')) {
@@ -108,6 +136,10 @@ class NursingController extends Controller
 
     public function showRequest(NursingRequest $request)
     {
+        if (!auth()->user()->can('nursing-request-table')) {
+            abort(403);
+        }
+
         $request->load(['user', 'serviceType', 'address.deliveryZone']);
 
         return view('admin.nursing.requests.show', compact('request'));
@@ -115,6 +147,10 @@ class NursingController extends Controller
 
     public function updateRequestStatus(Request $httpRequest, NursingRequest $request)
     {
+        if (!auth()->user()->can('nursing-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);

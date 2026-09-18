@@ -10,6 +10,10 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('user-table')) {
+            abort(403);
+        }
+
         $query = User::query()->latest();
 
         if ($request->filled('role')) {
@@ -32,11 +36,19 @@ class UserController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('user-add')) {
+            abort(403);
+        }
+
         return view('admin.users.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('user-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'               => 'required|string|max:255',
             'phone'              => 'nullable|string|max:20|unique:users',
@@ -59,6 +71,10 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        if (!auth()->user()->can('user-table')) {
+            abort(403);
+        }
+
         $user->load(['addresses', 'orders', 'nursingRequests', 'bathingRequests', 'careRequests', 'labRequests', 'xrayRequests']);
 
         return view('admin.users.show', compact('user'));
@@ -66,6 +82,10 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        if (!auth()->user()->can('user-edit')) {
+            abort(403);
+        }
+
         $patients = User::where('role', 'patient')->where('id', '!=', $user->id)->get();
 
         return view('admin.users.edit', compact('user', 'patients'));
@@ -73,6 +93,10 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        if (!auth()->user()->can('user-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'               => 'required|string|max:255',
             'phone'              => 'nullable|string|max:20|unique:users,phone,' . $user->id,
@@ -95,6 +119,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if (!auth()->user()->can('user-delete')) {
+            abort(403);
+        }
+
         $user->delete();
 
         return redirect()->route('admin.users.index')

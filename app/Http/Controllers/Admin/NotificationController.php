@@ -11,6 +11,10 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('notification-table')) {
+            abort(403);
+        }
+
         $query = Notification::with(['user', 'sentBy'])->whereNotNull('sent_by')->latest();
 
         if ($request->filled('search')) {
@@ -27,6 +31,10 @@ class NotificationController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('notification-add')) {
+            abort(403);
+        }
+
         $users = User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'phone']);
 
         return view('admin.notifications.create', compact('users'));
@@ -34,6 +42,10 @@ class NotificationController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('notification-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'title'   => 'required|string|max:255',
             'body'    => 'required|string',

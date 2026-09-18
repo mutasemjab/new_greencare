@@ -15,6 +15,10 @@ class ForumController extends Controller
 
     public function categories()
     {
+        if (!auth()->user()->can('forum-category-table')) {
+            abort(403);
+        }
+
         $categories = ForumCategory::withCount('subCategories')->orderBy('sort_order')->paginate(20);
 
         return view('admin.forum.categories.index', compact('categories'));
@@ -22,11 +26,19 @@ class ForumController extends Controller
 
     public function createCategory()
     {
+        if (!auth()->user()->can('forum-category-add')) {
+            abort(403);
+        }
+
         return view('admin.forum.categories.create');
     }
 
     public function storeCategory(Request $request)
     {
+        if (!auth()->user()->can('forum-category-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -48,11 +60,19 @@ class ForumController extends Controller
 
     public function editCategory(ForumCategory $category)
     {
+        if (!auth()->user()->can('forum-category-edit')) {
+            abort(403);
+        }
+
         return view('admin.forum.categories.edit', compact('category'));
     }
 
     public function updateCategory(Request $request, ForumCategory $category)
     {
+        if (!auth()->user()->can('forum-category-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -74,6 +94,10 @@ class ForumController extends Controller
 
     public function destroyCategory(ForumCategory $category)
     {
+        if (!auth()->user()->can('forum-category-delete')) {
+            abort(403);
+        }
+
         $category->delete();
 
         return redirect()->route('admin.forum.categories')
@@ -84,6 +108,10 @@ class ForumController extends Controller
 
     public function subCategories(Request $request)
     {
+        if (!auth()->user()->can('forum-sub-category-table')) {
+            abort(403);
+        }
+
         $query = ForumSubCategory::with('category')->orderBy('sort_order');
 
         if ($request->filled('category_id')) {
@@ -98,6 +126,10 @@ class ForumController extends Controller
 
     public function createSubCategory()
     {
+        if (!auth()->user()->can('forum-sub-category-add')) {
+            abort(403);
+        }
+
         $categories = ForumCategory::active()->get();
 
         return view('admin.forum.sub_categories.create', compact('categories'));
@@ -105,6 +137,10 @@ class ForumController extends Controller
 
     public function storeSubCategory(Request $request)
     {
+        if (!auth()->user()->can('forum-sub-category-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'forum_category_id' => 'required|exists:forum_categories,id',
             'name'              => 'required|string|max:255',
@@ -122,6 +158,10 @@ class ForumController extends Controller
 
     public function editSubCategory(ForumSubCategory $subCategory)
     {
+        if (!auth()->user()->can('forum-sub-category-edit')) {
+            abort(403);
+        }
+
         $categories = ForumCategory::active()->get();
 
         return view('admin.forum.sub_categories.edit', compact('subCategory', 'categories'));
@@ -129,6 +169,10 @@ class ForumController extends Controller
 
     public function updateSubCategory(Request $request, ForumSubCategory $subCategory)
     {
+        if (!auth()->user()->can('forum-sub-category-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'forum_category_id' => 'required|exists:forum_categories,id',
             'name'              => 'required|string|max:255',
@@ -146,6 +190,10 @@ class ForumController extends Controller
 
     public function destroySubCategory(ForumSubCategory $subCategory)
     {
+        if (!auth()->user()->can('forum-sub-category-delete')) {
+            abort(403);
+        }
+
         $subCategory->delete();
 
         return redirect()->route('admin.forum.sub-categories')
@@ -156,6 +204,10 @@ class ForumController extends Controller
 
     public function posts(Request $request)
     {
+        if (!auth()->user()->can('forum-post-table')) {
+            abort(403);
+        }
+
         $query = ForumPost::with(['user', 'subCategory.category'])->latest();
 
         if ($request->filled('type')) {
@@ -178,6 +230,10 @@ class ForumController extends Controller
 
     public function showPost(ForumPost $post)
     {
+        if (!auth()->user()->can('forum-post-table')) {
+            abort(403);
+        }
+
         $post->load(['user', 'subCategory.category', 'replies.user']);
 
         return view('admin.forum.posts.show', compact('post'));
@@ -185,6 +241,10 @@ class ForumController extends Controller
 
     public function togglePostStatus(ForumPost $post)
     {
+        if (!auth()->user()->can('forum-post-edit')) {
+            abort(403);
+        }
+
         $post->update(['is_active' => !$post->is_active]);
 
         return back()->with('success', 'تم تحديث حالة المنشور');
@@ -192,6 +252,10 @@ class ForumController extends Controller
 
     public function togglePostPin(ForumPost $post)
     {
+        if (!auth()->user()->can('forum-post-edit')) {
+            abort(403);
+        }
+
         $post->update(['is_pinned' => !$post->is_pinned]);
 
         return back()->with('success', 'تم تحديث تثبيت المنشور');
@@ -199,6 +263,10 @@ class ForumController extends Controller
 
     public function destroyPost(ForumPost $post)
     {
+        if (!auth()->user()->can('forum-post-delete')) {
+            abort(403);
+        }
+
         $post->delete();
 
         return redirect()->route('admin.forum.posts')
@@ -209,6 +277,10 @@ class ForumController extends Controller
 
     public function destroyReply(ForumReply $reply)
     {
+        if (!auth()->user()->can('forum-post-delete')) {
+            abort(403);
+        }
+
         $postId = $reply->forum_post_id;
         $reply->delete();
 
@@ -218,6 +290,10 @@ class ForumController extends Controller
 
     public function toggleReplyStatus(ForumReply $reply)
     {
+        if (!auth()->user()->can('forum-post-edit')) {
+            abort(403);
+        }
+
         $reply->update(['is_active' => !$reply->is_active]);
 
         return back()->with('success', 'تم تحديث حالة الرد');

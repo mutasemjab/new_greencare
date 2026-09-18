@@ -11,6 +11,10 @@ class BannerController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('banner-table')) {
+            abort(403);
+        }
+
         $section = $request->get('section', 'home');
         $banners = Banner::where('section', $section)->orderBy('sort_order')->get();
 
@@ -19,6 +23,10 @@ class BannerController extends Controller
 
     public function create(Request $request)
     {
+        if (!auth()->user()->can('banner-add')) {
+            abort(403);
+        }
+
         $section = $request->get('section', 'home');
 
         return view('admin.banners.create', compact('section'));
@@ -26,6 +34,10 @@ class BannerController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('banner-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'title'      => 'nullable|string|max:255',
             'image'      => 'required|image|max:2048',
@@ -46,11 +58,19 @@ class BannerController extends Controller
 
     public function edit(Banner $banner)
     {
+        if (!auth()->user()->can('banner-edit')) {
+            abort(403);
+        }
+
         return view('admin.banners.edit', compact('banner'));
     }
 
     public function update(Request $request, Banner $banner)
     {
+        if (!auth()->user()->can('banner-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'title'      => 'nullable|string|max:255',
             'image'      => 'nullable|image|max:2048',
@@ -77,6 +97,10 @@ class BannerController extends Controller
 
     public function destroy(Banner $banner)
     {
+        if (!auth()->user()->can('banner-delete')) {
+            abort(403);
+        }
+
         if ($banner->image) {
             Storage::disk('public')->delete($banner->image);
         }

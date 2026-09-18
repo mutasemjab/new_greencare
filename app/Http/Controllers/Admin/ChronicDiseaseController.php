@@ -10,6 +10,10 @@ class ChronicDiseaseController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('chronic-disease-table')) {
+            abort(403);
+        }
+
         $query = ChronicDisease::latest();
 
         if ($request->filled('search')) {
@@ -23,11 +27,19 @@ class ChronicDiseaseController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('chronic-disease-add')) {
+            abort(403);
+        }
+
         return view('admin.sihati.chronic-diseases.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('chronic-disease-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'is_active' => 'boolean',
@@ -43,11 +55,19 @@ class ChronicDiseaseController extends Controller
 
     public function edit(ChronicDisease $chronicDisease)
     {
+        if (!auth()->user()->can('chronic-disease-edit')) {
+            abort(403);
+        }
+
         return view('admin.sihati.chronic-diseases.edit', compact('chronicDisease'));
     }
 
     public function update(Request $request, ChronicDisease $chronicDisease)
     {
+        if (!auth()->user()->can('chronic-disease-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'is_active' => 'boolean',
@@ -63,6 +83,10 @@ class ChronicDiseaseController extends Controller
 
     public function destroy(ChronicDisease $chronicDisease)
     {
+        if (!auth()->user()->can('chronic-disease-delete')) {
+            abort(403);
+        }
+
         $chronicDisease->delete();
 
         return redirect()->route('admin.sihati.chronic-diseases.index')

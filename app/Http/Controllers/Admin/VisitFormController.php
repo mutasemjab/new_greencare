@@ -10,6 +10,10 @@ class VisitFormController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('visit-form-table')) {
+            abort(403);
+        }
+
         $query = VisitForm::with(['patient', 'submittedBy'])->latest();
 
         if ($request->filled('search')) {
@@ -24,6 +28,10 @@ class VisitFormController extends Controller
 
     public function show(VisitForm $visitForm)
     {
+        if (!auth()->user()->can('visit-form-table')) {
+            abort(403);
+        }
+
         $visitForm->load([
             'patient', 'submittedBy', 'answers', 'attachments',
             'labRequests.tests.test', 'xrayRequests.tests.test',
@@ -34,6 +42,10 @@ class VisitFormController extends Controller
 
     public function updateDiscount(Request $request, VisitForm $visitForm)
     {
+        if (!auth()->user()->can('visit-form-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'discount_value' => 'nullable|numeric|min:0|max:100',
         ]);

@@ -10,6 +10,10 @@ class ComplaintController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('complaint-table')) {
+            abort(403);
+        }
+
         $query = Complaint::with(['room', 'patient', 'submittedBy'])->latest();
 
         if ($request->filled('status')) {
@@ -27,6 +31,10 @@ class ComplaintController extends Controller
 
     public function show(Complaint $complaint)
     {
+        if (!auth()->user()->can('complaint-table')) {
+            abort(403);
+        }
+
         $complaint->load(['room', 'patient', 'submittedBy']);
 
         return view('admin.sihati.complaints.show', compact('complaint'));
@@ -34,6 +42,10 @@ class ComplaintController extends Controller
 
     public function markReviewed(Complaint $complaint)
     {
+        if (!auth()->user()->can('complaint-edit')) {
+            abort(403);
+        }
+
         $complaint->update(['status' => 'reviewed']);
 
         return back()->with('success', 'تم وضع علامة "تمت المراجعة" على الشكوى');

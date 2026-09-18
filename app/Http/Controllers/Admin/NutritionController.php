@@ -10,6 +10,10 @@ class NutritionController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('nutrition-table')) {
+            abort(403);
+        }
+
         $query = NutritionRequest::with('user')->latest();
 
         if ($request->filled('status')) {
@@ -28,6 +32,10 @@ class NutritionController extends Controller
 
     public function show(NutritionRequest $nutrition)
     {
+        if (!auth()->user()->can('nutrition-table')) {
+            abort(403);
+        }
+
         $nutrition->load('user');
 
         return view('admin.nutrition.show', compact('nutrition'));
@@ -35,6 +43,10 @@ class NutritionController extends Controller
 
     public function updateStatus(Request $request, NutritionRequest $nutrition)
     {
+        if (!auth()->user()->can('nutrition-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);
@@ -46,6 +58,10 @@ class NutritionController extends Controller
 
     public function destroy(NutritionRequest $nutrition)
     {
+        if (!auth()->user()->can('nutrition-delete')) {
+            abort(403);
+        }
+
         $nutrition->delete();
 
         return redirect()->route('admin.nutrition.index')

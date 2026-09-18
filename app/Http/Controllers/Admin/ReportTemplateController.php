@@ -11,6 +11,10 @@ class ReportTemplateController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('template-table')) {
+            abort(403);
+        }
+
         $query = ReportTemplate::withCount('fields')->latest();
 
         if ($request->filled('type')) {
@@ -24,11 +28,19 @@ class ReportTemplateController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('template-add')) {
+            abort(403);
+        }
+
         return view('admin.sihati.templates.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('template-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'          => 'required|string|max:255',
             'template_type' => 'required|in:registration,nurse,doctor',
@@ -46,6 +58,10 @@ class ReportTemplateController extends Controller
 
     public function show(ReportTemplate $template)
     {
+        if (!auth()->user()->can('template-table')) {
+            abort(403);
+        }
+
         $template->load(['fields' => fn($q) => $q->orderBy('sort_order')]);
 
         return view('admin.sihati.templates.show', compact('template'));
@@ -53,11 +69,19 @@ class ReportTemplateController extends Controller
 
     public function edit(ReportTemplate $template)
     {
+        if (!auth()->user()->can('template-edit')) {
+            abort(403);
+        }
+
         return view('admin.sihati.templates.edit', compact('template'));
     }
 
     public function update(Request $request, ReportTemplate $template)
     {
+        if (!auth()->user()->can('template-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'          => 'required|string|max:255',
             'template_type' => 'required|in:registration,nurse,doctor',
@@ -75,6 +99,10 @@ class ReportTemplateController extends Controller
 
     public function destroy(ReportTemplate $template)
     {
+        if (!auth()->user()->can('template-delete')) {
+            abort(403);
+        }
+
         $template->delete();
 
         return redirect()->route('admin.sihati.templates.index')
@@ -85,6 +113,10 @@ class ReportTemplateController extends Controller
 
     public function storeField(Request $request, ReportTemplate $template)
     {
+        if (!auth()->user()->can('template-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'question'    => 'required|string|max:500',
             'answer_type' => 'required|in:text,number,yes_no,image',
@@ -103,6 +135,10 @@ class ReportTemplateController extends Controller
 
     public function updateField(Request $request, ReportTemplateField $field)
     {
+        if (!auth()->user()->can('template-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'question'    => 'required|string|max:500',
             'answer_type' => 'required|in:text,number,yes_no,image',
@@ -120,6 +156,10 @@ class ReportTemplateController extends Controller
 
     public function destroyField(ReportTemplateField $field)
     {
+        if (!auth()->user()->can('template-delete')) {
+            abort(403);
+        }
+
         $templateId = $field->report_template_id;
         $field->delete();
 

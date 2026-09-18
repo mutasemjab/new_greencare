@@ -10,6 +10,10 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('order-table')) {
+            abort(403);
+        }
+
         $query = Order::with(['user', 'address', 'deliveryZone'])->latest();
 
         if ($request->filled('status')) {
@@ -30,6 +34,10 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        if (!auth()->user()->can('order-table')) {
+            abort(403);
+        }
+
         $order->load(['user', 'address.deliveryZone', 'items.product']);
 
         return view('admin.orders.show', compact('order'));
@@ -37,6 +45,10 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
+        if (!auth()->user()->can('order-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled',
         ]);

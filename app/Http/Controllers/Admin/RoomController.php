@@ -47,6 +47,10 @@ class RoomController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('room-add')) {
+            abort(403);
+        }
+
         $patients               = User::where('role', 'patient')->get();
         $superNurses            = User::where('role', 'super_nurse')->get();
         $registrationTemplates  = ReportTemplate::active()->where('template_type', 'registration')->get();
@@ -60,6 +64,10 @@ class RoomController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('room-add')) {
+            abort(403);
+        }
+
         $data = $request->validate(array_merge([
             'patient_id'                => 'required|exists:users,id',
             'created_by'                => 'required|exists:users,id',
@@ -115,6 +123,10 @@ class RoomController extends Controller
 
     public function index(Request $request)
     {
+        if (!auth()->user()->can('room-table')) {
+            abort(403);
+        }
+
         $query = Room::with(['patient', 'createdBy'])->withCount('members')->latest();
 
         if ($request->filled('search')) {
@@ -135,6 +147,10 @@ class RoomController extends Controller
 
     public function show(Room $room)
     {
+        if (!auth()->user()->can('room-table')) {
+            abort(403);
+        }
+
         $room->load(['patient', 'createdBy', 'registrationTemplate', 'diagnoses', 'chronicDiseases', 'attachments']);
 
         $members = $room->members()->with('user')->get();
@@ -201,6 +217,10 @@ class RoomController extends Controller
 
     public function showReport(Room $room, RoomReport $report)
     {
+        if (!auth()->user()->can('room-table')) {
+            abort(403);
+        }
+
         abort_if($report->room_id !== $room->id, 404);
 
         $report->load(['answers.templateField', 'submittedBy']);
@@ -211,6 +231,10 @@ class RoomController extends Controller
 
     public function edit(Room $room)
     {
+        if (!auth()->user()->can('room-edit')) {
+            abort(403);
+        }
+
         $patients               = User::where('role', 'patient')->get();
         $superNurses            = User::where('role', 'super_nurse')->get();
         $registrationTemplates  = ReportTemplate::active()->where('template_type', 'registration')->get();
@@ -226,6 +250,10 @@ class RoomController extends Controller
 
     public function update(Request $request, Room $room)
     {
+        if (!auth()->user()->can('room-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate(array_merge([
             'patient_id'                => 'required|exists:users,id',
             'created_by'                => 'required|exists:users,id',
@@ -279,6 +307,10 @@ class RoomController extends Controller
 
     public function destroy(Room $room)
     {
+        if (!auth()->user()->can('room-delete')) {
+            abort(403);
+        }
+
         $hasActivity = $room->reports()->exists()
             || $room->medications()->exists()
             || $room->doctorOrders()->exists();
@@ -299,6 +331,10 @@ class RoomController extends Controller
 
     public function toggleActive(Room $room)
     {
+        if (!auth()->user()->can('room-edit')) {
+            abort(403);
+        }
+
         $room->update(['is_active' => ! $room->is_active]);
 
         $label = $room->is_active ? 'تفعيل' : 'تعطيل';
@@ -308,6 +344,10 @@ class RoomController extends Controller
 
     public function addMember(Request $request, Room $room)
     {
+        if (!auth()->user()->can('room-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'phone' => 'required|string',
             'role'  => 'required|in:doctor,nurse,patient_family,super_nurse',
@@ -336,6 +376,10 @@ class RoomController extends Controller
 
     public function removeMember(Room $room, RoomMember $member)
     {
+        if (!auth()->user()->can('room-edit')) {
+            abort(403);
+        }
+
         abort_if($member->room_id !== $room->id, 403);
 
         $member->delete();
@@ -347,6 +391,10 @@ class RoomController extends Controller
 
     public function assignTemplate(Request $request, Room $room)
     {
+        if (!auth()->user()->can('room-edit')) {
+            abort(403);
+        }
+
         $request->validate([
             'report_template_id' => 'required|exists:report_templates,id',
         ]);

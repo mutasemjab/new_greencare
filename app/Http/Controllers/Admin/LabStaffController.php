@@ -11,6 +11,10 @@ class LabStaffController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('lab-staff-table')) {
+            abort(403);
+        }
+
         $query = LabStaff::latest();
 
         if ($request->filled('search')) {
@@ -27,11 +31,19 @@ class LabStaffController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('lab-staff-add')) {
+            abort(403);
+        }
+
         return view('admin.lab.staff.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('lab-staff-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'     => 'required|string|max:255',
             'phone'    => 'required|string|max:20|unique:lab_staff,phone',
@@ -49,11 +61,19 @@ class LabStaffController extends Controller
 
     public function edit(LabStaff $labStaffMember)
     {
+        if (!auth()->user()->can('lab-staff-edit')) {
+            abort(403);
+        }
+
         return view('admin.lab.staff.edit', ['staffMember' => $labStaffMember]);
     }
 
     public function update(Request $request, LabStaff $labStaffMember)
     {
+        if (!auth()->user()->can('lab-staff-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'     => 'required|string|max:255',
             'phone'    => 'required|string|max:20|unique:lab_staff,phone,' . $labStaffMember->id,
@@ -76,6 +96,10 @@ class LabStaffController extends Controller
 
     public function destroy(LabStaff $labStaffMember)
     {
+        if (!auth()->user()->can('lab-staff-delete')) {
+            abort(403);
+        }
+
         $labStaffMember->delete();
 
         return redirect()->route('admin.lab.staff.index')

@@ -16,6 +16,10 @@ class XrayController extends Controller
 
     public function categories(Request $request)
     {
+        if (!auth()->user()->can('xray-category-table')) {
+            abort(403);
+        }
+
         $query = XrayCategory::withCount('tests')->orderBy('sort_order');
 
         if ($request->filled('search')) {
@@ -29,11 +33,19 @@ class XrayController extends Controller
 
     public function createCategory()
     {
+        if (!auth()->user()->can('xray-category-add')) {
+            abort(403);
+        }
+
         return view('admin.xray.categories.create');
     }
 
     public function storeCategory(Request $request)
     {
+        if (!auth()->user()->can('xray-category-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -55,11 +67,19 @@ class XrayController extends Controller
 
     public function editCategory(XrayCategory $category)
     {
+        if (!auth()->user()->can('xray-category-edit')) {
+            abort(403);
+        }
+
         return view('admin.xray.categories.edit', compact('category'));
     }
 
     public function updateCategory(Request $request, XrayCategory $category)
     {
+        if (!auth()->user()->can('xray-category-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -84,6 +104,10 @@ class XrayController extends Controller
 
     public function destroyCategory(XrayCategory $category)
     {
+        if (!auth()->user()->can('xray-category-delete')) {
+            abort(403);
+        }
+
         if ($category->icon) {
             Storage::disk('public')->delete($category->icon);
         }
@@ -97,6 +121,10 @@ class XrayController extends Controller
 
     public function tests(Request $request)
     {
+        if (!auth()->user()->can('xray-test-table')) {
+            abort(403);
+        }
+
         $query = XrayTest::with('category')->latest();
 
         if ($request->filled('category_id')) {
@@ -111,6 +139,10 @@ class XrayController extends Controller
 
     public function createTest()
     {
+        if (!auth()->user()->can('xray-test-add')) {
+            abort(403);
+        }
+
         $categories = XrayCategory::active()->get();
 
         return view('admin.xray.tests.create', compact('categories'));
@@ -118,6 +150,10 @@ class XrayController extends Controller
 
     public function storeTest(Request $request)
     {
+        if (!auth()->user()->can('xray-test-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'xray_category_id' => 'required|exists:xray_categories,id',
             'name'             => 'required|string|max:255',
@@ -136,6 +172,10 @@ class XrayController extends Controller
 
     public function editTest(XrayTest $test)
     {
+        if (!auth()->user()->can('xray-test-edit')) {
+            abort(403);
+        }
+
         $categories = XrayCategory::active()->get();
 
         return view('admin.xray.tests.edit', compact('test', 'categories'));
@@ -143,6 +183,10 @@ class XrayController extends Controller
 
     public function updateTest(Request $request, XrayTest $test)
     {
+        if (!auth()->user()->can('xray-test-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'xray_category_id' => 'required|exists:xray_categories,id',
             'name'             => 'required|string|max:255',
@@ -161,6 +205,10 @@ class XrayController extends Controller
 
     public function destroyTest(XrayTest $test)
     {
+        if (!auth()->user()->can('xray-test-delete')) {
+            abort(403);
+        }
+
         $test->delete();
 
         return redirect()->route('admin.xray.tests')
@@ -171,6 +219,10 @@ class XrayController extends Controller
 
     public function requests(Request $request)
     {
+        if (!auth()->user()->can('xray-request-table')) {
+            abort(403);
+        }
+
         $query = XrayRequest::with(['user', 'tests.test'])->latest();
 
         if ($request->filled('status')) {
@@ -189,6 +241,10 @@ class XrayController extends Controller
 
     public function showRequest(XrayRequest $request)
     {
+        if (!auth()->user()->can('xray-request-table')) {
+            abort(403);
+        }
+
         $request->load(['user', 'address', 'tests.test.category']);
 
         return view('admin.xray.requests.show', compact('request'));
@@ -196,6 +252,10 @@ class XrayController extends Controller
 
     public function updateRequestStatus(Request $httpRequest, XrayRequest $request)
     {
+        if (!auth()->user()->can('xray-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);
@@ -209,6 +269,10 @@ class XrayController extends Controller
 
     public function uploadResult(Request $httpRequest, XrayRequest $request)
     {
+        if (!auth()->user()->can('xray-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'result_file' => 'required|file|mimes:pdf|max:10240',
         ], [

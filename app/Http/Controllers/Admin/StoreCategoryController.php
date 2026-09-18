@@ -11,6 +11,10 @@ class StoreCategoryController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('store-category-table')) {
+            abort(403);
+        }
+
         $query = StoreCategory::with('parent')
             ->orderByRaw('ISNULL(parent_id), parent_id, sort_order');
 
@@ -29,6 +33,10 @@ class StoreCategoryController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('store-category-add')) {
+            abort(403);
+        }
+
         $parents = StoreCategory::whereNull('parent_id')->active()->get();
 
         return view('admin.store.categories.create', compact('parents'));
@@ -36,6 +44,10 @@ class StoreCategoryController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('store-category-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'parent_id'  => 'nullable|exists:store_categories,id',
@@ -58,6 +70,10 @@ class StoreCategoryController extends Controller
 
     public function edit(StoreCategory $storeCategory)
     {
+        if (!auth()->user()->can('store-category-edit')) {
+            abort(403);
+        }
+
         $parents = StoreCategory::whereNull('parent_id')
             ->where('id', '!=', $storeCategory->id)
             ->get();
@@ -67,6 +83,10 @@ class StoreCategoryController extends Controller
 
     public function update(Request $request, StoreCategory $storeCategory)
     {
+        if (!auth()->user()->can('store-category-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'parent_id'  => 'nullable|exists:store_categories,id',
@@ -92,6 +112,10 @@ class StoreCategoryController extends Controller
 
     public function destroy(StoreCategory $storeCategory)
     {
+        if (!auth()->user()->can('store-category-delete')) {
+            abort(403);
+        }
+
         if ($storeCategory->image) {
             Storage::disk('public')->delete($storeCategory->image);
         }

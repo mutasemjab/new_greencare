@@ -34,7 +34,7 @@ class PermissionSeeder extends Seeder
 
             // الأطباء والحجوزات
             'doctor-table', 'doctor-add', 'doctor-edit', 'doctor-delete',
-            'doctor-booking-table',
+            'doctor-booking-table', 'doctor-booking-edit',
 
             // التمريض
             'nursing-type-table', 'nursing-type-add', 'nursing-type-edit', 'nursing-type-delete',
@@ -42,6 +42,7 @@ class PermissionSeeder extends Seeder
 
             // الاستحمام
             'bathing-table', 'bathing-add', 'bathing-edit', 'bathing-delete',
+            'bathing-card-table', 'bathing-card-add', 'bathing-card-delete',
             'bathing-request-table', 'bathing-request-edit',
 
             // خدمات الرعاية
@@ -64,6 +65,7 @@ class PermissionSeeder extends Seeder
 
             // المنتدى
             'forum-category-table', 'forum-category-add', 'forum-category-edit', 'forum-category-delete',
+            'forum-sub-category-table', 'forum-sub-category-add', 'forum-sub-category-edit', 'forum-sub-category-delete',
             'forum-post-table', 'forum-post-edit', 'forum-post-delete',
 
             // الإشعارات
@@ -84,7 +86,7 @@ class PermissionSeeder extends Seeder
             'complaint-table', 'complaint-edit',
 
             // نماذج الزيارة
-            'visit-form-table',
+            'visit-form-table', 'visit-form-edit',
             'visit-form-field-table', 'visit-form-field-add', 'visit-form-field-edit', 'visit-form-field-delete',
 
             // قوالب الوثائق
@@ -100,10 +102,13 @@ class PermissionSeeder extends Seeder
             'transfer-table', 'transfer-edit',
 
             // التغذية
-            'nutrition-table', 'nutrition-edit',
+            'nutrition-table', 'nutrition-edit', 'nutrition-delete',
 
             // الإعدادات
             'setting-edit',
+
+            // مفاتيح API
+            'api-client-table', 'api-client-add', 'api-client-edit', 'api-client-delete',
         ];
 
         foreach ($permissions as $permission) {

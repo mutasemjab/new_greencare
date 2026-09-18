@@ -11,7 +11,10 @@ class ArticleController extends Controller
 {
     public function index(Request $request)
     {
-        
+        if (!auth()->user()->can('article-table')) {
+            abort(403);
+        }
+
         $query = Article::latest();
 
         if ($request->filled('search')) {
@@ -25,11 +28,19 @@ class ArticleController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->can('article-add')) {
+            abort(403);
+        }
+
         return view('admin.articles.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->can('article-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'title'        => 'required|string|max:255',
             'description'  => 'required|string',
@@ -52,11 +63,19 @@ class ArticleController extends Controller
 
     public function edit(Article $article)
     {
+        if (!auth()->user()->can('article-edit')) {
+            abort(403);
+        }
+
         return view('admin.articles.edit', compact('article'));
     }
 
     public function update(Request $request, Article $article)
     {
+        if (!auth()->user()->can('article-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'title'        => 'required|string|max:255',
             'description'  => 'required|string',
@@ -82,6 +101,10 @@ class ArticleController extends Controller
 
     public function destroy(Article $article)
     {
+        if (!auth()->user()->can('article-delete')) {
+            abort(403);
+        }
+
         if ($article->image) {
             Storage::disk('public')->delete($article->image);
         }

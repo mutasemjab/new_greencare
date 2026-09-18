@@ -43,6 +43,9 @@ class RoleController extends Controller
      */
     public function create()
     {
+        if(!Gate::allows('role-add'))
+            return "Not auth";
+
         $grouped = $this->groupedPermissions();
         return view('admin.roles.create', compact('grouped'));
     }
@@ -55,6 +58,8 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        if(!Gate::allows('role-add'))
+            return "Not auth";
 
         $request->validate(
             [
@@ -109,6 +114,9 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
+        if(!Gate::allows('role-edit'))
+            return "Not auth";
+
         $grouped = $this->groupedPermissions();
         $role_permissions = DB::table('role_has_permissions')->where('role_id', $id)->pluck('permission_id')->toArray();
         $data = Role::find($id);
@@ -124,7 +132,8 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        if(!Gate::allows('role-edit'))
+            return "Not auth";
 
         DB::beginTransaction();
         try {
@@ -162,6 +171,9 @@ class RoleController extends Controller
      */
     public function delete(Request $request)
     {
+        if(!Gate::allows('role-delete'))
+            return 0;
+
         Role::where('id', $request->id)->delete();
         return 1;
     }

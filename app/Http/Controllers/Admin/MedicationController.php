@@ -10,6 +10,10 @@ class MedicationController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->user()->can('medication-table')) {
+            abort(403);
+        }
+
         $query = Medication::with('patient')->latest();
 
         if ($request->filled('search')) {
@@ -26,6 +30,10 @@ class MedicationController extends Controller
 
     public function show(Medication $medication)
     {
+        if (!auth()->user()->can('medication-table')) {
+            abort(403);
+        }
+
         $medication->load('patient');
 
         return view('admin.sihati.medications.show', compact('medication'));

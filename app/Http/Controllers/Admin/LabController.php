@@ -16,6 +16,10 @@ class LabController extends Controller
 
     public function categories(Request $request)
     {
+        if (!auth()->user()->can('lab-category-table')) {
+            abort(403);
+        }
+
         $query = LabCategory::withCount('tests')->orderBy('sort_order');
 
         if ($request->filled('search')) {
@@ -29,11 +33,19 @@ class LabController extends Controller
 
     public function createCategory()
     {
+        if (!auth()->user()->can('lab-category-add')) {
+            abort(403);
+        }
+
         return view('admin.lab.categories.create');
     }
 
     public function storeCategory(Request $request)
     {
+        if (!auth()->user()->can('lab-category-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -55,11 +67,19 @@ class LabController extends Controller
 
     public function editCategory(LabCategory $category)
     {
+        if (!auth()->user()->can('lab-category-edit')) {
+            abort(403);
+        }
+
         return view('admin.lab.categories.edit', compact('category'));
     }
 
     public function updateCategory(Request $request, LabCategory $category)
     {
+        if (!auth()->user()->can('lab-category-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name'       => 'required|string|max:255',
             'icon'       => 'nullable|image|max:1024',
@@ -84,6 +104,10 @@ class LabController extends Controller
 
     public function destroyCategory(LabCategory $category)
     {
+        if (!auth()->user()->can('lab-category-delete')) {
+            abort(403);
+        }
+
         if ($category->icon) {
             Storage::disk('public')->delete($category->icon);
         }
@@ -97,6 +121,10 @@ class LabController extends Controller
 
     public function tests(Request $request)
     {
+        if (!auth()->user()->can('lab-test-table')) {
+            abort(403);
+        }
+
         $query = LabTest::with('category')->latest();
 
         if ($request->filled('category_id')) {
@@ -111,6 +139,10 @@ class LabController extends Controller
 
     public function createTest()
     {
+        if (!auth()->user()->can('lab-test-add')) {
+            abort(403);
+        }
+
         $categories = LabCategory::active()->get();
 
         return view('admin.lab.tests.create', compact('categories'));
@@ -118,6 +150,10 @@ class LabController extends Controller
 
     public function storeTest(Request $request)
     {
+        if (!auth()->user()->can('lab-test-add')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'lab_category_id' => 'required|exists:lab_categories,id',
             'name'            => 'required|string|max:255',
@@ -136,6 +172,10 @@ class LabController extends Controller
 
     public function editTest(LabTest $test)
     {
+        if (!auth()->user()->can('lab-test-edit')) {
+            abort(403);
+        }
+
         $categories = LabCategory::active()->get();
 
         return view('admin.lab.tests.edit', compact('test', 'categories'));
@@ -143,6 +183,10 @@ class LabController extends Controller
 
     public function updateTest(Request $request, LabTest $test)
     {
+        if (!auth()->user()->can('lab-test-edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'lab_category_id' => 'required|exists:lab_categories,id',
             'name'            => 'required|string|max:255',
@@ -161,6 +205,10 @@ class LabController extends Controller
 
     public function destroyTest(LabTest $test)
     {
+        if (!auth()->user()->can('lab-test-delete')) {
+            abort(403);
+        }
+
         $test->delete();
 
         return redirect()->route('admin.lab.tests')
@@ -171,6 +219,10 @@ class LabController extends Controller
 
     public function requests(Request $request)
     {
+        if (!auth()->user()->can('lab-request-table')) {
+            abort(403);
+        }
+
         $query = LabRequest::with(['user', 'tests.test'])->latest();
 
         if ($request->filled('status')) {
@@ -189,6 +241,10 @@ class LabController extends Controller
 
     public function showRequest(LabRequest $request)
     {
+        if (!auth()->user()->can('lab-request-table')) {
+            abort(403);
+        }
+
         $request->load(['user', 'address', 'tests.test.category']);
 
         return view('admin.lab.requests.show', compact('request'));
@@ -196,6 +252,10 @@ class LabController extends Controller
 
     public function updateRequestStatus(Request $httpRequest, LabRequest $request)
     {
+        if (!auth()->user()->can('lab-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'status' => 'required|in:pending,confirmed,in_progress,completed,cancelled',
         ]);
@@ -209,6 +269,10 @@ class LabController extends Controller
 
     public function uploadResult(Request $httpRequest, LabRequest $request)
     {
+        if (!auth()->user()->can('lab-request-edit')) {
+            abort(403);
+        }
+
         $httpRequest->validate([
             'result_file' => 'required|file|mimes:pdf|max:10240',
         ], [
