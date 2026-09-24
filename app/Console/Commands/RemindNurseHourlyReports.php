@@ -42,6 +42,7 @@ class RemindNurseHourlyReports extends Command
         foreach ($rooms as $room) {
             $alreadyFilled = RoomReport::where('room_id', $room->id)
                 ->where('report_hour', $currentHour)
+                ->where('report_type', 'nurse')
                 ->exists();
 
             if ($alreadyFilled || $room->members->isEmpty()) {
