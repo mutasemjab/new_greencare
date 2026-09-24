@@ -8,10 +8,10 @@ class RoomReport extends Model
 {
     protected $fillable = [
         'room_id', 'report_template_id', 'room_template_assignment_id',
-        'submitted_by', 'report_type', 'submitted_at', 'report_hour', 'report_month', 'note',
+        'submitted_by', 'report_type', 'submitted_at', 'report_hour', 'report_date', 'report_month', 'note',
     ];
 
-    protected $casts = ['submitted_at' => 'datetime'];
+    protected $casts = ['submitted_at' => 'datetime', 'report_date' => 'date'];
 
     public function room()
     {

@@ -353,6 +353,7 @@ class SihatiController extends Controller
 
             $alreadyFilled = RoomReport::where('room_id', $room->id)
                 ->where('report_hour', $request->report_hour)
+                ->where('report_date', now('Asia/Amman')->toDateString())
                 ->exists();
 
             if ($alreadyFilled) {
@@ -436,6 +437,7 @@ class SihatiController extends Controller
             'report_type'                => $template->template_type,
             'submitted_at'               => now(),
             'report_hour'                => $request->input('report_hour'),
+            'report_date'                => $request->filled('report_hour') ? now('Asia/Amman')->toDateString() : null,
             'report_month'               => $request->input('report_month'),
             'note'                       => $request->input('note'),
         ]);
