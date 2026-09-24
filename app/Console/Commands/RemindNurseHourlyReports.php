@@ -43,6 +43,7 @@ class RemindNurseHourlyReports extends Command
             $alreadyFilled = RoomReport::where('room_id', $room->id)
                 ->where('report_hour', $currentHour)
                 ->where('report_date', now('Asia/Amman')->toDateString())
+                ->where('report_type', 'nurse')
                 ->exists();
 
             if ($alreadyFilled || $room->members->isEmpty()) {

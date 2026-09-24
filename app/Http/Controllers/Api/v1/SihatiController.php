@@ -354,6 +354,7 @@ class SihatiController extends Controller
             $alreadyFilled = RoomReport::where('room_id', $room->id)
                 ->where('report_hour', $request->report_hour)
                 ->where('report_date', now('Asia/Amman')->toDateString())
+                ->where('report_type', 'nurse')
                 ->exists();
 
             if ($alreadyFilled) {
@@ -374,6 +375,7 @@ class SihatiController extends Controller
 
             $alreadyFilled = RoomReport::where('room_id', $room->id)
                 ->where('report_month', $request->report_month)
+                ->where('report_type', 'doctor')
                 ->exists();
 
             if ($alreadyFilled) {

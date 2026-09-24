@@ -42,6 +42,7 @@ class RemindDoctorMonthlyReports extends Command
         foreach ($rooms as $room) {
             $alreadyFilled = RoomReport::where('room_id', $room->id)
                 ->where('report_month', $currentMonth)
+                ->where('report_type', 'doctor')
                 ->exists();
 
             if ($alreadyFilled || $room->members->isEmpty()) {

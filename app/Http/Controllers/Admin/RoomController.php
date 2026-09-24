@@ -221,7 +221,7 @@ class RoomController extends Controller
             abort(403);
         }
 
-        abort_if($report->room_id !== $room->id, 404);
+        abort_if((int) $report->room_id !== (int) $room->id, 404);
 
         $report->load(['answers.templateField', 'submittedBy']);
         $room->load('patient');

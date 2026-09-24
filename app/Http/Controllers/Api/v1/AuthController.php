@@ -171,7 +171,9 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user('user-api')->token()->revoke();
+        $user = $request->user('user-api');
+        $user->update(['fcm_token' => null]);
+        $user->token()->revoke();
 
         return $this->success(null, 'تم تسجيل الخروج بنجاح');
     }
