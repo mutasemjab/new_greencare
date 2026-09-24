@@ -30,7 +30,8 @@
       "Bash(grep -v \"^$\")",
       "Bash(php artisan tinker '--execute= *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost/green/ar/admin/sihati/rooms/32/reports/76\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost/green/ar/admin/sihati/rooms/32\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost/green/ar/admin/sihati/rooms/32\")",
+      "Bash(xargs grep *)"
     ]
   }
 }
