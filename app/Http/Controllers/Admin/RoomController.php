@@ -15,7 +15,9 @@ use App\Models\RoomTemplateAssignment;
 use App\Models\XrayRequest;
 use App\Models\User;
 use App\Services\FirebaseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -176,8 +178,8 @@ class RoomController extends Controller
             ->whereIn('report_type', ['nurse', 'doctor'])
             ->with('submittedBy')
             ->latest('submitted_at')
-            ->take(20)
-            ->get();
+            ->paginate(25, ['*'], 'reports_page')
+            ->fragment('tab-reports');
 
         $doctorOrders = $room->doctorOrders()
             ->with(['doctor', 'replies.nurse'])
@@ -227,6 +229,40 @@ class RoomController extends Controller
         $room->load('patient');
 
         return view('admin.sihati.rooms.report', compact('room', 'report'));
+    }
+
+    /**
+     * GET /admin/sihati/rooms/{room}/reports/monthly?month=Y-m
+     * Combines every nurse/doctor report for the given month into one page.
+     */
+    public function monthlyReport(Request $request, Room $room)
+    {
+        if (!auth()->user()->can('room-table')) {
+            abort(403);
+        }
+
+        $request->validate(['month' => 'required|date_format:Y-m']);
+
+        $start = Carbon::createFromFormat('Y-m-d', $request->month . '-01')->startOfDay();
+        $end   = $start->copy()->endOfMonth();
+
+        // Doctor reports may have no report_date — fall back to the submission day.
+        $reports = $room->reports()
+            ->whereIn('report_type', ['nurse', 'doctor'])
+            ->whereRaw('COALESCE(report_date, DATE(submitted_at)) BETWEEN ? AND ?', [$start->toDateString(), $end->toDateString()])
+            ->with(['answers.templateField', 'submittedBy'])
+            ->orderByRaw('COALESCE(report_date, DATE(submitted_at))')
+            ->orderBy('report_hour')
+            ->orderBy('submitted_at')
+            ->get();
+
+        $room->load('patient');
+
+        return view('admin.sihati.rooms.monthly-report', [
+            'room'    => $room,
+            'reports' => $reports,
+            'month'   => $request->month,
+        ]);
     }
 
     public function edit(Room $room)
@@ -311,19 +347,16 @@ class RoomController extends Controller
             abort(403);
         }
 
-        $hasActivity = $room->reports()->exists()
-            || $room->medications()->exists()
-            || $room->doctorOrders()->exists();
-
-        if ($hasActivity) {
-            return back()->withErrors([
-                'delete' => 'لا يمكن حذف هذه الغرفة لوجود تقارير أو أدوية أو أوامر طبيب مرتبطة بها. يمكنك تعطيلها بدلاً من ذلك.',
-            ]);
-        }
+        // Reports, answers, medications, doctor orders, members and attachments are
+        // removed by the ON DELETE CASCADE foreign keys; lab/xray requests and
+        // store orders are kept with room_id set to NULL.
+        $attachmentPaths = $room->attachments()->pluck('file_path')->all();
 
         $this->firebase->deleteRoomDocument($room);
 
         $room->delete();
+
+        Storage::disk('public')->delete($attachmentPaths);
 
         return redirect()->route('admin.sihati.rooms.index')
             ->with('success', 'تم حذف الغرفة بنجاح');
@@ -336,6 +369,8 @@ class RoomController extends Controller
         }
 
         $room->update(['is_active' => ! $room->is_active]);
+
+        $this->firebase->syncRoomMembers($room);
 
         $label = $room->is_active ? 'تفعيل' : 'تعطيل';
 
@@ -380,7 +415,9 @@ class RoomController extends Controller
             abort(403);
         }
 
-        abort_if($member->room_id !== $room->id, 403);
+        // Cast both sides: some MySQL drivers return ids as strings, which made
+        // the strict comparison always fail with a 403.
+        abort_if((int) $member->room_id !== (int) $room->id, 404);
 
         $member->delete();
 

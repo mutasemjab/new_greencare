@@ -40,7 +40,13 @@ class FCMController extends BaseController
         });
     }
 
-    public static function sendMessage($title, $body, $fcmToken, $userId, $screen = "order", $extraData = [])
+    /**
+     * $options:
+     *  - 'tag'  string  Collapses notifications that share it: Android replaces
+     *                   the shown notification with the same tag, iOS groups
+     *                   them in one thread (used for one-notification-per-chat).
+     */
+    public static function sendMessage($title, $body, $fcmToken, $userId, $screen = "order", $extraData = [], array $options = [])
     {
         if (!$fcmToken) {
             Log::error("FCM Error: No FCM token provided for user ID $userId");
@@ -71,6 +77,15 @@ class FCMController extends BaseController
                     ]
                 ]
             ];
+
+            if (!empty($options['tag'])) {
+                $data['message']['android']['notification'] = ['tag' => $options['tag']];
+                $data['message']['android']['collapse_key'] = $options['tag'];
+                $data['message']['apns'] = [
+                    'headers' => ['apns-collapse-id' => $options['tag']],
+                    'payload' => ['aps' => ['thread-id' => $options['tag'], 'sound' => 'default']],
+                ];
+            }
 
             $payload = json_encode($data);
 
@@ -173,5 +188,65 @@ class FCMController extends BaseController
         return $sent;
     }
 
+    /**
+     * WhatsApp-style chat push: one notification per room per user instead
+     * of one per message. The user's unread chat_message row for the room
+     * is updated in place (message count + last few lines) and the push is
+     * sent with a per-room tag so the device replaces the previous one.
+     */
+    public static function sendChatMessageToUser($userId, int $roomId, string $roomTitle, string $line, $sentBy = null)
+    {
+        $user = User::find($userId);
 
+        if (!$user) {
+            Log::error("User not found for user ID: $userId");
+            return false;
+        }
+
+        $existing = Notification::where('user_id', $userId)
+            ->where('type', 'chat_message')
+            ->where('is_read', false)
+            ->where('data->room_id', $roomId)
+            ->latest('id')
+            ->first();
+
+        $count    = $existing ? ((int) ($existing->data['count'] ?? 1)) + 1 : 1;
+        $previous = $existing ? ($existing->data['lines'] ?? [$existing->body]) : [];
+        // Newest first so the collapsed notification previews the latest message.
+        $lines = array_values(array_filter(
+            array_slice(array_merge([$line], $previous), 0, 5),
+            fn ($l) => $l !== null && $l !== ''
+        ));
+
+        $title = $count > 1 ? "{$roomTitle} ({$count} رسائل جديدة)" : $roomTitle;
+        $body  = implode("\n", $lines);
+        $data  = ['room_id' => $roomId, 'count' => $count, 'lines' => $lines];
+
+        $sent = false;
+        if ($user->fcm_token) {
+            $sent = self::sendMessage(
+                $title, $body, $user->fcm_token, $user->id, 'chat_message',
+                ['room_id' => $roomId],
+                ['tag' => "room_{$roomId}"]
+            );
+        }
+
+        $attributes = [
+            'title'    => $title,
+            'body'     => $body,
+            'screen'   => 'chat_message',
+            'data'     => $data,
+            'fcm_sent' => $sent,
+            'sent_by'  => $sentBy,
+        ];
+
+        if ($existing) {
+            // Bump created_at so the grouped row moves to the top of the list.
+            $existing->forceFill($attributes + ['created_at' => now()])->save();
+        } else {
+            Notification::create($attributes + ['user_id' => $userId, 'type' => 'chat_message']);
+        }
+
+        return $sent;
+    }
 }

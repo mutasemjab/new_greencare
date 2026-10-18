@@ -35,7 +35,7 @@
                 </button>
             </form>
             <form action="{{ route('admin.sihati.rooms.destroy', $room) }}" method="POST"
-                onsubmit="return confirm('هل أنت متأكد من حذف هذه الغرفة؟ لا يمكن التراجع عن هذا الإجراء.')">
+                onsubmit="return confirm('هل أنت متأكد من حذف هذه الغرفة؟ سيتم حذف جميع التقارير والأدوية وأوامر الطبيب والأعضاء والمحادثة المرتبطة بها نهائياً، ولا يمكن التراجع عن هذا الإجراء.')">
                 @csrf
                 @method('DELETE')
                 <button class="btn btn-sm btn-outline-danger">
@@ -482,8 +482,16 @@
         {{-- ── Tab: Reports ──────────────────────────────────────────────── --}}
         <div class="tab-pane fade" id="tab-reports">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent fw-bold">
-                    <i class="bi bi-clipboard2-pulse me-2"></i>تقارير الغرفة
+                <div class="card-header bg-transparent fw-bold d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <span><i class="bi bi-clipboard2-pulse me-2"></i>تقارير الغرفة</span>
+                    <form action="{{ route('admin.sihati.rooms.reports.monthly', $room) }}" method="GET"
+                        target="_blank" class="d-flex align-items-center gap-2">
+                        <input type="month" name="month" class="form-control form-control-sm" required
+                            value="{{ now()->format('Y-m') }}">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-collection me-1"></i> تجميع تقارير الشهر
+                        </button>
+                    </form>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -499,7 +507,7 @@
                         <tbody>
                             @forelse($reports as $report)
                             <tr>
-                                <td class="text-muted small">{{ $loop->iteration }}</td>
+                                <td class="text-muted small">{{ $reports->firstItem() + $loop->index }}</td>
                                 <td>
                                     <span class="badge bg-{{ $report->report_type_color }}-subtle text-{{ $report->report_type_color }}">
                                         {{ $report->report_type_label }}
@@ -525,6 +533,12 @@
                         </tbody>
                     </table>
                 </div>
+                @if($reports->hasPages())
+                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="small text-muted">إجمالي التقارير: {{ $reports->total() }}</span>
+                    {{ $reports->onEachSide(1)->links('pagination::bootstrap-5') }}
+                </div>
+                @endif
             </div>
         </div>
 
@@ -737,3 +751,15 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Re-open the tab named in the URL hash (e.g. #tab-reports after paging reports)
+    document.addEventListener('DOMContentLoaded', function () {
+        var hash = window.location.hash;
+        if (!hash) return;
+        var trigger = document.querySelector('#roomTabs a[href="' + hash + '"]');
+        if (trigger) bootstrap.Tab.getOrCreateInstance(trigger).show();
+    });
+</script>
+@endpush

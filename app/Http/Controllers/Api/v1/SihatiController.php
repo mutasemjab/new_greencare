@@ -24,6 +24,7 @@ use App\Models\DocumentTemplate;
 use App\Models\DoctorNote;
 use App\Models\DoctorOrder;
 use App\Models\DoctorOrderReply;
+use App\Models\Notification;
 use App\Models\Room;
 use App\Models\RoomAttachment;
 use App\Models\RoomMedication;
@@ -57,6 +58,11 @@ class SihatiController extends Controller
         // they created or were added to as a member.
         if ($user->role === 'super_nurse') {
             return;
+        }
+
+        // A room disabled from the admin dashboard is closed to everyone else.
+        if (! $room->is_active) {
+            abort(403, 'هذه الغرفة معطلة من قبل الإدارة');
         }
 
         if ((int) $room->patient_id === (int) $user->id) {
@@ -114,6 +120,7 @@ class SihatiController extends Controller
                     ->orWhere('patient_id', $user->id)
                     ->orWhereHas('members', fn ($m) => $m->where('user_id', $user->id));
             })
+            ->when($user->role !== 'super_nurse', fn ($q) => $q->where('is_active', true))
             ->get()
             ->map(fn (Room $room) => [
                 'id'               => $room->id,
@@ -122,6 +129,7 @@ class SihatiController extends Controller
                 'patient_name'     => optional($room->patient)->name,
                 'room_id'          => $room->id,
                 'firebase_room_id' => $room->firebase_room_id,
+                'is_active'        => (bool) $room->is_active,
                 'created_at'       => $room->created_at,
             ]);
 
@@ -310,6 +318,14 @@ class SihatiController extends Controller
         ])->findOrFail($id);
 
         $this->verifyRoomAccess($room);
+
+        // Opening the room reads its grouped chat notification, so the next
+        // message starts a fresh "1 new message" notification.
+        Notification::where('user_id', $request->user('user-api')->id)
+            ->where('type', 'chat_message')
+            ->where('is_read', false)
+            ->where('data->room_id', $room->id)
+            ->update(['is_read' => true, 'read_at' => now()]);
 
         return $this->success(new RoomResource($room));
     }
@@ -889,19 +905,22 @@ class SihatiController extends Controller
 
         $title = $room->name ?: ($room->patient->name ?? 'غرفة صحتي');
 
+        // The sender is evidently in the room — reset their own grouped count.
+        Notification::where('user_id', $data['sender_id'])
+            ->where('type', 'chat_message')
+            ->where('is_read', false)
+            ->where('data->room_id', $room->id)
+            ->update(['is_read' => true, 'read_at' => now()]);
+
+        $senderName = User::whereKey($data['sender_id'])->value('name');
+        $line = $senderName ? "{$senderName}: {$data['body']}" : $data['body'];
+
         $recipientIds = collect($room->memberUserIds())
+            ->map(fn ($userId) => (int) $userId)
             ->reject(fn ($userId) => $userId === (int) $data['sender_id']);
 
         foreach ($recipientIds as $userId) {
-            FCMController::sendToUser(
-                $userId,
-                $title,
-                $data['body'],
-                'chat_message',
-                'chat_message',
-                null,
-                ['room_id' => $room->id]
-            );
+            FCMController::sendChatMessageToUser($userId, $room->id, $title, $line);
         }
 
         return $this->success(null, 'تم إرسال الإشعارات');

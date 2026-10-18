@@ -113,7 +113,7 @@
                                 </button>
                             </form>
                             <form action="{{ route('admin.sihati.rooms.destroy', $room) }}" method="POST" class="d-inline"
-                                onsubmit="return confirm('هل أنت متأكد من حذف هذه الغرفة؟ لا يمكن التراجع عن هذا الإجراء.')">
+                                onsubmit="return confirm('هل أنت متأكد من حذف هذه الغرفة؟ سيتم حذف جميع التقارير والأدوية وأوامر الطبيب والأعضاء والمحادثة المرتبطة بها نهائياً، ولا يمكن التراجع عن هذا الإجراء.')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-outline-danger" title="حذف">

@@ -101,7 +101,8 @@ class FirebaseService
 
             if ($firestore) {
                 $firestore->database()->collection('chatRooms')->document($room->firebase_room_id)->set([
-                    'members' => $room->memberUserIds(),
+                    'members'  => $room->memberUserIds(),
+                    'isActive' => (bool) $room->is_active,
                 ], ['merge' => true]);
             }
         } catch (Throwable $e) {
