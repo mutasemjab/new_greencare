@@ -18,6 +18,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('sihati:remind-medications')->everyMinute()->withoutOverlapping();
         $schedule->command('sihati:remind-nurses')->hourly()->withoutOverlapping();
         $schedule->command('sihati:remind-doctors')->daily()->withoutOverlapping();
+        // Admin "send to all" notifications — delivered in the background.
+        $schedule->command('notifications:send-broadcasts')->everyMinute()->withoutOverlapping(10)->runInBackground();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
+use App\Models\NotificationBroadcast;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -26,7 +27,9 @@ class NotificationController extends Controller
 
         $notifications = $query->paginate(20)->withQueryString();
 
-        return view('admin.notifications.index', compact('notifications'));
+        $broadcasts = NotificationBroadcast::with('sentBy')->latest()->take(10)->get();
+
+        return view('admin.notifications.index', compact('notifications', 'broadcasts'));
     }
 
     public function create()
@@ -56,14 +59,18 @@ class NotificationController extends Controller
         $adminId = auth('admin')->id();
 
         if ($data['target'] === 'all') {
-            $users = User::where('is_active', true)->get(['id']);
-
-            foreach ($users as $user) {
-                FCMController::sendToUser($user->id, $data['title'], $data['body'], 'general', 'broadcast', $adminId);
-            }
+            // Sending to every user in this request timed out with a large user
+            // base — queue it for `notifications:send-broadcasts` (cron) instead.
+            NotificationBroadcast::create([
+                'title'       => $data['title'],
+                'body'        => $data['body'],
+                'status'      => 'pending',
+                'total_users' => User::where('is_active', true)->count(),
+                'sent_by'     => $adminId,
+            ]);
 
             return redirect()->route('admin.notifications.index')
-                ->with('success', "تم إرسال الإشعار لـ {$users->count()} مستخدم");
+                ->with('success', 'سيتم إرسال الإشعار لجميع المستخدمين في الخلفية خلال دقائق، ويمكنك متابعة تقدّم الإرسال من هذه الصفحة.');
         }
 
         FCMController::sendToUser($data['user_id'], $data['title'], $data['body'], 'general', 'personal', $adminId);

@@ -126,6 +126,90 @@ class FCMController extends BaseController
     }
 
 
+    /**
+     * Sends the same push to many devices in parallel (curl_multi), which is
+     * far faster than one blocking request per user. Clears tokens FCM
+     * reports as UNREGISTERED.
+     *
+     * @param  array<int, string>  $tokens  user_id => fcm_token
+     * @return array<int, bool>             user_id => delivered
+     */
+    public static function sendMessageBatch(array $tokens, $title, $body, $screen = 'general', $extraData = []): array
+    {
+        $results = array_fill_keys(array_keys($tokens), false);
+
+        if (empty($tokens)) {
+            return $results;
+        }
+
+        // Let a credentials failure propagate: the caller marks the broadcast
+        // as failed instead of reporting every user as "not delivered".
+        $accessToken = self::getAccessToken();
+
+        $multi   = curl_multi_init();
+        $handles = [];
+
+        foreach ($tokens as $userId => $token) {
+            $payload = json_encode([
+                'message' => [
+                    'token'        => $token,
+                    'notification' => ['title' => $title, 'body' => $body],
+                    'data'         => array_merge([
+                        'screen'       => $screen,
+                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                    ], array_map('strval', $extraData)),
+                    'android'      => ['priority' => 'high'],
+                ],
+            ]);
+
+            $ch = curl_init('https://fcm.googleapis.com/v1/projects/greencarenew/messages:send');
+            curl_setopt_array($ch, [
+                CURLOPT_POST           => true,
+                CURLOPT_HTTPHEADER     => ["Authorization: Bearer $accessToken", 'Content-Type: application/json'],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT        => 20,
+                CURLOPT_POSTFIELDS     => $payload,
+            ]);
+
+            curl_multi_add_handle($multi, $ch);
+            $handles[$userId] = $ch;
+        }
+
+        do {
+            $status = curl_multi_exec($multi, $running);
+            if ($running) {
+                curl_multi_select($multi, 1.0);
+            }
+        } while ($running && $status === CURLM_OK);
+
+        $unregistered = [];
+
+        foreach ($handles as $userId => $ch) {
+            $response = json_decode((string) curl_multi_getcontent($ch), true);
+
+            if (isset($response['name'])) {
+                $results[$userId] = true;
+            } elseif (($response['error']['details'][0]['errorCode'] ?? null) === 'UNREGISTERED') {
+                $unregistered[] = $userId;
+            } elseif ($err = curl_error($ch)) {
+                Log::error("FCM batch error for user ID $userId: $err");
+            }
+
+            curl_multi_remove_handle($multi, $ch);
+            curl_close($ch);
+        }
+
+        curl_multi_close($multi);
+
+        if ($unregistered) {
+            User::whereIn('id', $unregistered)->update(['fcm_token' => null]);
+        }
+
+        return $results;
+    }
+
      public static function sendMessageToAll($title, $body, $screen = "order")
     {
         $users = User::whereNotNull('fcm_token')->get();
