@@ -73,7 +73,9 @@ return [
     |
     */
 
-    'timezone' => 'Africa/Cairo',
+    // Jordan (UTC+3 all year). Was Africa/Cairo, which drifts an hour from
+    // Jordan whenever Egypt switches daylight-saving time.
+    'timezone' => 'Asia/Amman',
 
     /*
     |--------------------------------------------------------------------------
