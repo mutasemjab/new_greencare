@@ -114,7 +114,7 @@ class SihatiController extends Controller
         $perPage = 15;
         $page = max(1, (int) $request->input('page', 1));
 
-        $rooms = Room::with('patient')
+        $rooms = Room::with(['patient', 'members' => fn ($m) => $m->where('user_id', $user->id)])
             ->where(function ($q) use ($user) {
                 $q->where('created_by', $user->id)
                     ->orWhere('patient_id', $user->id)
@@ -131,6 +131,9 @@ class SihatiController extends Controller
                 'firebase_room_id' => $room->firebase_room_id,
                 'is_active'        => (bool) $room->is_active,
                 'created_at'       => $room->created_at,
+                // Someone added to an old room should see it at the top, not
+                // pages deep behind newer rooms — sort by when they joined.
+                'sort_at'          => collect([$room->created_at, $room->members->max('created_at')])->filter()->max(),
             ]);
 
         $visitForms = VisitForm::with('patient')
@@ -147,9 +150,10 @@ class SihatiController extends Controller
                 'room_id'          => null,
                 'firebase_room_id' => null,
                 'created_at'       => $form->created_at,
+                'sort_at'          => $form->created_at,
             ]);
 
-        $items = $rooms->concat($visitForms)->sortByDesc('created_at')->values();
+        $items = $rooms->concat($visitForms)->sortByDesc('sort_at')->values();
 
         $paginator = new LengthAwarePaginator(
             $items->forPage($page, $perPage)->values(),

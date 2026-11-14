@@ -370,6 +370,7 @@
                                         <option value="doctor"         {{ old('role') === 'doctor'         ? 'selected' : '' }}>طبيب</option>
                                         <option value="nurse"          {{ old('role') === 'nurse'          ? 'selected' : '' }}>ممرض</option>
                                         <option value="patient_family" {{ old('role') === 'patient_family' ? 'selected' : '' }}>عيلة المريض</option>
+                                        <option value="super_nurse"    {{ old('role') === 'super_nurse'    ? 'selected' : '' }}>ممرض مسؤول</option>
                                     </select>
                                     @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
