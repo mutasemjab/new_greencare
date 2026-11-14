@@ -120,7 +120,7 @@ class SihatiController extends Controller
                     ->orWhere('patient_id', $user->id)
                     ->orWhereHas('members', fn ($m) => $m->where('user_id', $user->id));
             })
-            ->when($user->role !== 'super_nurse', fn ($q) => $q->where('is_active', true))
+            ->where('is_active', true)
             ->get()
             ->map(fn (Room $room) => [
                 'id'               => $room->id,
