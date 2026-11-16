@@ -295,6 +295,12 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         Route::get('notifications/create',                                    [NotificationController::class, 'create'])->name('admin.notifications.create');
         Route::post('notifications',                                          [NotificationController::class, 'store'])->name('admin.notifications.store');
 
+        // ── Receipt Vouchers (سندات القبض) ──────────────────────────────────
+        Route::resource('receipts', \App\Http\Controllers\Admin\ReceiptVoucherController::class, [
+            'as'         => 'admin',
+            'parameters' => ['receipts' => 'receipt'],
+        ]);
+
         // ── API Clients (external integrations) ─────────────────────────────
         Route::get('api-clients',                                             [\App\Http\Controllers\Admin\ApiClientController::class, 'index'])->name('admin.api-clients.index');
         Route::get('api-clients/create',                                      [\App\Http\Controllers\Admin\ApiClientController::class, 'create'])->name('admin.api-clients.create');

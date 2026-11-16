@@ -553,6 +553,20 @@
             @endcanany
         </ul>
 
+        {{-- Accounting --}}
+        @can('receipt-table')
+        <div class="nav-label">المحاسبة</div>
+        <ul>
+            <li class="nav-item">
+                <a href="{{ route('admin.receipts.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.receipts.*') ? 'active' : '' }}">
+                    <i class="nav-icon bi bi-receipt"></i>
+                    <span>سندات القبض</span>
+                </a>
+            </li>
+        </ul>
+        @endcan
+
         {{-- System --}}
         <div class="nav-label">النظام</div>
         <ul>

@@ -112,6 +112,9 @@ class PermissionSeeder extends Seeder
 
             // مفاتيح API
             'api-client-table', 'api-client-add', 'api-client-edit', 'api-client-delete',
+
+            // سندات القبض
+            'receipt-table', 'receipt-add', 'receipt-edit', 'receipt-delete',
         ];
 
         foreach ($permissions as $permission) {
