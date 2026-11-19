@@ -133,7 +133,7 @@ class SihatiController extends Controller
                 'created_at'       => $room->created_at,
                 // Someone added to an old room should see it at the top, not
                 // pages deep behind newer rooms — sort by when they joined.
-                'sort_at'          => collect([$room->created_at, $room->members->max('created_at')])->filter()->max(),
+                'sort_at'          => collect([$room->created_at, $room->members->max('created_at')])->filter()->max()?->timestamp,
             ]);
 
         $visitForms = VisitForm::with('patient')
@@ -150,7 +150,7 @@ class SihatiController extends Controller
                 'room_id'          => null,
                 'firebase_room_id' => null,
                 'created_at'       => $form->created_at,
-                'sort_at'          => $form->created_at,
+                'sort_at'          => $form->created_at?->timestamp,
             ]);
 
         $items = $rooms->concat($visitForms)->sortByDesc('sort_at')->values();
