@@ -246,6 +246,7 @@ class Room extends Model
             ->merge($this->members()->pluck('user_id'))
             ->filter()
             ->unique()
+            ->map(fn ($id) => (int) $id)
             ->values()
             ->all();
     }
